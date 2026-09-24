@@ -1,0 +1,83 @@
+{
+  "journal": "ACM Transactions on Storage",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "scripts/reproduce_portable.py",
+        "--require-smt"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python",
+        "scripts/aggregate.py"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python",
+        "scripts/run_posix_smoke.py"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python",
+        "scripts/run_tests.py",
+        "-v"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python",
+        "scripts/validate_release.py",
+        "--compare",
+        "<canonical-project>/artifact"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python",
+        "src/cli.py",
+        "certify",
+        "inputs/pilot-trace.json",
+        "--minimum",
+        "--certificate",
+        "<temporary>/certificate.json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python",
+        "src/cli.py",
+        "verify",
+        "inputs/pilot-trace.json",
+        "<temporary>/certificate.json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python",
+        "<clean-project>/paper/build.py"
+      ],
+      "returncode": 0
+    }
+  ],
+  "result_files_structurally_equal": 17,
+  "exact_compared_directories": [
+    "inputs",
+    "src",
+    "scripts",
+    "tests"
+  ],
+  "pdf_pages": 25,
+  "clean_pdf_text_equal": true,
+  "interpretation": "Same-project clean reproduction, not independent external review."
+}
