@@ -1,15 +1,46 @@
-# Reproduction record
+# Reproduction and observation provenance
 
-The full campaign and a separately copied core-only campaign were executed successfully. Full mode executes 67 scientific SMT calls and 55 passing test methods. Core mode executes zero SMT calls, 54 passing methods, and one explicitly skipped solver-dependent method. Both modes pass the 66 exact-path/primary-row consistency checks. A skipped solver check is not counted as a pass.
+The supplied primary census, variant, fallback, scaling and public-byte records
+are retained. Their byte costs, identifiers, decisions, minima, recovery counts,
+SMT counts and host measurements are not relabeled as fresh measurements. The
+original campaign record is `results/measurement-campaign.json`. Its old test
+count describes that measurement run, not the current suite.
 
-## Clean archive reconstruction
+A fresh seven-stage full-mode run of the repaired code completed successfully
+in a separately copied clean tree. Its actual record is
+`results/campaign-run.json`; its 75-method unit-test result replaces the affected
+`results/pilots/unit-tests.json`. Reaggregation updates the test count in the
+summary without replacing the retained measurement families. This mixed origin
+is intentional and explicit. The repaired parsers perform additional complete-
+trace work, so inherited timing samples must not be claimed as fresh performance
+measurements of the repaired implementation.
 
-A ZIP of the current scientific tree was extracted into a new directory. In that extraction, the full seven-stage campaign, aggregation, POSIX illustration, 55 test methods, exact result validation, certificate CLI round trip, and manuscript build all returned zero. The comparison found identical logical content in all 17 primary result files and byte-for-byte identical `inputs/`, `src/`, `scripts/`, and `tests/` trees. The rebuilt 25-page PDF had identical page-by-page extracted text to the canonical manuscript. Commands and outcomes are recorded in `reproduction-check.json`.
+Comparison of all 17 primary result files found identical logical content after
+normalizing only the validator's listed host fields and unittest elapsed time.
+The input, source, script and test directories matched byte for byte. The fresh
+POSIX illustration still reports 11 observations, zero ordered failures and two
+unsafe failures. Counts in the manuscript's Tables 3–7 are unchanged; the cost
+formula is clarified rather than changed. Exact comparison details are retained
+in `reproduction-check.json`. These are same-project executable checks.
 
-The raw canonical full observations are in `results/campaign-run.json`, with mode in `results/summary/execution-mode.json`. Primary JSONL rows and stage summaries are retained. This is same-project reproduction in clean directories, not independent authorship, external artifact evaluation, or a machine proof.
+Run from the repository root:
 
-## Comparison contract
+```sh
+python scripts/check_targeted.py
+python scripts/run_tests.py -v
+python scripts/reproduce_portable.py --require-smt
+python scripts/aggregate.py
+python scripts/run_posix_smoke.py
+python scripts/validate_release.py
+```
 
-The validator's 17-file comparison preserves logical decisions, minimum witnesses, byte costs, certificate content, and counts. Only the host fields explicitly enumerated in `scripts/validate_release.py` and the unittest elapsed-time field may differ. Stable scientific input filenames and wire-format identifiers are not manuscript version history. Core-only and full results are validated separately, never silently declared equivalent.
+The complete reproduction deliberately creates fresh host observations. Run it
+in a separate extraction to preserve the supplied measurement samples. Use
+`--without-smt` in place of `--require-smt` for a core-only campaign; the mode and
+omissions are explicit. To compare same-mode extractions, use
+`python scripts/validate_release.py --compare /path/to/other/artifact`.
 
-The manuscript retains its reported canonical host observations during an ordinary rebuild. To intentionally adopt observations from a new run, execute `python build.py --refresh-measurements` in `paper/` and review the changed text. Timing noise is not a scientific correctness result.
+The separately stored directed before-edit observations are necessary
+counterexample evidence, not previous reviewer opinions or current expected
+results. `scripts/check_targeted.py` regenerates current observations, and the
+regression suite checks the repaired contracts.

@@ -164,6 +164,44 @@ def _client_prefix_objects(operations: list[dict[str, Any]]) -> list[dict[str, s
     return snapshots
 
 
+
+def _validate_complete_bindings(
+    events: list[dict[str, Any]], roots: list[int],
+    data_by_key: dict[tuple[int, int, str, int], int],
+) -> None:
+    """Validate references against the complete trace, not the issue prefix.
+
+    Forward allocations are permitted by admission (publication may fail).
+    A genuinely absent allocation is left to safety analysis. Every present
+    allocation is role/byte checked even if another object reference is absent.
+    """
+    for root_id in roots:
+        root = events[root_id]
+        namespace = root["namespace"]
+        manifest_id = data_by_key.get(ref_key(root["manifest_ref"]))
+        if manifest_id is not None:
+            manifest = events[manifest_id]
+            if manifest["role"] != "manifest":
+                raise AdmissionError(f"event {root_id}: manifest reference names a non-manifest allocation")
+            if bytes.fromhex(manifest["data_hex"]) != canonical_manifest(namespace):
+                raise AdmissionError(f"event {root_id}: manifest allocation bytes are noncanonical")
+        for name, refs in namespace.items():
+            chunks: list[bytes] = []
+            complete = True
+            for ref in refs:
+                allocation_id = data_by_key.get(ref_key(ref))
+                if allocation_id is None:
+                    complete = False
+                    continue
+                allocation = events[allocation_id]
+                if allocation["role"] != "chunk":
+                    raise AdmissionError(f"event {root_id}: object reference names a non-chunk allocation")
+                # Allocation admission has already checked its digest/length;
+                # the complete key lookup binds both to this reference.
+                chunks.append(bytes.fromhex(allocation["data_hex"]))
+            if complete and b"".join(chunks).hex() != root["objects_hex"][name]:
+                raise AdmissionError(f"event {root_id}: references do not reconstruct ghost object {name}")
+
 def admit_trace(trace: dict[str, Any]) -> Model:
     if not isinstance(trace, dict):
         raise AdmissionError("trace must be a JSON object")
@@ -214,6 +252,8 @@ def admit_trace(trace: dict[str, Any]) -> Model:
         event["deps"] = list(direct_ids)
         deps.append(direct_ids)
         kind = event.get("kind")
+        if not isinstance(kind, str):
+            raise AdmissionError(f"event {i}: kind must be a string")
         if kind == "data":
             required_fields = {"id", "kind", "slot", "generation", "digest", "length", "data_hex", "role", "deps"}
             if set(event) != required_fields:
@@ -231,7 +271,7 @@ def admit_trace(trace: dict[str, Any]) -> Model:
             if event.get("digest") != digest_hex(data) or length != len(data):
                 raise AdmissionError(f"event {i}: data digest or length mismatch")
             role = event.get("role")
-            if role not in {"chunk", "manifest"}:
+            if not isinstance(role, str) or role not in {"chunk", "manifest"}:
                 raise AdmissionError(f"event {i}: invalid data role")
             old = actual_bytes_by_digest.get(event["digest"])
             if old is not None and old != data:
@@ -294,35 +334,14 @@ def admit_trace(trace: dict[str, Any]) -> Model:
             expected_manifest_ref = make_ref(manifest_ref["slot"], manifest_ref["generation"], manifest_bytes)
             if ref_key(expected_manifest_ref) != ref_key(manifest_ref):
                 raise AdmissionError(f"event {i}: manifest reference does not bind canonical bytes")
-            matching_manifest_id = data_by_key.get(ref_key(manifest_ref))
-            if matching_manifest_id is not None:
-                if events[matching_manifest_id].get("role") != "manifest":
-                    raise AdmissionError(f"event {i}: manifest reference names a non-manifest allocation")
-                stored = bytes.fromhex(events[matching_manifest_id]["data_hex"])
-                if stored != manifest_bytes:
-                    raise AdmissionError(f"event {i}: manifest allocation bytes are noncanonical")
             all_refs: list[dict[str, Any]] = [manifest_ref]
             seen = {ref_key(manifest_ref)}
             for name in sorted(namespace):
-                concatenated = bytearray()
-                complete = True
                 for ref in namespace[name]:
                     key = ref_key(ref)
-                    alloc_id = data_by_key.get(key)
-                    if alloc_id is None:
-                        complete = False
-                    else:
-                        if events[alloc_id].get("role") != "chunk":
-                            raise AdmissionError(f"event {i}: object reference names a non-chunk allocation")
-                        data = bytes.fromhex(events[alloc_id]["data_hex"])
-                        if digest_hex(data) != ref["digest"] or len(data) != ref["length"]:
-                            raise AdmissionError(f"event {i}: reference binding mismatch")
-                        concatenated.extend(data)
                     if key not in seen:
                         all_refs.append(ref)
                         seen.add(key)
-                if complete and concatenated.hex() != normalized_objects[name]:
-                    raise AdmissionError(f"event {i}: references do not reconstruct ghost object {name}")
             event["prefix"] = prefix
             event["manifest_ref"] = manifest_ref
             event["namespace"] = namespace
@@ -332,6 +351,8 @@ def admit_trace(trace: dict[str, Any]) -> Model:
         else:
             raise AdmissionError(f"event {i}: unknown kind {kind!r}")
         events.append(event)
+
+    _validate_complete_bindings(events, roots, data_by_key)
 
     closures = _compute_closures(deps)
 

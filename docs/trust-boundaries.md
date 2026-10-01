@@ -23,3 +23,17 @@ The file helper completes write, flush, file fsync, rename and directory fsync b
 Regression inputs are not untouched. Zero disagreement is limited to executed overlapping domains, not all algorithms on every scale. Seven repeat recoveries per image establish deterministic read-only results in this model, not recovery that tolerates repeated crashes during mutation. Unreachable occupied slots can be erased only in the stated quiescent selected-root setting, not while old snapshots or concurrent readers remain pinned.
 
 The public-byte set is narrow and intentionally unchanged across versions. Reported cost ratios are model encoding costs. No device measurements, representative workload study, independent human evaluation, or acceptance estimate is claimed.
+
+## Generator and offline image boundary
+
+`TraceBuilder` updates in-memory specification maps and appends events; it has no
+separate online medium or medium-backed read API. The harness admits the emitted
+trace and independently materializes chosen cuts, then recovery reads the image.
+The oracle compares the recovered bytes against ghost expectations afterward.
+Whole-trace binding admission checks later allocations as well as earlier ones.
+Neither offline reconstruction nor the separate POSIX illustration establishes
+an online implementation that is absent from this artifact.
+
+Costs use the modeled compact JSON descriptor plus one separator byte and, for
+data, raw payload bytes. They exclude trace `id/deps/data_hex` and ghost fields.
+See `formats.md` for the exact per-kind field sets.

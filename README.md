@@ -35,7 +35,7 @@ python scripts/run_posix_smoke.py
 python scripts/validate_release.py
 ```
 
-This runs every non-SMT stage (54 test methods pass and one solver-dependent method is explicitly skipped), records omitted SMT queries, and never calls an omission a successful solver check. `--require-smt` fails before the campaign if the actual C API is unavailable. Query-budget exhaustion in the bounded fallback analyzer is `unknown`, not `safe`.
+This runs every non-SMT stage (74 test methods pass and one solver-dependent method is explicitly skipped), records omitted SMT queries, and never calls an omission a successful solver check. `--require-smt` fails before the campaign if the actual C API is unavailable. Query-budget exhaustion in the bounded fallback analyzer is `unknown`, not `safe`.
 
 ## Certificate interface
 
@@ -44,11 +44,11 @@ python src/cli.py certify inputs/pilot-trace.json --minimum --certificate certif
 python src/cli.py verify inputs/pilot-trace.json certificate.json
 ```
 
-The certificate can be removed after inspection. The consumer reparses the original trace and validates certificate coverage and witnesses. It does not import the producer, engine, oracle or solver. It was developed within the same project and is not an independent-team implementation or a machine proof. `docs/formats.md` specifies all wire formats; strict JSON rejects duplicate keys and nonfinite numbers.
+The certificate can be removed after inspection. The consumer reparses the original trace and validates certificate coverage and witnesses. It does not import the producer, engine, oracle or solver. It was developed within the same project and is not an independent-team implementation or a machine proof. `docs/formats.md` specifies canonical maximum-root witnesses, controlled CLI statuses, all wire formats, and the separate descriptor-plus-raw-payload cost model; strict JSON rejects duplicate keys and nonfinite numbers.
 
 ## What to check
 
-The canonical full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The retained regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. There are 720 byte-recovery images and 3,765 unreachable occupied-slot observations. The full run has 65 evaluation SMT queries plus two pilot queries, 67 total, with zero unknowns. The current suite has 55 methods.
+The canonical full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The retained regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. There are 720 byte-recovery images and 3,765 unreachable occupied-slot observations. The full run has 65 evaluation SMT queries plus two pilot queries, 67 total, with zero unknowns. The current suite has 75 methods.
 
 `check_scientific_invariants.py` checks exact JSON paths and cross-checks primary row counts, decisions, minimum-witness flags, certificate acceptance and byte arithmetic. It does not accept a matching number found elsewhere in a JSON tree. Assertions are ordinary executable checks, not proof-assistant verification.
 
@@ -73,3 +73,19 @@ No concurrent publication/cleaning, torn writes, distributed faults, generation 
 `src/`: model, analyzer, separate consumer, recovery, oracle, solver, engine and POSIX illustration. `scripts/`: bounded experiments and checks. `tests/`: regressions. `inputs/`: exact public bytes and deterministic configurations/cases. `results/`: primary outputs and derived summaries. `docs/`: model/format/claim documentation. `claim_evidence_ledger.csv`: scientific claim-to-evidence map. `external_resources.csv`, `PROVENANCE.md`, and `licenses/`: source attribution.
 
 Generative AI assisted research formulation, proof drafting, programming, debugging, experiment orchestration, analysis, figures and writing. Computational observations come from the executed supplied programs. Human authors must substantively verify, contribute, approve, resolve rights and accept responsibility before external submission. No external publication or independent peer review is implied by the package.
+
+## Directed contract checks
+
+```sh
+python scripts/check_targeted.py
+```
+
+The explicit fixtures in `tests/targeted_cases.py` bypass the workload generator.
+They cover forward manifest/chunk bindings, truly missing allocations, multiple
+acknowledgements and budgets, canonical witnesses with several qualifying roots,
+and non-string role/kind inputs through the CLI. Pre-edit observations actually
+executed on the supplied packet are retained in
+`results/targeted/binding-minimum-format-before.json`; current observations are
+written to `binding-minimum-format-after.json`. The former is counterexample
+evidence, not a current safety result. See `docs/contract-validation.md` for the
+meaning and measurement provenance of both.

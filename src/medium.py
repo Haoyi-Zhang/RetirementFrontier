@@ -123,7 +123,9 @@ def _slot_summary(image: dict[str, Any]) -> tuple[list[int], set[int]]:
         slot = int(key)
         if not (0 <= slot <= MAX_ID) or str(slot) != key:
             raise RecoveryError("image contains a noncanonical slot key")
-        if not isinstance(record, dict) or record.get("kind") not in {"data", "free"}:
+        if (not isinstance(record, dict)
+                or not isinstance(record.get("kind"), str)
+                or record["kind"] not in {"data", "free"}):
             raise RecoveryError(f"slot {slot} has a malformed record")
         if record["kind"] == "data":
             required = {"kind", "event", "slot", "generation", "digest", "length", "data_hex", "role"}
@@ -144,7 +146,8 @@ def _slot_summary(image: dict[str, Any]) -> tuple[list[int], set[int]]:
             digest = record["digest"]
             if not isinstance(digest, str) or len(digest) != 64 or any(ch not in "0123456789abcdef" for ch in digest):
                 raise RecoveryError(f"slot {slot} has an invalid digest")
-            if record["role"] not in {"chunk", "manifest"}:
+            if (not isinstance(record["role"], str)
+                    or record["role"] not in {"chunk", "manifest"}):
                 raise RecoveryError(f"slot {slot} has an invalid data role")
             data = _decode_hex(record["data_hex"], f"slot {slot} data")
             if len(data) != length or digest_hex(data) != digest:
@@ -232,7 +235,7 @@ def recover(image: dict[str, Any], fallback: bool = False) -> dict[str, Any]:
         or set(image) != {"schema", "slots", "roots"}
         or image.get("schema") != "retirement-frontier-image-v1"
     ):
-        return {"ok": False, "reason": "unsupported image schema"}
+        return {"ok": False, "status": "malformed", "reason": "unsupported image schema"}
     try:
         roots = _normalize_roots(image)
         occupied, slot_events = _slot_summary(image)
@@ -240,7 +243,7 @@ def recover(image: dict[str, Any], fallback: bool = False) -> dict[str, Any]:
         if root_events & slot_events:
             raise RecoveryError("image reuses one event identifier across roots and slots")
     except RecoveryError as exc:
-        return {"ok": False, "reason": str(exc)}
+        return {"ok": False, "status": "malformed", "reason": str(exc)}
 
     if not roots:
         return {

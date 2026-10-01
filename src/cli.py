@@ -16,7 +16,7 @@ from checker import analyze_model
 from fallback import fixed_candidate_model
 from medium import materialize, recover
 from model import AdmissionError, admit_trace, load_trace, save_json
-from verifier import VerificationError, verify_certificate
+from verifier import TraceFormatError, VerificationError, verify_certificate
 
 MAX_BYTES = 64 * 1024 * 1024
 
@@ -65,11 +65,11 @@ def main(argv: list[str] | None = None) -> int:
             result = analyze_model(admit_trace(trace), minimum=args.minimum)
             if result["safe"] and args.certificate:
                 save_json(args.certificate, result["certificate"])
-            _print(result)
+            _print({**result, "status": "safe" if result["safe"] else "unsafe"})
             return 0 if result["safe"] else 1
         if args.command == "verify":
             result = verify_certificate(load_trace(args.trace), _load_json(args.certificate))
-            _print(result)
+            _print({**result, "status": "accepted"})
             return 0
         if args.command == "materialize":
             model = admit_trace(load_trace(args.trace))
@@ -83,15 +83,22 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "recover":
             image = _load_json(args.image)
             result = recover(image, fallback=args.fallback)
-            _print(result)
-            return 0 if result.get("ok") else 1
+            status = result.get("status", "recovered" if result.get("ok") else "unsafe")
+            _print({**result, "status": status})
+            return 0 if result.get("ok") else 2 if status == "malformed" else 1
         if args.command == "fallback":
             result = fixed_candidate_model(admit_trace(load_trace(args.trace)), max_choices=args.max_choices)
             _print(result)
             return 0 if result.get("safe") is True else 1 if result.get("safe") is False else 2
         raise AssertionError("unreachable")
-    except (AdmissionError, VerificationError, ValueError, KeyError, OSError, json.JSONDecodeError) as exc:
-        _print({"ok": False, "error": str(exc)})
+    except TraceFormatError as exc:
+        _print({"ok": False, "status": "malformed", "error": str(exc)})
+        return 2
+    except VerificationError as exc:
+        _print({"ok": False, "status": "rejected", "error": str(exc)})
+        return 2
+    except (AdmissionError, ValueError, KeyError, OSError, json.JSONDecodeError) as exc:
+        _print({"ok": False, "status": "malformed", "error": str(exc)})
         return 2
 
 

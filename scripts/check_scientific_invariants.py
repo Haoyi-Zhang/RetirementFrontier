@@ -37,7 +37,7 @@ def check(root: pathlib.Path = ROOT) -> dict:
         'public.policy_rows':9, 'public.unchanged_across_selected_tags':True,
         'recovery.images':720, 'recovery.scaling_images':567,
         'recovery.public_images':153, 'recovery.unreachable_slots_total':3765,
-        'tests.methods':55, 'tests.returncode':0, 'tests.skipped':0,
+        'tests.methods':75, 'tests.returncode':0, 'tests.skipped':0,
         'solver.unknown':0,
     }
     mode = read(root/'results/summary/execution-mode.json')

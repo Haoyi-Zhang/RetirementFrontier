@@ -15,6 +15,8 @@ def fixed_candidate_model(model: Model, max_choices: int = 1_000_000) -> dict[st
     The algorithm is exact if the finite choice product is exhausted.  On budget
     exhaustion it returns ``unknown`` rather than treating a partial search as safe.
     """
+    if type(max_choices) is not int or max_choices < 0:
+        raise ValueError("max_choices must be a nonnegative integer")
     start = time.process_time()
     explored = 0
     best: list[int] | None = None
@@ -27,14 +29,10 @@ def fixed_candidate_model(model: Model, max_choices: int = 1_000_000) -> dict[st
         anchors = [int(x) for x in ack["anchors"]]
         if not candidates:
             cut = sorted(model.closure_ids(anchors))
-            return {
-                "status": "unsafe",
-                "safe": False,
-                "ack_index": ack_index,
-                "minimum_bad_cut": cut,
-                "choices_explored": explored,
-                "cpu_seconds": time.process_time() - start,
-            }
+            if best is None or (len(cut), tuple(cut)) < (len(best), tuple(best)):
+                best = cut
+                violating_ack = ack_index
+            continue
 
         # Each option is (positive events forced durable, negative events forced absent).
         option_sets: list[list[tuple[tuple[int, ...], tuple[int, ...]]]] = []
@@ -65,6 +63,9 @@ def fixed_candidate_model(model: Model, max_choices: int = 1_000_000) -> dict[st
                     "status": "unknown",
                     "safe": None,
                     "reason": "choice budget exhausted",
+                    "minimum_bad_cut": None,
+                    "bad_cut": best,
+                    "bad_cut_ack_index": violating_ack,
                     "choices_explored": explored - 1,
                     "cpu_seconds": time.process_time() - start,
                 }

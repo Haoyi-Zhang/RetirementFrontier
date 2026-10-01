@@ -23,6 +23,10 @@ class VerificationError(ValueError):
     """Raised for malformed traces, unsafe traces, or invalid certificates."""
 
 
+class TraceFormatError(VerificationError):
+    """The input trace failed parsing, rather than certificate checking."""
+
+
 def _require_int(value: Any, where: str, *, minimum: int = 0, maximum: int = MAX_ID) -> int:
     """Parse a JSON integer without accepting booleans, floats, or numeric strings."""
     if type(value) is not int:
@@ -131,6 +135,44 @@ def _maximum_root_ancestor(events: tuple[dict[str, Any], ...], deps: list[tuple[
     return greatest
 
 
+
+def _validate_complete_bindings(
+    events: list[dict[str, Any]], roots: list[int],
+    data_by_key: dict[tuple[int, int, str, int], int],
+) -> None:
+    """Validate references against the complete trace, not the issue prefix.
+
+    Forward allocations are permitted by admission (publication may fail).
+    A genuinely absent allocation is left to safety analysis. Every present
+    allocation is role/byte checked even if another object reference is absent.
+    """
+    for root_id in roots:
+        root = events[root_id]
+        namespace = root["namespace"]
+        manifest_id = data_by_key.get(_ref_key(root["manifest_ref"]))
+        if manifest_id is not None:
+            manifest = events[manifest_id]
+            if manifest["role"] != "manifest":
+                raise VerificationError(f"event {root_id}: manifest reference names a non-manifest allocation")
+            if bytes.fromhex(manifest["data_hex"]) != _canon(namespace):
+                raise VerificationError(f"event {root_id}: manifest allocation bytes are noncanonical")
+        for name, refs in namespace.items():
+            chunks: list[bytes] = []
+            complete = True
+            for ref in refs:
+                allocation_id = data_by_key.get(_ref_key(ref))
+                if allocation_id is None:
+                    complete = False
+                    continue
+                allocation = events[allocation_id]
+                if allocation["role"] != "chunk":
+                    raise VerificationError(f"event {root_id}: object reference names a non-chunk allocation")
+                # Allocation admission has already checked its digest/length;
+                # the complete key lookup binds both to this reference.
+                chunks.append(bytes.fromhex(allocation["data_hex"]))
+            if complete and b"".join(chunks).hex() != root["objects_hex"][name]:
+                raise VerificationError(f"event {root_id}: references do not reconstruct ghost object {name}")
+
 def _parse(trace: dict[str, Any]) -> dict[str, Any]:
     """Independently admit and normalize a trace for certificate checking."""
     if not isinstance(trace, dict) or trace.get("schema") != "retirement-frontier-trace-v1":
@@ -176,6 +218,8 @@ def _parse(trace: dict[str, Any]) -> dict[str, Any]:
         deps.append(direct_ids)
 
         kind = event.get("kind")
+        if not isinstance(kind, str):
+            raise VerificationError(f"event {i}: kind must be a string")
         if kind == "data":
             required_fields = {"id", "kind", "slot", "generation", "digest", "length", "data_hex", "role", "deps"}
             if set(event) != required_fields:
@@ -194,7 +238,7 @@ def _parse(trace: dict[str, Any]) -> dict[str, Any]:
             if digest != _digest(data) or length != len(data):
                 raise VerificationError(f"event {i}: data digest or length mismatch")
             role = event.get("role")
-            if role not in {"chunk", "manifest"}:
+            if not isinstance(role, str) or role not in {"chunk", "manifest"}:
                 raise VerificationError(f"event {i}: invalid data role")
             old = actual_bytes_by_digest.get(digest)
             if old is not None and old != data:
@@ -269,37 +313,14 @@ def _parse(trace: dict[str, Any]) -> dict[str, Any]:
             }
             if _ref_key(expected_manifest) != _ref_key(manifest_ref):
                 raise VerificationError(f"event {i}: manifest reference does not bind canonical bytes")
-            manifest_alloc = data_by_key.get(_ref_key(manifest_ref))
-            if manifest_alloc is not None:
-                if events[manifest_alloc].get("role") != "manifest":
-                    raise VerificationError(f"event {i}: manifest reference names a non-manifest allocation")
-                stored = bytes.fromhex(str(events[manifest_alloc]["data_hex"]))
-                if stored != manifest_bytes:
-                    raise VerificationError(f"event {i}: manifest allocation bytes are noncanonical")
-
             all_refs: list[dict[str, Any]] = [manifest_ref]
             seen = {_ref_key(manifest_ref)}
             for name in sorted(namespace):
-                reconstructed = bytearray()
-                complete = True
                 for ref in namespace[name]:
                     key = _ref_key(ref)
-                    alloc = data_by_key.get(key)
-                    if alloc is None:
-                        complete = False
-                    else:
-                        if events[alloc].get("role") != "chunk":
-                            raise VerificationError(f"event {i}: object reference names a non-chunk allocation")
-                        data = bytes.fromhex(str(events[alloc]["data_hex"]))
-                        if _digest(data) != ref["digest"] or len(data) != ref["length"]:
-                            raise VerificationError(f"event {i}: reference binding mismatch")
-                        reconstructed.extend(data)
                     if key not in seen:
                         all_refs.append(ref)
                         seen.add(key)
-                if complete and reconstructed.hex() != normalized_objects[name]:
-                    raise VerificationError(f"event {i}: references do not reconstruct ghost object {name}")
-
             event["prefix"] = prefix
             event["manifest_ref"] = manifest_ref
             event["namespace"] = namespace
@@ -309,6 +330,8 @@ def _parse(trace: dict[str, Any]) -> dict[str, Any]:
         else:
             raise VerificationError(f"event {i}: unknown kind {kind!r}")
         events.append(event)
+
+    _validate_complete_bindings(events, roots, data_by_key)
 
     acknowledgements: list[dict[str, Any]] = []
     for index, raw in enumerate(acks_raw):
@@ -364,7 +387,10 @@ def _check_certificate_shape(certificate: Any) -> None:
 
 
 def verify_certificate(trace: dict[str, Any], certificate: dict[str, Any]) -> dict[str, Any]:
-    parsed = _parse(trace)
+    try:
+        parsed = _parse(trace)
+    except VerificationError as exc:
+        raise TraceFormatError(str(exc)) from exc
     _check_certificate_shape(certificate)
 
     events = parsed["events"]
