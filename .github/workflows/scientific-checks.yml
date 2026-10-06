@@ -20,14 +20,14 @@ jobs:
         with:
           python-version: '3.12'
       - name: Prepare raw-output directory
-        run: mkdir -p scientific-output
+        run: mkdir -p "$RUNNER_TEMP/retirementfrontier-scientific"
       - name: Install optional local solver
         shell: bash
         run: |
           set -euo pipefail
           timeout --signal=TERM --kill-after=15s 180s \
             python -m pip install --disable-pip-version-check 'z3-solver==4.13.3.0' \
-            2>&1 | tee scientific-output/dependencies.log
+            2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/dependencies.log"
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |
@@ -36,12 +36,12 @@ jobs:
           ulimit -t 2400
           timeout --signal=TERM --kill-after=15s 2400s bash -c '
             set -euo pipefail
-            python -B .github/scripts/check_repository.py 2>&1 | tee scientific-output/source-integrity.log
-            python -B scripts/check_targeted.py 2>&1 | tee scientific-output/targeted.log
-            python -B scripts/reproduce_portable.py --require-smt 2>&1 | tee scientific-output/campaign.log
-            python -B scripts/aggregate.py 2>&1 | tee scientific-output/aggregate.log
-            python -B scripts/run_posix_smoke.py 2>&1 | tee scientific-output/posix.log
-            python -B scripts/validate_release.py 2>&1 | tee scientific-output/validation.log
+            python -B .github/scripts/check_repository.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/source-integrity.log"
+            python -B scripts/check_targeted.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/targeted.log"
+            python -B scripts/reproduce_portable.py --require-smt 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/campaign.log"
+            python -B scripts/aggregate.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/aggregate.log"
+            python -B scripts/run_posix_smoke.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/posix.log"
+            python -B scripts/validate_release.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/validation.log"
           '
       - name: Upload raw outputs even after a failure
         if: always()
@@ -49,7 +49,7 @@ jobs:
         with:
           name: scientific-outputs
           path: |
-            scientific-output/
+            ${{ runner.temp }}/retirementfrontier-scientific/
             results/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 14
