@@ -66,7 +66,7 @@ masquerade as the historical suite. `run_all.py` shares one 45-minute wall-time
 deadline across all seven stages. The prepared scientific-checks workflow runs
 from this flat artifact root on Ubuntu 24.04 with a 40-minute scientific-command
 deadline, a 45-minute job cap, resource limits, mandatory SMT preflight, and raw
-output uploads even after failure. Preparing this workflow is not an executed CI run.
+output uploads even after failure.
 
 To compare a same-mode clean rerun against another extracted artifact directory:
 
@@ -102,9 +102,10 @@ python scripts/check_targeted.py
 The explicit fixtures in `tests/targeted_cases.py` bypass the workload generator.
 They cover forward manifest/chunk bindings, truly missing allocations, multiple
 acknowledgements and budgets, canonical witnesses with several qualifying roots,
-and non-string role/kind inputs through the CLI. Pre-edit observations actually
-executed on the supplied packet are retained in
-`results/targeted/binding-minimum-format-before.json`; current observations are
-written to `binding-minimum-format-after.json`. The former is counterexample
-evidence, not a current safety result. See `docs/contract-validation.md` for the
-meaning and measurement provenance of both.
+and non-string role/kind inputs through the CLI. See `docs/contract-validation.md`
+for the contract definitions and measurement provenance.
+
+## License
+
+Original project code is available under the MIT License. Notices for third-party
+inputs and dependencies are retained in `PROVENANCE.md` and `licenses/`.
