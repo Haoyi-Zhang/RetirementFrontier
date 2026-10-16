@@ -1,2 +1,3 @@
-# Optional plots/draw_write_ratios.py only; no effect on core or SMT dependencies.
+# Optional direct vector plots/diagrams; no effect on core or SMT dependencies.
 reportlab
+matplotlib>=3.6

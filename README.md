@@ -27,6 +27,11 @@ python -B -O -m unittest discover -s tests -p test_posix_event_cuts.py -v
 
 ## Execution requirements
 
+Optional paper figures use `requirements-figures.txt`. Run
+`python figures/draw_schematics.py --out figures` to redraw the two symbolic
+diagrams directly. The retained write-ratio plot remains a separate Python
+ReportLab path in `plots/draw_write_ratios.py`, reading the primary scaling rows.
+
 Core experiments use Python 3.10 or later and the standard library, on a POSIX host with `resource` and process support. The recorded reproduction used Ubuntu 24.04 and Python 3.12. Complete SMT comparisons additionally require a usable local Z3 C shared library, discoverable by `ctypes.util.find_library`, or a local `z3-solver` installation. The campaign uses included inputs; TeX is unnecessary for this standalone repository.
 
 ## Reproduce the evidence
