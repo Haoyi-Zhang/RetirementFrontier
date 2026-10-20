@@ -193,7 +193,8 @@ traces share the same storage results.
 
 ```sh
 python -m pip install -r requirements-figures.txt
-python plots/draw_write_ratios.py --font-root /path/to/texmf-dist/fonts --output-dir figures
+# Choose an absent or empty output directory; do not use the shipped figures/ directory.
+python plots/draw_write_ratios.py --font-root /path/to/texmf-dist/fonts --output-dir /absolute/fresh/retirement-write-figures
 python -B -m unittest discover -s tests -p test_plot_sources.py -v
 ```
 
