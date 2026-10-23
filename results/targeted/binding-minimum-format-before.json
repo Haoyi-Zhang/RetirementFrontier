@@ -2408,7 +2408,7 @@
       },
       "returncode": 1,
       "stdout": "",
-      "stderr": "Traceback (most recent call last):\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 65, in main\n    result = analyze_model(admit_trace(trace), minimum=args.minimum)\n                           ~~~~~~~~~~~^^^^^^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/model.py\", line 234, in admit_trace\n    if role not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'list'\n"
+      "stderr": "Traceback (most recent call last):\n  File \"artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"artifact/src/cli.py\", line 65, in main\n    result = analyze_model(admit_trace(trace), minimum=args.minimum)\n                           ~~~~~~~~~~~^^^^^^^\n  File \"artifact/src/model.py\", line 234, in admit_trace\n    if role not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'list'\n"
     },
     {
       "mode": "trace-role",
@@ -2419,7 +2419,7 @@
       },
       "returncode": 1,
       "stdout": "",
-      "stderr": "Traceback (most recent call last):\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 65, in main\n    result = analyze_model(admit_trace(trace), minimum=args.minimum)\n                           ~~~~~~~~~~~^^^^^^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/model.py\", line 234, in admit_trace\n    if role not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'dict'\n"
+      "stderr": "Traceback (most recent call last):\n  File \"artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"artifact/src/cli.py\", line 65, in main\n    result = analyze_model(admit_trace(trace), minimum=args.minimum)\n                           ~~~~~~~~~~~^^^^^^^\n  File \"artifact/src/model.py\", line 234, in admit_trace\n    if role not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'dict'\n"
     },
     {
       "mode": "trace-role",
@@ -2471,7 +2471,7 @@
       "parsers": {},
       "returncode": 1,
       "stdout": "",
-      "stderr": "Traceback (most recent call last):\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 147, in _slot_summary\n    if record[\"role\"] not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'list'\n"
+      "stderr": "Traceback (most recent call last):\n  File \"artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"artifact/src/medium.py\", line 147, in _slot_summary\n    if record[\"role\"] not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'list'\n"
     },
     {
       "mode": "image-role",
@@ -2479,7 +2479,7 @@
       "parsers": {},
       "returncode": 1,
       "stdout": "",
-      "stderr": "Traceback (most recent call last):\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 147, in _slot_summary\n    if record[\"role\"] not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'dict'\n"
+      "stderr": "Traceback (most recent call last):\n  File \"artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"artifact/src/medium.py\", line 147, in _slot_summary\n    if record[\"role\"] not in {\"chunk\", \"manifest\"}:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'dict'\n"
     },
     {
       "mode": "image-role",
@@ -2495,7 +2495,7 @@
       "parsers": {},
       "returncode": 1,
       "stdout": "",
-      "stderr": "Traceback (most recent call last):\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 126, in _slot_summary\n    if not isinstance(record, dict) or record.get(\"kind\") not in {\"data\", \"free\"}:\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'list'\n"
+      "stderr": "Traceback (most recent call last):\n  File \"artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"artifact/src/medium.py\", line 126, in _slot_summary\n    if not isinstance(record, dict) or record.get(\"kind\") not in {\"data\", \"free\"}:\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'list'\n"
     },
     {
       "mode": "image-kind",
@@ -2503,7 +2503,7 @@
       "parsers": {},
       "returncode": 1,
       "stdout": "",
-      "stderr": "Traceback (most recent call last):\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"/mnt/data/tos_repair/crash-consistent-deduplication-certificates-content-addressed-storage/artifact/src/medium.py\", line 126, in _slot_summary\n    if not isinstance(record, dict) or record.get(\"kind\") not in {\"data\", \"free\"}:\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'dict'\n"
+      "stderr": "Traceback (most recent call last):\n  File \"artifact/src/cli.py\", line 99, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"artifact/src/cli.py\", line 85, in main\n    result = recover(image, fallback=args.fallback)\n  File \"artifact/src/medium.py\", line 238, in recover\n    occupied, slot_events = _slot_summary(image)\n                            ~~~~~~~~~~~~~^^^^^^^\n  File \"artifact/src/medium.py\", line 126, in _slot_summary\n    if not isinstance(record, dict) or record.get(\"kind\") not in {\"data\", \"free\"}:\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: unhashable type: 'dict'\n"
     },
     {
       "mode": "image-kind",
