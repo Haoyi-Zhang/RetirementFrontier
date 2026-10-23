@@ -8,7 +8,15 @@ The finite model has serial events, atomic byte-bearing DATA records (including 
 
 The mathematical results characterize this model, not arbitrary programs or hardware. The byte-bearing model, exact oracle, separate certificate consumer, optional SMT encoding, and POSIX illustration have distinct trust boundaries. The POSIX example uses a current-root selector and whole-file replacement helpers. An exact completed-helper projection maps prepared root files to manifests and selector updates to ROOT publications; it is not an all-state filesystem refinement or a power-loss experiment. See `docs/selector-correspondence.md`.
 
-## Requirements
+Applying the theorem to another store requires a complete issued-event trace,
+justified backward persistence edges, whole-record atomicity, non-wrapping
+physical generations, retained immutable publications and the declared recovery
+policy. Physical root-ring capacity is not a bound on the number of selectable
+immutable root events without a marker-replacement model. The current helpers
+illustrate parts of this adapter contract; no production trace extractor is
+included.
+
+## Strict latest-root helper checks
 
 The strict `recover_latest` path selects the numerically greatest retained root
 file independently of `CURRENT`. Optional helper hooks expose nine successful

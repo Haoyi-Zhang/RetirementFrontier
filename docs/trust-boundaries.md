@@ -4,7 +4,7 @@
 
 The written arguments in `theorems.md` assume a finite serial trace, atomic records (including a whole flat manifest), unique physical incarnations, immutable roots, and an exact backward persistence dependency graph. Client operations define legal namespaces independently of certificate conditions. Recovery is independently defined over bytes. Publication, retirement and acknowledgement conditions are then proved equivalent to all-cut strict-recovery safety. The finite census does not establish the general theorem.
 
-Last-user aggregation is a maximum over the totally ordered serial roots. It is not an arbitrary-poset antichain compression theorem. Pairwise interference is aggregated into one threshold per destructive writer. Closures and same-slot scans can still be quadratic. Minimum negative witnesses use all relevant root/writer pairs, not just the maximum root.
+Last-user aggregation is a maximum over the totally ordered serial roots. It is not an arbitrary-poset antichain compression theorem. Pairwise interference is aggregated into one threshold per destructive writer. After last-user collection, current producer and consumer scan each slot's writers once with a running maximum; FREE does not reset that maximum. Producer closure storage, publication searches, byte validation and minimum-witness pair enumeration retain their separate costs. Minimum negative witnesses use all relevant root/writer pairs, not just the maximum root.
 
 The fallback reduction has arbitrary unbounded candidate roots and explicitly encoded content/identifiers. It deliberately fails publication P. Publication-valid traces admit a separate polynomial deletion decision with a greatest violating witness, even with unbounded candidates. Fixed candidate count yields exact enumeration with minimum-cardinality witnesses. The concrete implementation admits bounded-width identifiers and SHA-256 references. A finite digest space is not used to justify an unbounded hardness theorem.
 
@@ -19,6 +19,14 @@ The release validator checks precise primary rows and summaries. A passing valid
 The file helper completes write, flush, file fsync, rename and directory fsync before any injected termination. Its root is selected by a CURRENT file, not by scanning prepared root files. The completed-helper projection in `selector-correspondence.md` treats prepared files as manifests and CURRENT changes as logical ROOT publications, proving selector/byte agreement on those fixed prefixes. No crash inside an individual helper, physical power loss, firmware behavior, block tearing or certificate consumption is tested. Eleven retained observations include two unchanged initial-state controls, two normal completions, and seven actual injected process terminations; the two stale-generation failures occur in the unsafe ordering. Windows validation checks abstract projection outcomes without running or simulating those syscalls. This is not a general filesystem refinement or a production storage implementation.
 
 ## Empirical scope
+
+The strict latest-root helper extension is separate from the eleven retained
+selector-process observations. It compares 56 initialization and 130 update
+images under two supplied rename-retention rules, using real file writes,
+flushes and replacements but mocked synchronization and directory calls.
+All 186 native/model outcomes agree; the ordered updates have zero failures and
+unsafe reuse has 18 stale-generation failures. These checks do not infer
+filesystem or physical power-loss behavior from the supplied retention rules.
 
 Regression inputs are not untouched. Zero disagreement is limited to executed overlapping domains, not all algorithms on every scale. Seven repeat recoveries per image establish deterministic read-only results in this model, not recovery that tolerates repeated crashes during mutation. Unreachable occupied slots can be erased only in the stated quiescent selected-root setting, not while old snapshots or concurrent readers remain pinned.
 
