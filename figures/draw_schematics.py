@@ -5,11 +5,13 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon, Circle, FancyArrowPatch
+from matplotlib import font_manager
 
 plt.rcParams.update({'font.family':'STIXGeneral', 'mathtext.fontset':'stix',
                      'font.size':9, 'pdf.fonttype':42, 'ps.fonttype':42,
                      'text.usetex':False, 'axes.unicode_minus':False})
 CM = 1 / 2.54
+FACE = None
 
 class Drawing:
     def __init__(self, bounds):
@@ -21,7 +23,7 @@ class Drawing:
         self.labels = []
 
     def text(self,x,y,label,size=9,ha='center',va='center'):
-        artist=self.ax.text(x,y,label,fontsize=size,ha=ha,va=va,
+        artist=self.ax.text(x,y,label,fontsize=size,ha=ha,va=va,fontproperties=FACE,
                             linespacing=1.15,clip_on=False,zorder=4)
         self.labels.append([artist,None])
         return artist
@@ -86,17 +88,17 @@ class Drawing:
 
 def frontier(out):
     d=Drawing((-.3,-1.3,9.7,1.65))
-    for name,x,label in [('a',1.,'$a$\nallocate'),('r',3.4,'$r$\nuses $a$'),('q',5.8,'$q$\nretires $a$'),('w',8.2,'$w$\noverwrite')]:
+    for name,x,label in [('a',1.,'a\nallocate'),('r',3.4,'r\nuses a'),('q',5.8,'q\nretires a'),('w',8.2,'w\noverwrite')]:
         d.box(name,x,0,1.75,.85,label)
     for a,b in [('a','r'),('r','q'),('q','w')]:d.edge(a,b,'e','w')
     d.arrow(d.point('r','n'),d.point('a','n'),dashed=True,via=[(3.4,1.0),(1,1.0)])
     d.text(2.2,1.35,'reference')
-    d.text(3.4,-.95,'$T(w)=r$')
-    d.text(5.8,-.95,'$F(w)=q>r$')
+    d.text(3.4,-.95,'T(w) = r')
+    d.text(5.8,-.95,'F(w) = q > r')
     d.save(out,'retirement-frontier')
 
 def paths(out):
-    d=Drawing((-.15,-2.6,14.2,2.7))
+    d=Drawing((-.9,-4.,14.2,2.7))
     nodes=[('trace',1.4,0,2.2,.9,'admitted\ntrace'),
            ('producer',5.,1.1,2.3,.9,'frontier\nproducer'),
            ('certificate',8.65,1.1,2.3,.9,'certificate'),
@@ -110,12 +112,29 @@ def paths(out):
         d.edge(a,b,'e','w')
     d.arrow(d.point('trace','n'),d.point('consumer','n'),via=[(1.4,2.35),(12.4,2.35)])
     d.arrow(d.point('trace','s'),d.point('alternate','w'),via=[(1.4,-2.)])
+    for row in [('sqlite',1.4,-3.2,2.2,.8,'SQLite\ncommits'),
+                ('tables',5.,-3.2,2.3,.8,'retained\ntables'),
+                ('native',8.65,-3.2,2.3,.8,'native\nrecovery'),
+                ('compare',12.4,-3.2,2.9,.8,'compare prefix\nand object bytes')]:
+        d.box(*row)
+    for a,b in [('sqlite','tables'),('tables','native'),('native','compare')]:
+        d.edge(a,b,'e','w')
+    d.edge('recovery','compare','s','n')
+    d.arrow(d.point('sqlite','w'),d.point('trace','w'),
+            via=[(-.55,-3.2),(-.55,0)],dashed=True)
+    d.text(-.35,-1.15,'audit',ha='left',size=8)
     d.save(out,'evidence-paths')
 
 def main():
+    global FACE
     p=argparse.ArgumentParser(description='Faithful vector rendering of retirement relations and evidence flow.')
     p.add_argument('--out',type=Path,required=True)
-    a=p.parse_args();a.out.mkdir(parents=True,exist_ok=True)
+    p.add_argument('--font',type=Path,required=True,help='Installed manuscript Libertine OpenType face')
+    a=p.parse_args()
+    if not a.font.is_file():raise ValueError('Manuscript font is missing')
+    font_manager.fontManager.addfont(str(a.font))
+    FACE=font_manager.FontProperties(fname=str(a.font))
+    a.out.mkdir(parents=True,exist_ok=True)
     frontier(a.out);paths(a.out)
 if __name__=='__main__':main()
 

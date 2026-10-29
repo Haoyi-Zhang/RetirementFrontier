@@ -74,10 +74,18 @@ python -B -O -m unittest discover -s tests -p test_posix_event_cuts.py -v
 
 ## Execution requirements
 
-Optional paper figures use `requirements-figures.txt`. Run
-`python figures/draw_schematics.py --out figures` to redraw the two symbolic
-diagrams directly. The retained write-ratio plot remains a separate Python
-ReportLab path in `plots/draw_write_ratios.py`, reading the primary scaling rows.
+Optional paper figures use `requirements-figures.txt`. Redraw the two symbolic
+diagrams with the installed manuscript OpenType font:
+
+```sh
+python figures/draw_schematics.py --font /path/to/LinLibertine_R.otf --out /absolute/fresh/diagrams
+python plots/draw_sqlite_costs.py --font /path/to/LinLibertine_R.otf --out /absolute/fresh/sqlite-plots
+```
+
+The SQLite plot reads all 48 primary cost rows and uses ratios of policy medians,
+the same statistic as its table. The write-ratio plot uses a separate Python
+ReportLab path in `plots/draw_write_ratios.py`, reading the primary scaling rows
+and using medians of per-input ratios. Neither renderer runs an experiment.
 
 Core experiments use Python 3.10 or later and the standard library, on a POSIX host with `resource` and process support. The recorded reproduction used Ubuntu 24.04 and Python 3.12. Complete SMT comparisons additionally require a usable local Z3 C shared library, discoverable by `ctypes.util.find_library`, or a local `z3-solver` installation. The campaign uses included inputs; TeX is unnecessary for this standalone repository.
 
