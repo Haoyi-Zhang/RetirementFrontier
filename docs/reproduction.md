@@ -6,7 +6,12 @@ stage; `results/pilots/unit-tests.json` records 132 passing methods and no skips
 The census, retained variants, fallback, scaling, public-byte rows, and derived
 summary belong to that same run.
 
-Recovery uses deterministic full-history stratification. All 720 primary images
+Recovery uses deterministic full-history stratification. The scaling portion
+contains 135 full cuts across all five seeds and 432 proper cuts from seed 20000
+(27 size/family/physical-policy combinations, sixteen cuts each). Public-byte
+replay contributes 153 images. This is distinct from the separate five-seed,
+512-operation campaign of 765 images in `results/recovery-subclasses/`.
+All 720 primary images
 agree on selected root, operation prefix, and specification object bytes, and
 contain 5,382 unreachable-slot observations. Recovery timing medians/ranges and
 scaling process RSS are retained in `results/summary/summary.json` and

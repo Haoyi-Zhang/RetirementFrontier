@@ -10,6 +10,14 @@ yangliu@ntu.edu.sg.
 
 ## Scope
 
+The central question is when an allocation that is no longer live is also
+past every root that recovery may select. Publication, retirement and
+acknowledgement characterize strict latest-root safety in the finite model.
+Frontiers compress the root--writer conflict relation for the decision;
+minimum failure diagnostics still compare predecessor-closed candidates.
+The measurements distinguish this smaller obligation set from complete
+analysis CPU cost, and logical slot reuse from retained-file savings.
+
 The finite model has serial events, atomic byte-bearing DATA records (including whole manifests), FREE records, immutable retained ROOTs, unique physical incarnations, and an explicit backward dependency DAG. A crash cut is downward closed. Strict recovery selects the greatest durable ROOT. Acknowledgements promise a recoverable operation prefix, not indefinite retention of overwritten object versions.
 
 Strict safety requires successful reconstruction and every compatible
@@ -51,7 +59,7 @@ python -B src/sqlite_store.py /tmp/owned-object-store.db list
 Use a local filesystem for the campaign. It terminates only its own temporary
 child processes and never targets an existing user database. The retained Linux
 run has 376 abrupt process exits, 304 safe-policy recovery/resume checks and 32
-expected native failures among 72 unsafe controls, with no native/model
+expected native failures among 72 replacement-only unsafe controls, with no native/model
 disagreement. Forty-eight matched cost runs include twelve SQL backup restores
 whose integrity and account query are checked by SQLite itself. Backup repeats
 use the same controlled evolving source database, not independent field traces.
@@ -95,8 +103,8 @@ python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /a
 python plots/draw_sqlite_costs.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/sqlite-plots
 ```
 
-The SQLite plot reads all 48 primary cost rows and uses ratios of policy medians,
-the same statistic as its table. Solid and outlined bars distinguish journal
+The SQLite plot reads all 48 primary cost rows and divides the matched policy
+medians shown side-by-side in the paper's allocation-cost table. Solid and outlined bars distinguish journal
 modes, with aligned values outside the plotting area. The write-ratio plot in
 `plots/draw_write_ratios.py` reads the primary scaling rows
 and uses medians of per-input ratios. Neither renderer runs an experiment.
@@ -223,6 +231,10 @@ No concurrent publication/cleaning, torn writes, distributed faults, generation 
 Small-domain recovery compares bytes with the offline oracle. The 720-image
 campaign also compares every selected-root namespace with its specification,
 alongside multiplicity, repeated recovery, and reclamation checks.
+Its 567 scaling images comprise 135 full cuts across all five seeds and
+432 proper cuts from the single fixed seed 20000; public-byte replay contributes
+153 more images. The separate 765-image campaign below checks proper cuts
+across all five seeds at 512 operations.
 
 ## Full-history recovery and publication-valid fallback
 
@@ -306,8 +318,8 @@ input file and the manuscript's actual TeX column width.
 The four manuscript figures are all drawn in Python, without a TeX graphics
 engine. The write-cost chart uses medians of five per-input ratios. The SQLite
 chart instead divides matched policy medians and displays paired horizontal
-bars with a common equal-cost reference. Their different aggregation rules
-follow the corresponding tables. The two symbolic diagrams preserve the
+bars with a common equal-cost reference. Its quotients differ from the table's
+paired median values; both consume the same primary rows. The two symbolic diagrams preserve the
 ordering and recovery interfaces; their renderer checks label clearance,
 minimum node padding and both connector and arrowhead intersections before
 writing the vector PDFs.

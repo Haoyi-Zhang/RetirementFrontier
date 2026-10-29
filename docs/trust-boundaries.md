@@ -97,6 +97,9 @@ repeatability, multiplicity, and quiescent reclamation, and its root/event rank
 strata record exact cut IDs. Separate local image-file checks in
 `results/recovery-subclasses/` complement these observations. Both examine
 serialization and byte recovery in the atomic-record model.
+The primary scaling proper-cut subset uses one fixed seed, while its full cuts
+cover all five; the separate 765-image campaign covers proper cuts across all
+five seeds. Exact population counts are given in `reproduction.md`.
 Whole-trace binding admission checks later allocations as well as earlier ones.
 Neither offline reconstruction nor the separate POSIX illustration establishes
 an online implementation that is absent from this artifact.
