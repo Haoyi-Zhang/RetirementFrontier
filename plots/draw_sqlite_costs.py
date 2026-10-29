@@ -42,70 +42,70 @@ def hatch(c, x, y, width, height):
 def draw(width, values):
     from reportlab.pdfbase import pdfmetrics
     import draw_write_ratios as vector
-    height = 6.3*vector.CM
+    height = 8.4*vector.CM
     c = vector.new_pdf('sqlite-costs.pdf', width, height)
-    panel_width = (width-41-8-26)/2
-    colours = ((.82, .82, .82), (.35, .35, .35))
+    panel_width = (width-57-18-46)/2
+    colours = (vector.BLUE, vector.ORANGE)
     families = ('shared', 'unique', 'churn', 'backup')
+    bottom, top = 53., height-55.
+    row_step = (top-bottom)/3
     for index, (field, title) in enumerate((
             ('slots', '(a) Logical slots'),
-            ('bytes_after_checkpoint', '(b) Database and sidecars'))):
-        left, bottom = 41+index*(panel_width+26), 35
-        ticks = [(n, f'{n:.2f}' if index == 0 else '') for n in (0, .25, .5, .75, 1.)]
-        xy = vector.axes(c, (left, bottom, panel_width, height-81),
-                         (-.5, 3.5), (0, 1.14),
-                         list(enumerate(('Shared', 'Unique', 'Churn', 'Backup'))),
-                         ticks, '', 'Reuse / no-reuse' if index == 0 else '',
-                         ticksize=8, labelsize=9)
-        vector.text(c, left+panel_width/2, height-28, title, 9)
-        reference = xy(0, 1.)[1]
-        c.setDash(3, 2)
-        c.setLineWidth(.55)
-        c.line(left, reference, left+panel_width, reference)
-        c.setDash()
+            ('bytes_after_checkpoint', '(b) Retained files'))):
+        left = 57+index*(panel_width+46)
+        scale = panel_width/1.19
+        vector.text(c, left+panel_width/2, height-33, title, 10)
+        for value in (0., .25, .5, .75, 1.):
+            x=left+value*scale
+            c.setStrokeColorRGB(*((.42,.46,.50) if value==1. else (.88,.90,.92)))
+            c.setLineWidth(.55 if value==1. else .35)
+            c.setDash(3,2) if value==1. else c.setDash()
+            c.line(x,bottom-16,x,top+16)
+            c.setDash()
+            vector.text(c,x,bottom-29,f'{value:.2f}',8)
+        c.setStrokeColorRGB(.25,.29,.33)
+        c.line(left,bottom-16,left+scale,bottom-16)
+        vector.text(c,left+scale/2,9,'Reuse / no-reuse',9)
         boxes = []
-        for mode_index, mode in enumerate(('DELETE', 'WAL')):
-            colour = colours[mode_index]
-            for i, family in enumerate(families):
+        for i,family in enumerate(families):
+            centre_y=top-i*row_step
+            if index==0:
+                vector.text(c,left-8,centre_y-2,family.capitalize(),9,'right')
+            for mode_index,mode in enumerate(('DELETE','WAL')):
+                colour=colours[mode_index]
                 value = values[mode][family][field]
-                centre, baseline = xy(i+(-.21 if mode_index == 0 else .21), 0)
-                top = xy(i, value)[1]
-                bar_width = panel_width/4*.36
-                x = centre-bar_width/2
+                if not 0<value<=1.:
+                    raise ValueError('Retained workload ratio is outside the fixed display range')
+                y=centre_y+(2 if mode_index==0 else -11)
+                bar_height=9
                 c.setFillColorRGB(*colour)
-                c.setStrokeColorRGB(0, 0, 0)
-                c.setLineWidth(.5)
-                c.rect(x, baseline, bar_width, top-baseline, fill=1, stroke=1)
+                c.setStrokeColorRGB(.18,.23,.28)
+                c.setLineWidth(.4)
+                c.rect(left,y,value*scale,bar_height,fill=1,stroke=1)
                 if mode_index:
-                    hatch(c, x, baseline, bar_width, top-baseline)
-                    c.rect(x, baseline, bar_width, top-baseline, fill=0, stroke=1)
-                label, size = f'{value:.2f}', 7.
+                    hatch(c,left,y,value*scale,bar_height)
+                label,size=f'{value:.3f}',8.
                 ascent, descent = pdfmetrics.getAscentDescent(vector.FONT, size)
                 label_width = pdfmetrics.stringWidth(label, vector.FONT, size)
-                if label_width > bar_width-1:
-                    raise ValueError('Value label exceeds bar width')
-                label_y = top-3-ascent if index else top+4
-                if index:
-                    c.setFillColorRGB(*colour)
-                    c.rect(centre-label_width/2-.4, label_y+descent-.4,
-                           label_width+.8, ascent-descent+.8, fill=1, stroke=0)
-                c.setFillColorRGB(*( (1,1,1) if index and mode_index else (0,0,0) ))
-                c.setFont(vector.FONT, size)
-                c.drawCentredString(centre, label_y, label)
-                box = (centre-label_width/2, label_y+descent,
-                       centre+label_width/2, label_y+ascent)
-                if box[0] < left or box[2] > left+panel_width or box[1] < bottom or box[3] > height-46:
+                label_x=left+value*scale+4
+                label_y=y+(bar_height-ascent-descent)/2
+                box=(label_x,label_y+descent,label_x+label_width,label_y+ascent)
+                if box[0]<left or box[2]>left+panel_width or box[1]<bottom-16 or box[3]>top+16:
                     raise ValueError('Clipped value label')
+                # Keep reference/grid lines clear of the directly labeled values.
+                c.setFillColorRGB(1,1,1)
+                c.rect(box[0]-1,box[1]-.6,box[2]-box[0]+2,box[3]-box[1]+1.2,fill=1,stroke=0)
+                vector.text(c,label_x,label_y,label,size,'left')
                 boxes.append(box)
         for i, a in enumerate(boxes):
             for b in boxes[i+1:]:
                 if min(a[2],b[2]) > max(a[0],b[0]) and min(a[3],b[3]) > max(a[1],b[1]):
                     raise ValueError('Overlapping value labels')
     items = list(zip(('DELETE', 'WAL'), colours))
-    vector.legend(c, items, width, height-10, 8.5)
-    lengths = [14+pdfmetrics.stringWidth(label, vector.FONT, 8.5) for label,_ in items]
+    vector.legend(c, items, width, height-11, 9)
+    lengths = [14+pdfmetrics.stringWidth(label, vector.FONT, 9) for label,_ in items]
     legend_left = (width-sum(lengths)-14)/2
-    hatch(c, legend_left+lengths[0]+14, height-10, 8, 5)
+    hatch(c, legend_left+lengths[0]+14, height-11, 8, 5)
     c.save()
 
 

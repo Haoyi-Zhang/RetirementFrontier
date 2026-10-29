@@ -28,6 +28,9 @@ INPUT = PAPER / "results/scaling/policy-metrics.jsonl"
 FONT = "ManuscriptRoman"
 PT = 72 / 72.27
 CM = 72 / 2.54
+BLUE = (.20, .38, .54)
+ORANGE = (.76, .43, .20)
+GREY = (.78, .81, .83)
 
 
 def register_font(root):
@@ -147,12 +150,12 @@ def bars(c, xy, categories, series, colours, barwidth):
             top = xy(i, float(values[i]))[1]
             x = centre + (j - (len(series) - 1) / 2) * barwidth
             c.setFillColorRGB(*colours[j])
-            c.setStrokeColorRGB(0, 0, 0)
-            c.setLineWidth(.5)
+            c.setStrokeColorRGB(.18, .23, .28)
+            c.setLineWidth(.45)
             # Zero-height bars remain at baseline, never given invented height.
             c.rect(x - barwidth / 2, baseline, barwidth, top - baseline,
                    stroke=1, fill=1)
-            text(c, x, top + 4, f'{float(values[i]):.2f}', 8)
+            text(c, x, top + 5, f'{float(values[i]):.2f}', 8.5)
 
 
 def table(path, delimiter=None):
@@ -186,17 +189,17 @@ def draw(width):
     rows = retained_rows(INPUT)
     series = [[Decimal(row[key]) for row in rows]
               for key in ("no_dedup", "sync_metadata", "batch_four_dedup")]
-    c = new_pdf("write-ratios.pdf", width, 5.8 * CM)
-    height = 5.8 * CM
-    xy = axes(c, (47, 34, width - 58, height - 56),
+    height = 6.4 * CM
+    c = new_pdf("write-ratios.pdf", width, height)
+    xy = axes(c, (48, 34, width - 59, height - 65),
               (-.5, 2.5), (0, 6.4),
               list(enumerate(row["family"] for row in rows)),
               [(n, str(n)) for n in range(7)],
-              "", "encoded bytes / input byte")
-    colours = [(0.88, 0.88, 0.88), (.5, .5, .5), (1, 1, 1)]
-    bars(c, xy, range(3), series, colours, 14 * PT)
-    legend(c, list(zip(("No deduplication", "Per-op. metadata", "Batch-four dedup."),
-                      colours)), width, height - 11, 8.5)
+              "", "Encoded bytes / logical input byte", ticksize=8.5)
+    colours = [GREY, ORANGE, BLUE]
+    bars(c, xy, range(3), series, colours, 22 * PT)
+    legend(c, list(zip(("No deduplication", "Per-operation metadata", "Batch-four deduplication"),
+                      colours)), width, height - 12, 8.5)
     c.save()
 
 

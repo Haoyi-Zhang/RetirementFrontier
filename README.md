@@ -3,7 +3,8 @@
 Executable trace-level crash certificates for deduplicating stores, accompanying the original research article prepared for **ACM Transactions on Storage (TOS)**.
 
 Paper authors, in order: Haoyi Zhang, Huaijin Ran, Yuqiang Sun,
-[Jiongchi Yu](https://orcid.org/0000-0002-2888-4499), and Yang Liu.
+[Jiongchi Yu](https://orcid.org/0000-0002-2888-4499), and
+[Yang Liu](https://orcid.org/0000-0001-7300-9215).
 Corresponding author: Yang Liu, Nanyang Technological University,
 yangliu@ntu.edu.sg.
 
@@ -289,6 +290,8 @@ traces share the same storage results.
 python -m pip install -r requirements-figures.txt
 # Choose an absent or empty output directory; do not use the shipped figures/ directory.
 python plots/draw_write_ratios.py --font-root /path/to/texmf-dist/fonts --output-dir /absolute/fresh/retirement-write-figures
+python plots/draw_sqlite_costs.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/retirement-write-figures
+python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/retirement-write-figures
 python -B -m unittest discover -s tests -p test_plot_sources.py -v
 ```
 
@@ -298,6 +301,14 @@ a TeX distribution. The output is an embedded-font vector PDF; rendering does
 not execute experiments or replace the retained observations. Choose an empty
 output directory. `--input` and `--column-width-pt` can select another validated
 input file and the manuscript's actual TeX column width.
+
+The four manuscript figures are all drawn in Python, without a TeX graphics
+engine. The write-cost chart uses medians of five per-input ratios. The SQLite
+chart instead divides matched policy medians and displays paired horizontal
+bars with a common equal-cost reference. Their different aggregation rules
+follow the corresponding tables. The two symbolic diagrams preserve the
+ordering and recovery interfaces; their renderer checks label clearance,
+node padding and connector intersections before writing the vector PDFs.
 
 ## License
 
