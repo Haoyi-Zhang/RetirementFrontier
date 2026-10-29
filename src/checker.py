@@ -12,8 +12,20 @@ def _root_prefix(model: Model, root_id: int) -> int:
     return int(model.events[root_id]["prefix"])
 
 
+def _greatest_root_ancestors(model: Model) -> list[int]:
+    """Greatest root in each reflexive closure, in admitted issue order."""
+    greatest: list[int] = []
+    for event_id, event in enumerate(model.events):
+        best = event_id if event['kind'] == 'root' else -1
+        for parent in model.deps[event_id]:
+            best = max(best, greatest[parent])
+        greatest.append(best)
+    return greatest
+
+
 def analyze_model(model: Model, minimum: bool = False) -> dict[str, Any]:
     start = time.process_time()
+    greatest_root = _greatest_root_ancestors(model)
     publication_rows: list[dict[str, int]] = []
     publication_failures: list[dict[str, Any]] = []
     last_user: dict[int, int] = {i: -1 for i, e in enumerate(model.events) if e["kind"] == "data"}
@@ -37,8 +49,7 @@ def analyze_model(model: Model, minimum: bool = False) -> dict[str, Any]:
             event = model.events[writer]
             if frontier >= 0:
                 frontier_obligations += 1
-                forced_roots = [r for r in model.roots if model.closures[writer] & (1 << r)]
-                guard = max(forced_roots, default=-1)
+                guard = greatest_root[writer]
                 if guard <= frontier:
                     retirement_failures.append({"writer": writer, "frontier": frontier, "guard": guard})
                 else:
@@ -53,14 +64,11 @@ def analyze_model(model: Model, minimum: bool = False) -> dict[str, Any]:
         if p == 0:
             acknowledgement_rows.append({"ack_index": ack_index, "root": -1})
             continue
-        closure_bits = 0
-        for anchor in ack["anchors"]:
-            closure_bits |= model.closures[anchor]
-        candidates = [r for r in model.roots if (closure_bits & (1 << r)) and _root_prefix(model, r) >= p]
-        if not candidates:
+        guard = max((greatest_root[anchor] for anchor in ack['anchors']), default=-1)
+        if guard < 0 or _root_prefix(model, guard) < p:
             acknowledgement_failures.append({"ack_index": ack_index, "prefix": p})
         else:
-            acknowledgement_rows.append({"ack_index": ack_index, "root": max(candidates)})
+            acknowledgement_rows.append({"ack_index": ack_index, "root": guard})
 
     safe = not publication_failures and not retirement_failures and not acknowledgement_failures
     result: dict[str, Any] = {
@@ -98,8 +106,7 @@ def analyze_model(model: Model, minimum: bool = False) -> dict[str, Any]:
                     for writer in model.writers_by_slot.get(slot, ()):
                         if writer <= alloc:
                             continue
-                        forced_roots = [r for r in model.roots if model.closures[writer] & (1 << r)]
-                        guard = max(forced_roots, default=-1)
+                        guard = greatest_root[writer]
                         if guard <= root_id:
                             candidates.append(model.closure_ids([root_id, writer]))
             for failure in acknowledgement_failures:
@@ -116,6 +123,7 @@ def analyze_trace(trace: dict[str, Any], minimum: bool = False) -> dict[str, Any
 
 def pair_analyze_model(model: Model, minimum: bool = False) -> dict[str, Any]:
     start = time.process_time()
+    greatest_root = _greatest_root_ancestors(model)
     failures: list[dict[str, Any]] = []
     candidates: list[set[int]] = []
     pair_obligations = 0
@@ -132,8 +140,7 @@ def pair_analyze_model(model: Model, minimum: bool = False) -> dict[str, Any]:
                 if writer <= alloc:
                     continue
                 pair_obligations += 1
-                later_forced = [r for r in model.roots if model.closures[writer] & (1 << r)]
-                if max(later_forced, default=-1) <= root_id:
+                if greatest_root[writer] <= root_id:
                     failures.append({"kind": "interference", "root": root_id, "allocation": alloc, "writer": writer})
                     candidates.append(model.closure_ids([root_id, writer]))
 
@@ -141,10 +148,8 @@ def pair_analyze_model(model: Model, minimum: bool = False) -> dict[str, Any]:
         p = int(ack["prefix"])
         if p == 0:
             continue
-        bits = 0
-        for anchor in ack["anchors"]:
-            bits |= model.closures[anchor]
-        if not any((bits & (1 << r)) and _root_prefix(model, r) >= p for r in model.roots):
+        guard = max((greatest_root[anchor] for anchor in ack['anchors']), default=-1)
+        if guard < 0 or _root_prefix(model, guard) < p:
             failures.append({"kind": "acknowledgement", "ack_index": ack_index})
             candidates.append(model.closure_ids(ack["anchors"]))
 

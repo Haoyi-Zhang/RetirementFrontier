@@ -2,16 +2,27 @@
 
 The supplied primary results come from a completed seven-stage run on Ubuntu
 24.04 with Python 3.12 and Z3. `results/campaign-run.json` records each executed
-stage; `results/pilots/unit-tests.json` records 103 passing methods and no skips.
+stage; `results/pilots/unit-tests.json` records 132 passing methods and no skips.
 The census, retained variants, fallback, scaling, public-byte rows, and derived
 summary belong to that same run.
 
 Recovery uses deterministic full-history stratification. All 720 primary images
 agree on selected root, operation prefix, and specification object bytes, and
-contain 5,382 unreachable-slot observations. Seven-call recovery medians have
-median 3,965,117 ns, with range 2,925--13,837,182 ns. Scaling peak process RSS
-is 162,268 KiB. These are host observations, not device latency measurements.
-Specification comparisons occur after the timed calls.
+contain 5,382 unreachable-slot observations. Recovery timing medians/ranges and
+scaling process RSS are retained in `results/summary/summary.json` and
+`results/scaling/summary.json`; the manuscript adopts these through its explicit
+measurement refresh. These are host observations, not device latency
+measurements. Specification comparisons occur after the timed calls.
+
+The paired routine-cost campaign is separate: `scripts/analysis_costs.py`
+records eight calibrated CPU batches for each of four routines on 45 existing
+scaling inputs. It includes actual batch call counts and a source-bound summary
+under `results/analysis-costs/`. Use `--verify` to check retained rows and
+`--run` only to intentionally replace them with a new Linux-host measurement.
+Both analysis implementations include the same greatest-root preprocessing.
+Admission is separate; the consumer reparses its input. Small-case pair costs
+and the positive-certificate producer costs must be interpreted with these
+different outputs visible.
 
 The separate POSIX fixture records eleven completed-helper observations, zero
 ordered failures, two expected unsafe failures, and agreement with the abstract

@@ -1,7 +1,7 @@
 {
   "candidate_cuts": 2129920,
   "consumer_checks": 3072,
-  "cpu_seconds": 43.913087589999996,
+  "cpu_seconds": 25.819175223000002,
   "disagreements": 0,
   "families": {
     "retired-free": {
@@ -23,9 +23,9 @@
     }
   },
   "graphs": 33792,
-  "max_rss_kib": 44704,
+  "max_rss_kib": 43808,
   "minimum_witness_checks": 30720,
   "safe_graphs": 3072,
   "stage": "census",
-  "wall_seconds": 43.918229632999996
+  "wall_seconds": 23.679648052999994
 }

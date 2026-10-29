@@ -91,12 +91,12 @@ an anchor closure for a positive acknowledgement, and `-1` for prefix zero.
 Arrays have exact traversal and row equality; the consumer does not accept an
 arbitrary satisfying witness. The safe seven-event fixture has both roots 3
 and 5 sufficient for retirement and the positive acknowledgement. The producer
-uses 5; the consumer accepts it and rejects either replacement with 3. Section
-3.3, the proof of Theorem 4.3, and `formats.md` now state the same contract.
+uses 5; the consumer accepts it and rejects either replacement with 3. The
+manuscript's certificate-soundness proof and `formats.md` state this same contract.
 
 ## Generator, byte costs, and solver
 
-Section 6.1 now describes the implemented in-memory specification-state trace
+The manuscript's storage-history section describes the in-memory specification-state trace
 generator. It appends events and later passes selected cuts to offline
 materialization and recovery. No online medium application or medium-backed
 read path is claimed. The small cost regression also executes generation,
@@ -107,7 +107,7 @@ one separator byte, plus raw payload length for data records. Data descriptors
 contain kind, slot, generation, digest, length and role; root descriptors contain
 kind, prefix and manifest reference; free descriptors contain kind, slot and
 generation. `id`, `deps`, `data_hex`, root ghost fields, acknowledgements and
-trace/image envelopes are excluded. Section 6.4 and `formats.md` make this
+trace/image envelopes are excluded. The measurement protocol and `formats.md` make this
 explicit. There is no claim that these values are full wire-JSON lengths.
 
 There is no solver CLI. Experiment scripts call the Z3 C-library wrapper.
@@ -117,18 +117,16 @@ An actual Z3 unknown response is separate. Mocked unit tests verify unavailable-
 library and preflight/omission control paths; these mocks are not presented as
 new solver experiments or actual unavailable-library campaign runs.
 
-## Measurement and manuscript preservation
+## Executed evidence and manuscript consumers
 
-The retained 75-method suite includes 20 directed/contract methods relative
-to the 55-method suite. The full seven-stage campaign was actually
-rerun on repaired code in a clean separate tree, followed by aggregation and the
-POSIX illustration. All 17 primary result files matched retained logical values
-when only declared host fields were normalized. Inputs, implementation, scripts
-and tests were byte-identical across the compared trees. The primary unit-test
-record and derived test counts were updated to the fresh run. Other primary
-measurement records and `paper/measurements.tex` were retained, not replaced by
-the new timings. See `reproduction-check.json` and `reproduction.md`.
+The supplied primary execution contains 132 passing unit methods and all seven
+scientific stages, followed by aggregation and the POSIX illustration. The
+SQLite transaction campaign and recovery-subclass checks have their own primary
+rows. Logical decisions, witnesses and byte results are checked separately from
+host timings; `reproduction.md` identifies their records and commands.
 
-The current 88-method suite passes on Windows with Python 3.12 and Z3 available.
-It includes directed slot-frontier and noncanonical-manifest recovery checks;
-this unit run does not replace the retained campaign measurements.
+The manuscript explicitly refreshes its host observations from this executed
+campaign. Repeated current-implementation costs are measured separately on 45
+scaling inputs, with calibrated batches and a source-bound summary. Publication
+table generation checks primary rows and implementation bindings before
+consumption, rather than treating unit-test success as a new timing sample.

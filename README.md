@@ -133,8 +133,9 @@ same-slot maximum after collecting last users over the complete trace. Each
 writer is checked before its own DATA allocation updates the maximum; FREEs
 never reset it. This removes repeated earlier-allocation scans, not publication
 searches, byte/digest validation, closure storage or minimum-cut pair enumeration.
-It makes no measured end-to-end or device performance claim. Three new portable
-methods are included by the existing `scripts/run_tests.py` discovery and CI:
+Both producer and pair analysis compute a greatest-root summary in one
+topological pass; the separate consumer computes its own summary. Portable
+regressions are included by `scripts/run_tests.py` discovery and CI:
 
 ```sh
 python -B -m unittest discover -s tests -p test_slot_frontier.py -v
@@ -151,9 +152,34 @@ python src/cli.py verify inputs/pilot-trace.json certificate.json
 
 The certificate can be removed after inspection. The consumer reparses the original trace and validates certificate coverage and witnesses. It does not import the producer, engine, oracle or solver. It was developed within the same project and is not an independent-team implementation or a machine proof. `docs/formats.md` specifies canonical maximum-root witnesses, controlled CLI statuses, all wire formats, and the separate descriptor-plus-raw-payload cost model; strict JSON rejects duplicate keys and nonfinite numbers.
 
+## Paired analysis costs
+
+```sh
+python -B scripts/analysis_costs.py --verify
+python -B scripts/analysis_costs.py --run
+```
+
+Run the second command only in a separate extraction on Linux when intentionally
+creating new host measurements. It reuses 45 batch-four scaling histories,
+pins one guest CPU, and alternates admission, frontier, pair and consumer order.
+Each routine has one warm-up; calibration doubles the call batch to at least
+20 ms of CPU time before eight measured batches. The retained 1,440 blocks
+include raw elapsed CPU nanoseconds, actual call counts, input identity,
+configuration, host information and source bindings. This handles coarse CPU
+clocks without interpreting zero-duration calls as a speedup.
+
+`results/analysis-costs/` contains the primary rows and derived summary. Cell
+values are medians of eight per-input batch-normalized observations, then of
+five input medians. Frontier includes positive-certificate construction and
+serialization; pair provides decisions and diagnostics. Admission is separate,
+while consumer time includes its own reparsing and checks. The pair routine is
+cheaper on smaller cases; obligation reduction is not a universal runtime gain.
+The build verifies these bindings before deriving its table, and CI verifies
+the retained measurements without replacing them with runner-host timings.
+
 ## What to check
 
-The supplied full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. All 720 recovery images pass selected-root, prefix, and specification-byte comparisons and account for 5,382 unreachable occupied-slot observations. The campaign executes 65 evaluation SMT queries plus two pilot queries, with zero unknowns, and all 103 unit methods pass with no skips. The POSIX fixture has eleven agreeing selector projections, zero ordered failures, and two expected unsafe failures.
+The supplied full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. All 720 recovery images pass selected-root, prefix, and specification-byte comparisons and account for 5,382 unreachable occupied-slot observations. The campaign executes 65 evaluation SMT queries plus two pilot queries, with zero unknowns, and all 132 unit methods pass with no skips. The POSIX fixture has eleven agreeing selector projections, zero ordered failures, and two expected unsafe failures.
 
 `check_scientific_invariants.py` checks exact JSON paths and cross-checks primary row counts, decisions, minimum-witness flags, certificate acceptance and byte arithmetic. It does not accept a matching number found elsewhere in a JSON tree. Assertions are ordinary executable checks, not proof-assistant verification.
 
@@ -163,11 +189,9 @@ The recovery-subclass results separately retain 45 full-length traces and 765
 local image-file roundtrips from the same Linux host; these serialization checks
 do not exercise filesystem crash persistence.
 
-The test count must agree between the primary runner output and its summary,
-with the retained 75-method suite as a lower bound. New regressions need not
-masquerade as the historical suite. The supplied primary execution records
-103 methods; the current discovered artifact suite contains 129 methods.
-Changing the current suite does not rewrite the retained execution record.
+The test count must agree between the primary runner output and its summary.
+The supplied primary execution and current discovered artifact suite both
+contain 132 passing methods.
 `run_all.py` shares one 45-minute wall-time
 deadline across all seven stages. The prepared scientific-checks workflow runs
 from this flat artifact root on Ubuntu 24.04 with a 40-minute scientific-command

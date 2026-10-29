@@ -71,11 +71,13 @@ def check(root=ROOT, write=True):
         names = {'crash_cases':'SQLCrashCases','safe_cases':'SQLSafeCases','negative_native_failures':'SQLNegativeFailures',
                  'resumed_cases':'SQLResumed','cost_runs':'SQLCostRuns','sql_restore_runs':'SQLRestoreRuns'}
         (folder/'counts.tex').write_text(''.join('\\newcommand{\\'+name+'}{'+str(counts[k])+'}\n' for k,name in names.items()))
-        unique = next(g for g in summary['cost_medians'] if g['mode']=='DELETE' and g['family']=='unique')
         with (folder/'counts.tex').open('a') as handle:
             handle.write('\\newcommand{\\SQLVersion}{'+summary['environment']['sqlite']+'}\n')
-            for policy,name in [('frontier-reuse','SQLUniqueReuseMs'),('no-reuse','SQLUniqueAppendMs')]:
-                handle.write('\\newcommand{\\'+name+'}{'+format(unique[policy]['write_and_read_ns']/1e6,'.1f')+'}\n')
+            for mode, names in [('DELETE', [('frontier-reuse','SQLUniqueReuseMs'),('no-reuse','SQLUniqueAppendMs')]),
+                                ('WAL', [('frontier-reuse','SQLUniqueWalReuseMs'),('no-reuse','SQLUniqueWalAppendMs')])]:
+                unique = next(g for g in summary['cost_medians'] if g['mode']==mode and g['family']=='unique')
+                for policy,name in names:
+                    handle.write('\\newcommand{\\'+name+'}{'+format(unique[policy]['write_and_read_ns']/1e6,'.1f')+'}\n')
     return counts
 
 

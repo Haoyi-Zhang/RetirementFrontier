@@ -47,6 +47,7 @@ jobs:
             python -B scripts/run_sqlite_adapter.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/sqlite-adapter.log"
             python -B scripts/check_sqlite_adapter.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/sqlite-adapter-validation.log"
             python -B scripts/validate_release.py 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/validation.log"
+            python -B scripts/analysis_costs.py --verify 2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/analysis-costs.log"
           '
       - name: Upload raw outputs even after a failure
         if: always()

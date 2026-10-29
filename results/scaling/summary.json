@@ -1,8 +1,8 @@
 {
-  "cpu_seconds": 89.18136576,
+  "cpu_seconds": 46.647882849,
   "instances": 45,
   "max_events": 5599,
-  "max_rss_kib": 162268,
+  "max_rss_kib": 162832,
   "policy_rows": 180,
   "recovery_images": 567,
   "recovery_validation_checks": {
@@ -13,5 +13,5 @@
   },
   "solver_queries": 30,
   "stage": "scaling",
-  "wall_seconds": 89.23611693100001
+  "wall_seconds": 46.279960805
 }

@@ -163,6 +163,24 @@ ROOT identifiers are totally ordered by the serial event order; this is not a th
 
 The elementary maximum identity is not claimed as a new generic order-theoretic result. Its role is to compress the exact storage-lifetime obligations proved above. The current producer and consumer parse every reference before independently scanning each slot's writers with a running maximum: immediately before w it equals the maximum last user of earlier same-slot DATA allocations. The empty maximum is -1; only after checking w is its own last user added, and FREEs do not clear history. Induction over writers proves equality with the displayed definition. This component takes one maximum update per DATA allocation, but transitive closures can require quadratic bits and other checks remain superlinear. No unconditional total-analysis or measured end-to-end speedup follows. Minimum negative witnesses still enumerate all relevant root/writer pairs rather than only the maximum, because the maximum-root witness need not minimize durable-event cardinality.
 
+## Greatest-root preprocessing
+
+For each event v, compute G(v) as the maximum of v itself when v is a ROOT and
+the already computed G(u) over its direct dependency predecessors u. The empty
+maximum is -1. Every ROOT in the reflexive closure of v is either v or an
+ancestor of such a predecessor. Induction in admitted issue order therefore
+gives exactly the greatest ROOT in that closure. For a writer w, G(w)=F(w).
+The pass takes O(n+m) time and O(n) additional entries, independently of the
+producer's existing closure-bit storage. Greatest roots of acknowledgement
+anchor closures are maxima of G over their anchors; increasing ROOT prefixes
+make this sufficient for the promised-prefix test. Frontier and pair routines
+use the same preprocessing. The code-separated consumer computes its own table.
+
+The repeated CPU study reports complete routine costs on admitted scaling
+histories, including certificate construction for the frontier routine and
+separate reparsing for the consumer. Input admission is separately measured.
+It does not equate obligation ratios with whole-system runtime gains.
+
 ## Content identities and hash collisions
 
 The mathematical model uses exact content identities. The executable artifact represents them with SHA-256 and rehashes the recovered bytes. This tests accidental corruption and ordinary identifier consistency; it is not a proof that SHA-256 is injective. Deliberately constructed digest collisions are outside the theorem's implementation refinement unless a deployment compares full bytes or strengthens the identifier.

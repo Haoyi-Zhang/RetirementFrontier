@@ -1,8 +1,8 @@
 {
   "chunk_sizes": 3,
-  "cpu_seconds": 5.757630005,
+  "cpu_seconds": 3.1737396749999998,
   "input_bytes": 25582,
-  "max_rss_kib": 58944,
+  "max_rss_kib": 56300,
   "policy_rows": 9,
   "recovery_images": 153,
   "recovery_validation_checks": {
@@ -14,5 +14,5 @@
   "solver_queries": 3,
   "stage": "public",
   "unchanged_across_selected_tags": true,
-  "wall_seconds": 5.761624181999991
+  "wall_seconds": 3.2031930130000035
 }

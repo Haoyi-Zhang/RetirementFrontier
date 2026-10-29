@@ -6,7 +6,7 @@ import sys
 import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from checker import analyze_model, pair_analyze_model
+from checker import analyze_model, pair_analyze_model, _greatest_root_ancestors
 from engine import census_template, build_trace, strip_build_metrics, heldout_operations
 from model import admit_trace
 from oracle import exhaustive_model
@@ -105,6 +105,20 @@ def definition(model):
 
 
 class SlotFrontierTests(unittest.TestCase):
+    def test_root_summary_matches_fresh_reachability(self):
+        for t in list(tiny_cases()) + [t for _, t in controls()]:
+            model = admit_trace(t)
+            expected = []
+            for event in range(model.n):
+                pending, seen = [event], set()
+                while pending:
+                    node = pending.pop()
+                    if node not in seen:
+                        seen.add(node)
+                        pending.extend(model.deps[node])
+                expected.append(max((r for r in model.roots if r in seen), default=-1))
+            self.assertEqual(_greatest_root_ancestors(model), expected)
+
     def test_dense_definition_and_independent_pair_baseline(self):
         for t in list(tiny_cases()) + [t for _, t in controls()]:
             saved = deepcopy(t)

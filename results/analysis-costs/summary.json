@@ -1,0 +1,151 @@
+{
+  "affinity_cpu_count": 1,
+  "aggregates": [
+    {
+      "admission_ms": 5.999657625,
+      "consumer_ms": 5.999995875,
+      "family": "shared",
+      "frontier_ms": 0.0624753076171875,
+      "operations": 32,
+      "pair_ms": 0.02537579638671875,
+      "paired_ratio_max": 0.43754486419274985,
+      "paired_ratio_median": 0.42857023851932435,
+      "paired_ratio_min": 0.3751579979684161
+    },
+    {
+      "admission_ms": 29.0752095,
+      "consumer_ms": 29.830665,
+      "family": "shared",
+      "frontier_ms": 0.26350840234375,
+      "operations": 128,
+      "pair_ms": 0.127867900390625,
+      "paired_ratio_max": 0.5034117250237433,
+      "paired_ratio_median": 0.48525170071738255,
+      "paired_ratio_min": 0.4753559564421726
+    },
+    {
+      "admission_ms": 118.8012405,
+      "consumer_ms": 127.481807,
+      "family": "shared",
+      "frontier_ms": 1.05591875,
+      "operations": 512,
+      "pair_ms": 0.74677590625,
+      "paired_ratio_max": 0.716166127734893,
+      "paired_ratio_median": 0.7112343220063096,
+      "paired_ratio_min": 0.685667426383851
+    },
+    {
+      "admission_ms": 8.75993825,
+      "consumer_ms": 9.43607175,
+      "family": "unique",
+      "frontier_ms": 0.399391578125,
+      "operations": 32,
+      "pair_ms": 0.16005549609375,
+      "paired_ratio_max": 0.4147636769576461,
+      "paired_ratio_median": 0.40728091966306024,
+      "paired_ratio_min": 0.3905065208365177
+    },
+    {
+      "admission_ms": 40.1393875,
+      "consumer_ms": 47.788285,
+      "family": "unique",
+      "frontier_ms": 2.10870484375,
+      "operations": 128,
+      "pair_ms": 1.146312921875,
+      "paired_ratio_max": 0.5574542945985431,
+      "paired_ratio_median": 0.5563484378804301,
+      "paired_ratio_min": 0.5328573864894258
+    },
+    {
+      "admission_ms": 162.3176875,
+      "consumer_ms": 259.633171,
+      "family": "unique",
+      "frontier_ms": 9.65695025,
+      "operations": 512,
+      "pair_ms": 10.487078,
+      "paired_ratio_max": 1.1603417337324071,
+      "paired_ratio_median": 1.0952929230766812,
+      "paired_ratio_min": 1.0852235673472586
+    },
+    {
+      "admission_ms": 5.6573455,
+      "consumer_ms": 5.940771375,
+      "family": "churn",
+      "frontier_ms": 0.204139109375,
+      "operations": 32,
+      "pair_ms": 0.086316484375,
+      "paired_ratio_max": 0.42651048536376074,
+      "paired_ratio_median": 0.42154919550365894,
+      "paired_ratio_min": 0.41520261971212563
+    },
+    {
+      "admission_ms": 25.40895,
+      "consumer_ms": 28.436066,
+      "family": "churn",
+      "frontier_ms": 0.95698815625,
+      "operations": 128,
+      "pair_ms": 0.5045553203125,
+      "paired_ratio_max": 0.5350227526709912,
+      "paired_ratio_median": 0.5313236631379689,
+      "paired_ratio_min": 0.5253451977795138
+    },
+    {
+      "admission_ms": 91.6377505,
+      "consumer_ms": 126.5340235,
+      "family": "churn",
+      "frontier_ms": 3.8181508125,
+      "operations": 512,
+      "pair_ms": 3.817990375,
+      "paired_ratio_max": 0.9999834503369411,
+      "paired_ratio_median": 0.9998685193613874,
+      "paired_ratio_min": 0.8572623032879337
+    }
+  ],
+  "cases": 45,
+  "clock": "process_time_ns",
+  "config": {
+    "batch_size": 4,
+    "chunk_bytes": 256,
+    "deadline_seconds": 600,
+    "families": [
+      "shared",
+      "unique",
+      "churn"
+    ],
+    "maximum_batch_calls": 16384,
+    "minimum_witness_search": false,
+    "repetitions": 8,
+    "seeds": [
+      20000,
+      20001,
+      20002,
+      20003,
+      20004
+    ],
+    "sizes": [
+      32,
+      128,
+      512
+    ],
+    "target_batch_cpu_ns": 20000000,
+    "warmups": 1
+  },
+  "host": {
+    "cpu_model": "12th Gen Intel(R) Core(TM) i9-12900H",
+    "machine": "x86_64",
+    "python": "3.12.3",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "system": "Linux"
+  },
+  "scope": "Controlled retained scaling inputs, not production traces. Admission is separate. Frontier includes certificate construction and JSON serialization; pair returns a decision and diagnostics. Consumer reparses the original trace. No disk, recovery, minimum search, or all-workload speedup claim.",
+  "sources": {
+    "scripts/analysis_costs.py": "82c80863861257e30c531cac7f77a2e7b039a06d10a047d436ca4f86e38e06b2",
+    "src/checker.py": "760feee752308e776fce1beae4786a9612effa2a6893a4c2a115efccc4ab1195",
+    "src/engine.py": "cca21f3431879c06ef86657097b5044c5ea3b3ab0347565d0bad5c143c1da723",
+    "src/model.py": "3d76fbf7a0192e104ad8ad5867be24605f294b4c8612ef068cfc1eb07ebd705d",
+    "src/strictjson.py": "6c009be97c2beaa8e54446aea059cca05576460e5000b3ba86c23e46f450350a",
+    "src/verifier.py": "06bf01d8c3b5f69e59a5be804f8816e980836b740d728a75b4ed48b56d0af269"
+  },
+  "timed_blocks": 1440,
+  "timed_calls": 115760
+}

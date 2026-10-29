@@ -46,7 +46,7 @@
     "scripts/run_sqlite_adapter.py": "ae47d4fa582e6d3a4d53a8e10ec9f18ffe9727fcf5e1ebcc160b203dd20eea6f",
     "scripts/sqlite_experiment.json": "0f60b2f06a273a41134ca5e55857f332c37599737c48be0d6ae15e2b63edba5a",
     "src/model.py": "3d76fbf7a0192e104ad8ad5867be24605f294b4c8612ef068cfc1eb07ebd705d",
-    "src/checker.py": "cbc5f15e26274c4e9691ca7a28a4bcfc1677c1043601159bf7c405472bc1cfc2",
+    "src/checker.py": "760feee752308e776fce1beae4786a9612effa2a6893a4c2a115efccc4ab1195",
     "src/medium.py": "eeb328408d873d2fda1bd114ec0613b4b21fe59b2e1ef640c74418806ab4ce2d",
     "src/verifier.py": "06bf01d8c3b5f69e59a5be804f8816e980836b740d728a75b4ed48b56d0af269",
     "src/strictjson.py": "6c009be97c2beaa8e54446aea059cca05576460e5000b3ba86c23e46f450350a"
@@ -67,17 +67,17 @@
       "frontier-reuse": {
         "slots": 5,
         "slot_payload_bytes": 1722,
-        "write_and_read_ns": 332718779,
-        "checking_ns": 9136643,
-        "reopen_ns": 227906,
+        "write_and_read_ns": 339414994,
+        "checking_ns": 9183485,
+        "reopen_ns": 207242,
         "bytes_after_checkpoint": 262144
       },
       "no-reuse": {
         "slots": 64,
         "slot_payload_bytes": 23198,
-        "write_and_read_ns": 345396458,
-        "checking_ns": 9712035,
-        "reopen_ns": 220300,
+        "write_and_read_ns": 360905872,
+        "checking_ns": 9331341,
+        "reopen_ns": 221756,
         "bytes_after_checkpoint": 290816
       }
     },
@@ -87,17 +87,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4454,
-        "write_and_read_ns": 455688645,
-        "checking_ns": 15352757,
-        "reopen_ns": 248356,
+        "write_and_read_ns": 454510102,
+        "checking_ns": 14902184,
+        "reopen_ns": 253656,
         "bytes_after_checkpoint": 376832
       },
       "no-reuse": {
         "slots": 96,
         "slot_payload_bytes": 45424,
-        "write_and_read_ns": 451120124,
-        "checking_ns": 15430019,
-        "reopen_ns": 269411,
+        "write_and_read_ns": 469122860,
+        "checking_ns": 15794114,
+        "reopen_ns": 258043,
         "bytes_after_checkpoint": 421888
       }
     },
@@ -107,17 +107,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4214,
-        "write_and_read_ns": 392283472,
-        "checking_ns": 14561968,
-        "reopen_ns": 267425,
+        "write_and_read_ns": 423381612,
+        "checking_ns": 13528182,
+        "reopen_ns": 242897,
         "bytes_after_checkpoint": 352256
       },
       "no-reuse": {
         "slots": 84,
         "slot_payload_bytes": 39492,
-        "write_and_read_ns": 404775740,
-        "checking_ns": 14854175,
-        "reopen_ns": 283721,
+        "write_and_read_ns": 425859008,
+        "checking_ns": 13040569,
+        "reopen_ns": 241079,
         "bytes_after_checkpoint": 389120
       }
     },
@@ -127,17 +127,17 @@
       "frontier-reuse": {
         "slots": 9,
         "slot_payload_bytes": 9184,
-        "write_and_read_ns": 442510019,
-        "checking_ns": 66599697,
-        "reopen_ns": 408382,
+        "write_and_read_ns": 450528262,
+        "checking_ns": 63116797,
+        "reopen_ns": 347391,
         "bytes_after_checkpoint": 1626112
       },
       "no-reuse": {
         "slots": 80,
         "slot_payload_bytes": 130572,
-        "write_and_read_ns": 486189433,
-        "checking_ns": 68255793,
-        "reopen_ns": 386195,
+        "write_and_read_ns": 465544371,
+        "checking_ns": 63668230,
+        "reopen_ns": 386167,
         "bytes_after_checkpoint": 1773568
       }
     },
@@ -147,17 +147,17 @@
       "frontier-reuse": {
         "slots": 5,
         "slot_payload_bytes": 1722,
-        "write_and_read_ns": 156945752,
-        "checking_ns": 10570891,
-        "reopen_ns": 340306,
+        "write_and_read_ns": 166862976,
+        "checking_ns": 9008402,
+        "reopen_ns": 363707,
         "bytes_after_checkpoint": 294912
       },
       "no-reuse": {
         "slots": 64,
         "slot_payload_bytes": 23198,
-        "write_and_read_ns": 170825449,
-        "checking_ns": 9773829,
-        "reopen_ns": 352552,
+        "write_and_read_ns": 169058157,
+        "checking_ns": 8957380,
+        "reopen_ns": 298497,
         "bytes_after_checkpoint": 323584
       }
     },
@@ -167,17 +167,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4454,
-        "write_and_read_ns": 213481040,
-        "checking_ns": 16483835,
-        "reopen_ns": 385284,
+        "write_and_read_ns": 231273899,
+        "checking_ns": 14380227,
+        "reopen_ns": 328114,
         "bytes_after_checkpoint": 409600
       },
       "no-reuse": {
         "slots": 96,
         "slot_payload_bytes": 45424,
-        "write_and_read_ns": 216223818,
-        "checking_ns": 16111621,
-        "reopen_ns": 371046,
+        "write_and_read_ns": 225327598,
+        "checking_ns": 16217991,
+        "reopen_ns": 336387,
         "bytes_after_checkpoint": 454656
       }
     },
@@ -187,17 +187,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4214,
-        "write_and_read_ns": 191648555,
-        "checking_ns": 15312325,
-        "reopen_ns": 385254,
+        "write_and_read_ns": 197649777,
+        "checking_ns": 13955911,
+        "reopen_ns": 430573,
         "bytes_after_checkpoint": 385024
       },
       "no-reuse": {
         "slots": 84,
         "slot_payload_bytes": 39492,
-        "write_and_read_ns": 196173484,
-        "checking_ns": 14919123,
-        "reopen_ns": 358857,
+        "write_and_read_ns": 199309512,
+        "checking_ns": 13402021,
+        "reopen_ns": 363927,
         "bytes_after_checkpoint": 421888
       }
     },
@@ -207,17 +207,17 @@
       "frontier-reuse": {
         "slots": 9,
         "slot_payload_bytes": 9184,
-        "write_and_read_ns": 205772865,
-        "checking_ns": 66976973,
-        "reopen_ns": 537530,
+        "write_and_read_ns": 195332852,
+        "checking_ns": 63657000,
+        "reopen_ns": 462039,
         "bytes_after_checkpoint": 1658880
       },
       "no-reuse": {
         "slots": 80,
         "slot_payload_bytes": 130572,
-        "write_and_read_ns": 217481084,
-        "checking_ns": 65884441,
-        "reopen_ns": 528177,
+        "write_and_read_ns": 200659258,
+        "checking_ns": 61666550,
+        "reopen_ns": 465158,
         "bytes_after_checkpoint": 1806336
       }
     }
