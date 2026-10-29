@@ -59,9 +59,13 @@ Local JSON inputs are limited to 64 MiB. Identifiers are limited to signed
 63-bit nonnegative values in the implementation. The mathematical results use
 finite natural identifiers and exact content labels. Whole data and root
 records are atomic. Declared dependency-closed sets are the complete crash
-model. No device cache, filesystem `fsync`, concurrency, distributed failure,
-malicious logger, hash-collision attack, or resumed writes after recovery is
-modeled.
+model. The static trace semantics do not model device caches, filesystem
+`fsync`, concurrency, distributed failure, a malicious logger, or a
+hash-collision attack. They recover a fixed image rather than extending that
+image with new writes. The separate SQLite adapter does test a subsequent
+write after safe reopening; this is an application-level resumption check
+under SQLite's atomic transaction contract, not an extension of the trace
+theorem to mutating recovery.
 
 The JSON decoder rejects nonfinite extension tokens and exponent overflow
 that would otherwise decode to an infinite float. Finite floats retain their

@@ -11,6 +11,13 @@ yangliu@ntu.edu.sg.
 
 The finite model has serial events, atomic byte-bearing DATA records (including whole manifests), FREE records, immutable retained ROOTs, unique physical incarnations, and an explicit backward dependency DAG. A crash cut is downward closed. Strict recovery selects the greatest durable ROOT. Acknowledgements promise a recoverable operation prefix, not indefinite retention of overwritten object versions.
 
+Strict safety requires successful reconstruction and every compatible
+acknowledgement. Fallback instead selects the greatest valid root and checks
+acknowledged-prefix safety: a damaged newest root is permitted if some valid
+candidate still reaches each promised prefix. Its publication-valid decision
+returns a greatest violating cut; fixed-candidate complete search can return
+a minimum-cardinality one. These outputs have different objectives.
+
 The mathematical results characterize this model, not arbitrary programs or hardware. The byte-bearing model, exact oracle, separate certificate consumer, optional SMT encoding, and POSIX illustration have distinct trust boundaries. The POSIX example uses a current-root selector and whole-file replacement helpers. An exact completed-helper projection maps prepared root files to manifests and selector updates to ROOT publications; it is not an all-state filesystem refinement or a power-loss experiment. See `docs/selector-correspondence.md`.
 
 Applying the theorem to another store requires a complete issued-event trace,
@@ -90,7 +97,7 @@ python plots/draw_sqlite_costs.py --font-root /path/to/texmf-dist/fonts --out /a
 The SQLite plot reads all 48 primary cost rows and uses ratios of policy medians,
 the same statistic as its table. The write-ratio plot in
 `plots/draw_write_ratios.py` reads the primary scaling rows
-and using medians of per-input ratios. Neither renderer runs an experiment.
+and uses medians of per-input ratios. Neither renderer runs an experiment.
 
 Core experiments use Python 3.10 or later and the standard library, on a POSIX host with `resource` and process support. The recorded reproduction used Ubuntu 24.04 and Python 3.12. Complete SMT comparisons additionally require a usable local Z3 C shared library, discoverable by `ctypes.util.find_library`, or a local `z3-solver` installation. The campaign uses included inputs; TeX is unnecessary for this standalone repository.
 
@@ -158,7 +165,10 @@ do not exercise filesystem crash persistence.
 
 The test count must agree between the primary runner output and its summary,
 with the retained 75-method suite as a lower bound. New regressions need not
-masquerade as the historical suite. `run_all.py` shares one 45-minute wall-time
+masquerade as the historical suite. The supplied primary execution records
+103 methods; the current discovered artifact suite contains 129 methods.
+Changing the current suite does not rewrite the retained execution record.
+`run_all.py` shares one 45-minute wall-time
 deadline across all seven stages. The prepared scientific-checks workflow runs
 from this flat artifact root on Ubuntu 24.04 with a 40-minute scientific-command
 deadline, a 45-minute job cap, resource limits, mandatory SMT preflight, and raw
