@@ -75,9 +75,6 @@ def axes(c, box, xrange, yrange, xticks, yticks, xlabel, ylabel,
     c.setLineWidth(.35)
     if grid:
         c.setStrokeColorRGB(.86, .86, .86)
-        for value, _ in xticks:
-            x, _ = xy(value, yrange[0])
-            c.line(x, bottom, x, bottom + height)
         for value, _ in yticks:
             _, y = xy(xrange[0], value)
             c.line(left, y, left + width, y)
@@ -155,6 +152,7 @@ def bars(c, xy, categories, series, colours, barwidth):
             # Zero-height bars remain at baseline, never given invented height.
             c.rect(x - barwidth / 2, baseline, barwidth, top - baseline,
                    stroke=1, fill=1)
+            text(c, x, top + 4, f'{float(values[i]):.2f}', 8)
 
 
 def table(path, delimiter=None):
@@ -191,13 +189,13 @@ def draw(width):
     c = new_pdf("write-ratios.pdf", width, 5.8 * CM)
     height = 5.8 * CM
     xy = axes(c, (47, 34, width - 58, height - 56),
-              (-.5, 2.5), (0, 6.2),
+              (-.5, 2.5), (0, 6.4),
               list(enumerate(row["family"] for row in rows)),
               [(n, str(n)) for n in range(7)],
               "", "encoded bytes / input byte")
     colours = [(0.88, 0.88, 0.88), (.5, .5, .5), (1, 1, 1)]
-    bars(c, xy, range(3), series, colours, 9 * PT)
-    legend(c, list(zip(("No dedup", "Sync metadata", "Batch-four dedup"),
+    bars(c, xy, range(3), series, colours, 14 * PT)
+    legend(c, list(zip(("No deduplication", "Per-op. metadata", "Batch-four dedup."),
                       colours)), width, height - 11, 8.5)
     c.save()
 

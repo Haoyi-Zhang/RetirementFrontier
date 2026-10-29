@@ -2,6 +2,11 @@
 
 Executable trace-level crash certificates for deduplicating stores, accompanying the original research article prepared for **ACM Transactions on Storage (TOS)**.
 
+Paper authors, in order: Haoyi Zhang, Huaijin Ran, Yuqiang Sun,
+[Jiongchi Yu](https://orcid.org/0000-0002-2888-4499), and Yang Liu.
+Corresponding author: Yang Liu, Nanyang Technological University,
+yangliu@ntu.edu.sg.
+
 ## Scope
 
 The finite model has serial events, atomic byte-bearing DATA records (including whole manifests), FREE records, immutable retained ROOTs, unique physical incarnations, and an explicit backward dependency DAG. A crash cut is downward closed. Strict recovery selects the greatest durable ROOT. Acknowledgements promise a recoverable operation prefix, not indefinite retention of overwritten object versions.
@@ -74,17 +79,17 @@ python -B -O -m unittest discover -s tests -p test_posix_event_cuts.py -v
 
 ## Execution requirements
 
-Optional paper figures use `requirements-figures.txt`. Redraw the two symbolic
-diagrams with the installed manuscript OpenType font:
+All four optional paper figures use Python ReportLab and `requirements-figures.txt`.
+They embed the installed Type 1 counterpart of the manuscript's Libertine face:
 
 ```sh
-python figures/draw_schematics.py --font /path/to/LinLibertine_R.otf --out /absolute/fresh/diagrams
-python plots/draw_sqlite_costs.py --font /path/to/LinLibertine_R.otf --out /absolute/fresh/sqlite-plots
+python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/diagrams
+python plots/draw_sqlite_costs.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/sqlite-plots
 ```
 
 The SQLite plot reads all 48 primary cost rows and uses ratios of policy medians,
-the same statistic as its table. The write-ratio plot uses a separate Python
-ReportLab path in `plots/draw_write_ratios.py`, reading the primary scaling rows
+the same statistic as its table. The write-ratio plot in
+`plots/draw_write_ratios.py` reads the primary scaling rows
 and using medians of per-input ratios. Neither renderer runs an experiment.
 
 Core experiments use Python 3.10 or later and the standard library, on a POSIX host with `resource` and process support. The recorded reproduction used Ubuntu 24.04 and Python 3.12. Complete SMT comparisons additionally require a usable local Z3 C shared library, discoverable by `ctypes.util.find_library`, or a local `z3-solver` installation. The campaign uses included inputs; TeX is unnecessary for this standalone repository.
