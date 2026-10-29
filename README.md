@@ -96,7 +96,8 @@ python plots/draw_sqlite_costs.py --font-root /path/to/texmf-dist/fonts --out /a
 ```
 
 The SQLite plot reads all 48 primary cost rows and uses ratios of policy medians,
-the same statistic as its table. The write-ratio plot in
+the same statistic as its table. Solid and outlined bars distinguish journal
+modes, with aligned values outside the plotting area. The write-ratio plot in
 `plots/draw_write_ratios.py` reads the primary scaling rows
 and uses medians of per-input ratios. Neither renderer runs an experiment.
 

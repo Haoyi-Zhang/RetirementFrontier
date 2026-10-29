@@ -124,19 +124,16 @@ class Drawing:
             kind, *args = command
             c.setStrokeColorRGB(0, 0, 0)
             c.setFillColorRGB(0, 0, 0)
-            c.setLineWidth(.55)
+            c.setLineWidth(.7)
             c.setDash()
             if kind == 'box':
                 x, y, w, h, tone = args
-                fill,accent={'neutral':((.96,.97,.98),(.43,.49,.55)),
-                             'blue':((.91,.95,.98),vector.BLUE),
-                             'orange':((.99,.95,.90),vector.ORANGE)}[tone]
+                fill,accent={'neutral':((.985,.988,.990),(.43,.49,.55)),
+                             'blue':((.95,.97,.985),vector.BLUE),
+                             'orange':((.995,.975,.95),vector.ORANGE)}[tone]
                 c.setFillColorRGB(*fill)
                 c.setStrokeColorRGB(*accent)
-                c.roundRect(x*CM,y*CM,w*CM,h*CM,3,fill=1,stroke=1)
-                c.setStrokeColorRGB(*accent)
-                c.setLineWidth(1.6)
-                c.line((x+.13)*CM,(y+h)*CM,(x+w-.13)*CM,(y+h)*CM)
+                c.roundRect(x*CM,y*CM,w*CM,h*CM,2.2,fill=1,stroke=1)
             elif kind == 'text':
                 x, first, lines, leading, size, ha = args
                 c.setFont(FONT, size)
@@ -150,6 +147,7 @@ class Drawing:
                         c.drawString(x*CM, at, line)
             elif kind == 'line':
                 points, dashed = args
+                c.setStrokeColorRGB(.25,.29,.33)
                 if dashed:
                     c.setDash(3, 2)
                 path = c.beginPath()
@@ -159,6 +157,7 @@ class Drawing:
                 c.drawPath(path)
             elif kind == 'head':
                 p, q = args
+                c.setFillColorRGB(.25,.29,.33)
                 vertices=arrow_vertices(p,q)
                 path = c.beginPath()
                 path.moveTo(vertices[0][0]*CM,vertices[0][1]*CM)
@@ -174,42 +173,45 @@ def frontier(out):
                               ('r',5.7,'Root r\nlast user of a','neutral'),
                               ('q',9.5,'Root q\nallocation retired','blue'),
                               ('w',13.3,'Writer w\nslot overwritten','orange')]:
-        d.box(name,x,1.9,3.0,1.15,label,9.5,tone)
+        d.box(name,x,2.05,3.0,1.15,label,10,tone)
     for a,b in [('a','r'),('r','q'),('q','w')]:d.edge(a,b,'e','w')
-    d.arrow(d.point('r','n'),d.point('a','n'),dashed=True,via=[(5.7,3.25),(1.9,3.25)])
-    d.text(3.8,3.65,'Root reference',size=9)
-    d.text(5.7,.65,'Threat frontier: T(w) = r',size=9)
-    d.text(11.4,.65,'Forced frontier: F(w) = q > r',size=9)
+    d.arrow(d.point('r','n'),d.point('a','n'),dashed=True,via=[(5.7,3.3),(1.9,3.3)])
+    d.text(3.8,3.7,'Root reference',size=9)
+    d.text(5.7,.95,'T(w) = r',size=10)
+    d.text(9.5,.95,'F(w) = q',size=10)
+    d.text(7.6,.95,'<',size=12)
+    d.text(5.7,.35,'Last threatened root',size=8.5)
+    d.text(9.5,.35,'Forced durable root',size=8.5)
     d.save(out,'retirement-frontier')
 
 def paths(out):
-    d=Drawing((-1.1,0.,15.1,9.75))
-    nodes=[('trace',1.65,5.2,2.8,1.15,'Admitted\nhistory',10,'neutral'),
-           ('producer',5.4,7.65,2.8,1.15,'Frontier\nanalysis',10,'blue'),
-           ('certificate',9.15,7.65,2.8,1.15,'Positive\ncertificate',10,'blue'),
-           ('consumer',13.0,7.65,3.0,1.15,'Separate\nverification',10,'blue'),
-           ('cut',5.4,5.2,2.8,1.15,'Legal\ncrash cut',10,'neutral'),
-           ('image',9.15,5.2,2.8,1.15,'Materialized\ncrash image',10,'neutral'),
-           ('recovery',13.0,5.2,3.0,1.15,'Model\nrecovery',10,'neutral'),
-           ('alternate',5.4,3.25,2.8,1.,'Pairwise / SMT\ncomparison',9.5,'neutral')]
+    d=Drawing((-1.1,0.,15.1,8.55))
+    nodes=[('trace',1.65,4.55,2.8,1.15,'Admitted\nhistory',10,'neutral'),
+           ('producer',5.4,6.8,2.8,1.15,'Frontier\nanalysis',10,'blue'),
+           ('certificate',9.15,6.8,2.8,1.15,'Positive\ncertificate',10,'blue'),
+           ('consumer',13.0,6.8,3.0,1.15,'Separate\nverification',10,'blue'),
+           ('cut',5.4,4.55,2.8,1.15,'Legal\ncrash cut',10,'neutral'),
+           ('image',9.15,4.55,2.8,1.15,'Materialized\ncrash image',10,'neutral'),
+           ('recovery',13.0,4.55,3.0,1.15,'Model\nrecovery',10,'neutral'),
+           ('alternate',5.4,2.9,2.8,.95,'Pairwise / SMT\ncomparison',9,'neutral')]
     for row in nodes:d.box(*row)
     for a,b in [('producer','certificate'),('certificate','consumer'),('trace','cut'),('cut','image'),('image','recovery')]:
         d.edge(a,b,'e','w')
-    d.arrow(d.point('trace','e'),d.point('producer','w'),via=[(3.5,5.2),(3.5,7.65)])
-    d.arrow(d.point('trace','n'),d.point('consumer','n'),via=[(1.65,8.95),(13.,8.95)])
-    d.text(7.3,9.35,'Original history supplied to the verifier',size=9)
-    d.arrow(d.point('trace','s'),d.point('alternate','w'),via=[(1.65,3.25)])
-    for row in [('sqlite',1.65,1.25,2.8,1.15,'SQLite\ncommits',10,'orange'),
-                ('tables',5.4,1.25,2.8,1.15,'Retained\nslot / root records',9.5,'orange'),
-                ('native',9.15,1.25,2.8,1.15,'Native\nrecovery',10,'orange'),
-                ('compare',13.,1.25,3.,1.15,'Compare prefix\nand object bytes',9.5,'orange')]:
+    d.arrow(d.point('trace','e'),d.point('producer','w'),via=[(3.5,4.55),(3.5,6.8)])
+    d.arrow(d.point('trace','n'),d.point('consumer','n'),via=[(1.65,7.95),(13.,7.95)])
+    d.text(7.3,8.3,'Original history',size=9)
+    d.arrow(d.point('trace','s'),d.point('alternate','w'),via=[(1.65,2.9)])
+    for row in [('sqlite',1.65,1.1,2.8,1.15,'SQLite\ncommits',10,'orange'),
+                ('tables',5.4,1.1,2.8,1.15,'Retained\nslot / root records',9.5,'orange'),
+                ('native',9.15,1.1,2.8,1.15,'Native\nrecovery',10,'orange'),
+                ('compare',13.,1.1,3.,1.15,'Compare prefix\nand object bytes',9.5,'orange')]:
         d.box(*row)
     for a,b in [('sqlite','tables'),('tables','native'),('native','compare')]:
         d.edge(a,b,'e','w')
     d.edge('recovery','compare','s','n')
     d.arrow(d.point('sqlite','w'),d.point('trace','w'),
-            via=[(-.7,1.25),(-.7,5.2)],dashed=True)
-    d.text(.05,2.25,'Audit\nprojection',ha='left',size=8.5)
+            via=[(-.7,1.1),(-.7,4.55)],dashed=True)
+    d.text(-.35,2.8,'Audit\nprojection',ha='left',size=8.5)
     d.save(out,'evidence-paths')
 
 def main():
