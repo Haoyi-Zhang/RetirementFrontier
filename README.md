@@ -107,7 +107,11 @@ The SQLite plot reads all 48 primary cost rows and divides the matched policy
 medians shown side-by-side in the paper's allocation-cost table. Solid and outlined bars distinguish journal
 modes, with aligned values outside the plotting area. The write-ratio plot in
 `plots/draw_write_ratios.py` reads the primary scaling rows
-and uses medians of per-input ratios. Neither renderer runs an experiment.
+and uses medians of per-input ratios. Its three policy series are no
+deduplication, per-operation deduplication and batch-four deduplication.
+Every series counts total encoded writes, including payloads and record
+descriptors; the per-operation series is not a metadata-only measurement.
+Neither renderer runs an experiment.
 
 Core experiments use Python 3.10 or later and the standard library, on a POSIX host with `resource` and process support. The recorded reproduction used Ubuntu 24.04 and Python 3.12. Complete SMT comparisons additionally require a usable local Z3 C shared library, discoverable by `ctypes.util.find_library`, or a local `z3-solver` installation. The campaign uses included inputs; TeX is unnecessary for this standalone repository.
 

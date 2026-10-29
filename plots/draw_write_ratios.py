@@ -198,7 +198,7 @@ def draw(width):
               "", "Encoded bytes / logical input byte", ticksize=8.5)
     colours = [GREY, ORANGE, BLUE]
     bars(c, xy, range(3), series, colours, 22 * PT)
-    legend(c, list(zip(("No deduplication", "Per-operation metadata", "Batch-four deduplication"),
+    legend(c, list(zip(("No deduplication", "Per-operation deduplication", "Batch-four deduplication"),
                       colours)), width, height - 12, 8.5)
     c.save()
 
