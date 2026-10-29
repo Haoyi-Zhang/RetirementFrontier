@@ -308,7 +308,8 @@ chart instead divides matched policy medians and displays paired horizontal
 bars with a common equal-cost reference. Their different aggregation rules
 follow the corresponding tables. The two symbolic diagrams preserve the
 ordering and recovery interfaces; their renderer checks label clearance,
-node padding and connector intersections before writing the vector PDFs.
+minimum node padding and both connector and arrowhead intersections before
+writing the vector PDFs.
 
 ## License
 

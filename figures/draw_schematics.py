@@ -11,6 +11,19 @@ import draw_write_ratios as vector
 
 CM = 72 / 2.54
 FONT = vector.FONT
+NODE_PADDING = .12  # cm in the editable diagram, before manuscript scaling
+TEXT_CLEARANCE = .04
+
+
+def arrow_vertices(p, q):
+    dx, dy = q[0]-p[0], q[1]-p[1]
+    length = math.hypot(dx, dy)
+    if length <= 1e-12:
+        raise ValueError('Arrow needs a nonzero final segment')
+    ux, uy = dx/length, dy/length
+    bx, by = q[0]-4.5/CM*ux, q[1]-4.5/CM*uy
+    return [q, (bx-1.8/CM*uy, by+1.8/CM*ux),
+            (bx+1.8/CM*uy, by-1.8/CM*ux)]
 
 
 def segment_enters_box(p, q, box):
@@ -80,8 +93,8 @@ class Drawing:
         for label, b, node in self.labels:
             if b[0] < x0 or b[1] < y0 or b[2] > x1 or b[3] > y1:
                 raise ValueError(name + ': clipped label ' + repr(label))
-            if node and (b[0] < node[0]+.025 or b[1] < node[1]+.025
-                         or b[2] > node[2]-.025 or b[3] > node[3]-.025):
+            if node and (b[0] < node[0]+NODE_PADDING or b[1] < node[1]+NODE_PADDING
+                         or b[2] > node[2]-NODE_PADDING or b[3] > node[3]-NODE_PADDING):
                 raise ValueError(name + ': insufficient node padding ' + repr(label))
             boxes.append((label, b))
         for i, (label, a) in enumerate(boxes):
@@ -89,8 +102,16 @@ class Drawing:
                 if min(a[2], b[2]) > max(a[0], b[0]) and min(a[3], b[3]) > max(a[1], b[1]):
                     raise ValueError(name + ': overlapping labels ' + repr((label, other)))
         obstacles = [(key, (x-w/2+.02, y-h/2+.02, x+w/2-.02, y+h/2-.02))
-                     for key, (x, y, w, h) in self.nodes.items()] + boxes
-        for p, q in self.segments:
+                     for key, (x, y, w, h) in self.nodes.items()] + [
+            (label,(b[0]-TEXT_CLEARANCE,b[1]-TEXT_CLEARANCE,
+                    b[2]+TEXT_CLEARANCE,b[3]+TEXT_CLEARANCE)) for label,b in boxes]
+        # A clear centreline is not sufficient if the arrowhead grazes text.
+        segments = list(self.segments)
+        for kind,*args in self.commands:
+            if kind == 'head':
+                vertices=arrow_vertices(*args)
+                segments.extend(zip(vertices,vertices[1:]+vertices[:1]))
+        for p, q in segments:
             for label, box in obstacles:
                 if segment_enters_box(p, q, box):
                     raise ValueError(name + ': connector crosses ' + repr(label))
@@ -138,14 +159,10 @@ class Drawing:
                 c.drawPath(path)
             elif kind == 'head':
                 p, q = args
-                dx, dy = q[0]-p[0], q[1]-p[1]
-                length = math.hypot(dx, dy)
-                ux, uy = dx/length, dy/length
-                bx, by = q[0]*CM-4.5*ux, q[1]*CM-4.5*uy
+                vertices=arrow_vertices(p,q)
                 path = c.beginPath()
-                path.moveTo(q[0]*CM, q[1]*CM)
-                path.lineTo(bx-1.8*uy, by+1.8*ux)
-                path.lineTo(bx+1.8*uy, by-1.8*ux)
+                path.moveTo(vertices[0][0]*CM,vertices[0][1]*CM)
+                for x,y in vertices[1:]:path.lineTo(x*CM,y*CM)
                 path.close()
                 c.drawPath(path, fill=1, stroke=0)
         c.save()
@@ -154,7 +171,7 @@ class Drawing:
 def frontier(out):
     d=Drawing((0.,0.,15.2,4.2))
     for name,x,label,tone in [('a',1.9,'Allocation a\nold incarnation','neutral'),
-                              ('r',5.7,'Root r\nlast recoverable user','neutral'),
+                              ('r',5.7,'Root r\nlast user of a','neutral'),
                               ('q',9.5,'Root q\nallocation retired','blue'),
                               ('w',13.3,'Writer w\nslot overwritten','orange')]:
         d.box(name,x,1.9,3.0,1.15,label,9.5,tone)
@@ -183,7 +200,7 @@ def paths(out):
     d.text(7.3,9.35,'Original history supplied to the verifier',size=9)
     d.arrow(d.point('trace','s'),d.point('alternate','w'),via=[(1.65,3.25)])
     for row in [('sqlite',1.65,1.25,2.8,1.15,'SQLite\ncommits',10,'orange'),
-                ('tables',5.4,1.25,2.8,1.15,'Retained\nslot and root tables',9.5,'orange'),
+                ('tables',5.4,1.25,2.8,1.15,'Retained\nslot / root records',9.5,'orange'),
                 ('native',9.15,1.25,2.8,1.15,'Native\nrecovery',10,'orange'),
                 ('compare',13.,1.25,3.,1.15,'Compare prefix\nand object bytes',9.5,'orange')]:
         d.box(*row)
