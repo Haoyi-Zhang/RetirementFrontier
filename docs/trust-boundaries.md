@@ -20,6 +20,59 @@ The file helper completes write, flush, file fsync, rename and directory fsync b
 
 ## Empirical scope
 
+### SQLite transaction-to-event correspondence
+
+The additional SQLite adapter commits exactly one logical DATA or ROOT record
+per transaction, together with its audit entry. A DATA transaction replaces one
+row keyed by logical slot and a ROOT transaction inserts an immutable publication
+plus the client operation. All transactions use synchronous=FULL in DELETE or
+WAL mode. In one-writer order, event i depends on i-1. Assuming SQLite transaction
+atomicity and retention of returned commits, a reopen sees a prefix of whole
+events, not partial DATA/ROOT records. Slot rows equal the last DATA per key;
+root rows equal the committed ROOT events. Native recovery selects the greatest
+publication and validates its referenced manifest and chunk incarnations.
+Induction over committed transactions establishes native/model prefix and byte
+correspondence at this interface. The audit is an instrumented input binding,
+not an authenticated log or independent observer. A corruption regression
+changes slot bytes while retaining the log and demonstrates that native
+recovery rejects instead of trusting the still-safe transcript.
+
+Protecting every chunk and the manifest reachable from the previous publication
+until the next ROOT commit preserves publication and retirement. Protecting only
+the working namespace would be wrong when replacing an object: the previous
+root remains selectable during DATA commits. Unpublished orphan records after
+an interrupted write may be reused after reopen because they have no root user.
+The allocation rule does not run the offline checker on the hot path; generated
+traces are subsequently certified and checked by the code-separated consumer.
+
+The retained campaign exits a child with os._exit at every before-BEGIN,
+after-state, after-audit and after-COMMIT event boundary for the declared short
+workloads. State/audit changes before COMMIT must roll back together. Each
+safe recovered prefix is compared to native reads, model materialization and a
+client-intent byte oracle, then extended by a new write. The unsafe control
+deliberately overwrites a still-selected incarnation. These are own-protocol
+negative controls, not newly discovered SQLite bugs. The experiment does not
+interrupt SQLite inside its COMMIT implementation, cut power or clear host
+caches. Recovery trusts SQLite's atomicity rather than verifying the engine.
+
+Forty-eight paired-policy runs use 32 operations in shared, unique, churn and
+backup families, three seeds/repetitions and two journal modes. The backup
+family stores actual SQLite backup images from a changing twelve-account
+database; the recovered last image is opened by SQLite and checked for
+integrity and an independently computed count/sum query. Backup repetitions
+reuse that same fixed source workload. Both policies use identical intent bytes,
+chunking, transaction counts, FULL synchronization, audit and validation paths,
+with alternating order. Reported file sizes include audit history and open
+sidecars after an explicit checkpoint; they are not physical I/O or live-payload
+sizes. Recorded instrumented lifecycle times include initialization and client
+validation, and do not establish production throughput or a population speedup.
+
+The adapter does not broaden the theorem to concurrent clients, device slots,
+bounded root rings, torn records or production garbage collectors. See SQLite's
+actual contracts at https://www.sqlite.org/atomiccommit.html,
+https://www.sqlite.org/wal.html and
+https://www.sqlite.org/pragma.html#pragma_synchronous.
+
 The strict latest-root helper extension is separate from the eleven retained
 selector-process observations. It compares 56 initialization and 130 update
 images under two supplied rename-retention rules, using real file writes,

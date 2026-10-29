@@ -1,0 +1,13 @@
+{
+  "journal_modes": ["DELETE", "WAL"],
+  "safe_policies": ["frontier-reuse", "no-reuse"],
+  "negative_policy": "unsafe-reuse",
+  "crash_stages": ["before-begin", "after-state", "after-audit", "after-commit"],
+  "crash_workloads": ["replace", "alias-delete"],
+  "cost_families": ["shared", "unique", "churn", "backup"],
+  "cost_seeds": [61, 62, 63],
+  "operations": 32,
+  "chunk_bytes": 256,
+  "child_timeout_seconds": 20,
+  "scope": "One-writer SQLite logical records; real abrupt process exit and reopen, not device power loss or an independent production trace."
+}

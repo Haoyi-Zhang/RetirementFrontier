@@ -16,6 +16,45 @@ immutable root events without a marker-replacement model. The current helpers
 illustrate parts of this adapter contract; no production trace extractor is
 included.
 
+## SQLite engine adapter
+
+`src/sqlite_store.py` implements an owned, one-writer deduplicating object store
+over the real SQLite engine. `put`, `get`, `delete`, reopen and trace export are
+functional operations, not offline image serialization. Logical slots are
+SQLite rows, not disk addresses. One DATA or ROOT event and its audit row commit
+in one FULL-synchronization transaction. Native recovery reads only the slot
+and root tables; it does not trust the audit transcript or call model recovery.
+The conservative no-reuse policy has the same chunking, commits and audit path.
+The unsafe policy is an explicit negative control, not a supported deployment.
+
+```sh
+python -B scripts/run_sqlite_adapter.py
+python -B scripts/check_sqlite_adapter.py
+python -B scripts/run_tests.py --pattern test_sqlite_store.py -v
+python -B src/sqlite_store.py /tmp/owned-object-store.db put example /path/to/input
+python -B src/sqlite_store.py /tmp/owned-object-store.db list
+```
+
+Use a local filesystem for the campaign. It terminates only its own temporary
+child processes and never targets an existing user database. The retained Linux
+run has 376 abrupt process exits, 304 safe-policy recovery/resume checks and 32
+expected native failures among 72 unsafe controls, with no native/model
+disagreement. Forty-eight matched cost runs include twelve SQL backup restores
+whose integrity and account query are checked by SQLite itself. Backup repeats
+use the same controlled evolving source database, not independent field traces.
+Complete settings and raw rows are in `scripts/sqlite_experiment.json` and
+`results/sqlite-adapter/`; source bindings are checked before publication-table
+generation. Physical file totals include retained audits and open sidecars;
+they are not device-write counts. Timing includes initialization and client-byte
+validation. The supplied commands require only Python's SQLite standard module.
+
+This is a real-engine adapter for the stated application-level contract, not an
+adapter for all SQLite internals or an existing production deduplicating store.
+The serial commit dependency chain deliberately excludes asynchronous commit
+reordering. Process exit does not clear kernel caches, and neither the SQLite
+atomic-commit assumption nor hardware power-loss behavior is re-proven here.
+See the precise correspondence and limitations in `docs/trust-boundaries.md`.
+
 ## Strict latest-root helper checks
 
 The strict `recover_latest` path selects the numerically greatest retained root

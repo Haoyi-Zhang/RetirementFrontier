@@ -1,0 +1,226 @@
+{
+  "config": {
+    "journal_modes": [
+      "DELETE",
+      "WAL"
+    ],
+    "safe_policies": [
+      "frontier-reuse",
+      "no-reuse"
+    ],
+    "negative_policy": "unsafe-reuse",
+    "crash_stages": [
+      "before-begin",
+      "after-state",
+      "after-audit",
+      "after-commit"
+    ],
+    "crash_workloads": [
+      "replace",
+      "alias-delete"
+    ],
+    "cost_families": [
+      "shared",
+      "unique",
+      "churn",
+      "backup"
+    ],
+    "cost_seeds": [
+      61,
+      62,
+      63
+    ],
+    "operations": 32,
+    "chunk_bytes": 256,
+    "child_timeout_seconds": 20,
+    "scope": "One-writer SQLite logical records; real abrupt process exit and reopen, not device power loss or an independent production trace."
+  },
+  "environment": {
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "sqlite": "3.45.1",
+    "filesystem": "ext2/ext3"
+  },
+  "sources": {
+    "src/sqlite_store.py": "5a98173fc9b433b39c64a6ca7b3fbcd664ef078193fcfbae1654b41c3899150b",
+    "scripts/run_sqlite_adapter.py": "ae47d4fa582e6d3a4d53a8e10ec9f18ffe9727fcf5e1ebcc160b203dd20eea6f",
+    "scripts/sqlite_experiment.json": "0f60b2f06a273a41134ca5e55857f332c37599737c48be0d6ae15e2b63edba5a",
+    "src/model.py": "3d76fbf7a0192e104ad8ad5867be24605f294b4c8612ef068cfc1eb07ebd705d",
+    "src/checker.py": "cbc5f15e26274c4e9691ca7a28a4bcfc1677c1043601159bf7c405472bc1cfc2",
+    "src/medium.py": "eeb328408d873d2fda1bd114ec0613b4b21fe59b2e1ef640c74418806ab4ce2d",
+    "src/verifier.py": "06bf01d8c3b5f69e59a5be804f8816e980836b740d728a75b4ed48b56d0af269",
+    "src/strictjson.py": "6c009be97c2beaa8e54446aea059cca05576460e5000b3ba86c23e46f450350a"
+  },
+  "crash_cases": 376,
+  "safe_cases": 304,
+  "safe_failures": 0,
+  "negative_cases": 72,
+  "negative_native_failures": 32,
+  "native_model_disagreements": 0,
+  "resumed_cases": 304,
+  "cost_runs": 48,
+  "sql_restore_runs": 12,
+  "cost_medians": [
+    {
+      "mode": "DELETE",
+      "family": "shared",
+      "frontier-reuse": {
+        "slots": 5,
+        "slot_payload_bytes": 1722,
+        "write_and_read_ns": 332718779,
+        "checking_ns": 9136643,
+        "reopen_ns": 227906,
+        "bytes_after_checkpoint": 262144
+      },
+      "no-reuse": {
+        "slots": 64,
+        "slot_payload_bytes": 23198,
+        "write_and_read_ns": 345396458,
+        "checking_ns": 9712035,
+        "reopen_ns": 220300,
+        "bytes_after_checkpoint": 290816
+      }
+    },
+    {
+      "mode": "DELETE",
+      "family": "unique",
+      "frontier-reuse": {
+        "slots": 12,
+        "slot_payload_bytes": 4454,
+        "write_and_read_ns": 455688645,
+        "checking_ns": 15352757,
+        "reopen_ns": 248356,
+        "bytes_after_checkpoint": 376832
+      },
+      "no-reuse": {
+        "slots": 96,
+        "slot_payload_bytes": 45424,
+        "write_and_read_ns": 451120124,
+        "checking_ns": 15430019,
+        "reopen_ns": 269411,
+        "bytes_after_checkpoint": 421888
+      }
+    },
+    {
+      "mode": "DELETE",
+      "family": "churn",
+      "frontier-reuse": {
+        "slots": 12,
+        "slot_payload_bytes": 4214,
+        "write_and_read_ns": 392283472,
+        "checking_ns": 14561968,
+        "reopen_ns": 267425,
+        "bytes_after_checkpoint": 352256
+      },
+      "no-reuse": {
+        "slots": 84,
+        "slot_payload_bytes": 39492,
+        "write_and_read_ns": 404775740,
+        "checking_ns": 14854175,
+        "reopen_ns": 283721,
+        "bytes_after_checkpoint": 389120
+      }
+    },
+    {
+      "mode": "DELETE",
+      "family": "backup",
+      "frontier-reuse": {
+        "slots": 9,
+        "slot_payload_bytes": 9184,
+        "write_and_read_ns": 442510019,
+        "checking_ns": 66599697,
+        "reopen_ns": 408382,
+        "bytes_after_checkpoint": 1626112
+      },
+      "no-reuse": {
+        "slots": 80,
+        "slot_payload_bytes": 130572,
+        "write_and_read_ns": 486189433,
+        "checking_ns": 68255793,
+        "reopen_ns": 386195,
+        "bytes_after_checkpoint": 1773568
+      }
+    },
+    {
+      "mode": "WAL",
+      "family": "shared",
+      "frontier-reuse": {
+        "slots": 5,
+        "slot_payload_bytes": 1722,
+        "write_and_read_ns": 156945752,
+        "checking_ns": 10570891,
+        "reopen_ns": 340306,
+        "bytes_after_checkpoint": 294912
+      },
+      "no-reuse": {
+        "slots": 64,
+        "slot_payload_bytes": 23198,
+        "write_and_read_ns": 170825449,
+        "checking_ns": 9773829,
+        "reopen_ns": 352552,
+        "bytes_after_checkpoint": 323584
+      }
+    },
+    {
+      "mode": "WAL",
+      "family": "unique",
+      "frontier-reuse": {
+        "slots": 12,
+        "slot_payload_bytes": 4454,
+        "write_and_read_ns": 213481040,
+        "checking_ns": 16483835,
+        "reopen_ns": 385284,
+        "bytes_after_checkpoint": 409600
+      },
+      "no-reuse": {
+        "slots": 96,
+        "slot_payload_bytes": 45424,
+        "write_and_read_ns": 216223818,
+        "checking_ns": 16111621,
+        "reopen_ns": 371046,
+        "bytes_after_checkpoint": 454656
+      }
+    },
+    {
+      "mode": "WAL",
+      "family": "churn",
+      "frontier-reuse": {
+        "slots": 12,
+        "slot_payload_bytes": 4214,
+        "write_and_read_ns": 191648555,
+        "checking_ns": 15312325,
+        "reopen_ns": 385254,
+        "bytes_after_checkpoint": 385024
+      },
+      "no-reuse": {
+        "slots": 84,
+        "slot_payload_bytes": 39492,
+        "write_and_read_ns": 196173484,
+        "checking_ns": 14919123,
+        "reopen_ns": 358857,
+        "bytes_after_checkpoint": 421888
+      }
+    },
+    {
+      "mode": "WAL",
+      "family": "backup",
+      "frontier-reuse": {
+        "slots": 9,
+        "slot_payload_bytes": 9184,
+        "write_and_read_ns": 205772865,
+        "checking_ns": 66976973,
+        "reopen_ns": 537530,
+        "bytes_after_checkpoint": 1658880
+      },
+      "no-reuse": {
+        "slots": 80,
+        "slot_payload_bytes": 130572,
+        "write_and_read_ns": 217481084,
+        "checking_ns": 65884441,
+        "reopen_ns": 528177,
+        "bytes_after_checkpoint": 1806336
+      }
+    }
+  ],
+  "scope": "One-writer SQLite logical records; real abrupt process exit and reopen, not device power loss or an independent production trace."
+}
