@@ -107,8 +107,9 @@ python plots/draw_analysis_costs.py --font-root /path/to/texmf-dist/fonts --out 
 ```
 
 The SQLite plot reads all 48 primary cost rows and divides the matched policy
-medians shown side-by-side in the paper's allocation-cost table. Filled squares and open circles distinguish journal
-modes, with aligned values outside the plotting area. The write-ratio plot in
+medians shown side-by-side in the paper's allocation-cost table. Each segment
+joins the slot and file ratios for one workload and journal mode; the
+endpoints are labeled with their ratios. The write-ratio plot in
 `plots/draw_write_ratios.py` reads the primary scaling rows
 and uses medians of per-input ratios. Its three policy series are no
 deduplication, per-operation deduplication and batch-four deduplication.

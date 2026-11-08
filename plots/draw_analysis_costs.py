@@ -13,9 +13,9 @@ from analysis_costs import aggregates
 
 METHODS = (
     ('admission', 'Admission', (.32,.35,.39), 'square'),
-    ('consumer', 'Certificate consumption', (.13,.38,.34), 'diamond'),
-    ('pair', 'Pair analysis', v.ORANGE, 'triangle'),
-    ('frontier', 'Frontier + certificate', v.BLUE, 'circle'),
+    ('consumer', 'Certificate check', (.13,.38,.34), 'diamond'),
+    ('pair', 'Pairs', v.ORANGE, 'triangle'),
+    ('frontier', 'Frontier + cert.', v.BLUE, 'circle'),
 )
 
 
@@ -45,60 +45,64 @@ def mark(c, x, y, kind, color):
 
 
 def draw(width, cells):
-    height = 247.
+    height=277.
     c = v.new_pdf('analysis-cpu.pdf',width,height)
-    left,right,gap=49.,width-8.,12.
-    span=(right-left-2*gap)/3
-    if span<104:
+    left,right,gap=107.,width-8.,20.
+    span=(right-left-gap)/2
+    if span<142:
         raise ValueError('Insufficient plot width')
-    # Each row shares a log scale across its three workload facets. Markers
-    # are offset only within their category, never along the measured axis.
-    for k,(title,methods,lo,hi,ticks,bottom,top,heading) in enumerate((
-        ('(a) Input and verification', METHODS[:2], 3, 450, (5,20,100,400), 140, 198, 231),
-        ('(b) Retirement analysis', METHODS[2:], .016, 20, (.03,.1,1,10), 45, 105, 119),
+    # Horizontal positions encode observed time. The vertical displacement
+    # separates the two routines measured for the same input category.
+    bottom,top=32.,217.
+    ink,grid=(.27,.32,.36),(.83,.86,.88)
+    for k,(title,methods,lo,hi,ticks) in enumerate((
+        ('(a) Admission and verification',METHODS[:2],3,450,(5,20,100,400)),
+        ('(b) Retirement analysis',METHODS[2:],.016,20,(.03,.1,1,10)),
     )):
-        def ymap(y):
-            if not lo < y < hi:
-                raise ValueError(f'CPU median outside visible axis: {y}')
-            return bottom+(top-bottom)*math.log(y/lo)/math.log(hi/lo)
-        v.text(c,left,heading,title,11.5,'left')
+        x0=left+k*(span+gap)
+        def xpos(value):
+            if not lo<value<hi:
+                raise ValueError(f'CPU median outside visible axis: {value}')
+            return x0+span*math.log(value/lo)/math.log(hi/lo)
+        v.text(c,x0,257,title,11.5,'left')
         for i,(_,label,col,kind) in enumerate(methods):
-            x=right-202+i*86
+            x=x0+3+i*64
             c.setLineWidth(1.05)
-            mark(c,x,heading+3.5,kind,col)
-            v.text(c,x+8,heading,label,10.5,'left')
+            mark(c,x,240,kind,col)
+            v.text(c,x+8,237,label,10.5,'left')
+        for tick in ticks:
+            x=xpos(tick)
+            c.setStrokeColorRGB(*grid)
+            c.setLineWidth(.52)
+            c.line(x,bottom,x,top)
+            v.text(c,x,bottom-14,f'{tick:g}',10.5)
+        c.setStrokeColorRGB(*ink)
+        c.setLineWidth(.82)
+        c.line(x0,bottom,x0+span,bottom)
+        if k==0:
+            v.text(c,5,225,'Workload',10.5,'left')
+            v.text(c,95,225,'Ops',10.5,'right')
         for i,family in enumerate(('shared','unique','churn')):
-            x0=left+i*(span+gap)
+            first=203-i*60
+            if i:
+                c.setStrokeColorRGB(.68,.73,.76)
+                c.setLineWidth(.6)
+                c.line(x0,first+12,x0+span,first+12)
             if not k:
-                v.text(c,x0+span/2,209,family.capitalize(),11)
-            for val in ticks:
-                y=ymap(val)
-                c.setStrokeColorRGB(.81,.85,.88)
-                c.setLineWidth(.52)
-                c.line(x0,y,x0+span,y)
-                if i==0:
-                    v.text(c,x0-6,y-3.3,str(val),10.5,'right')
-            c.setStrokeColorRGB(.32,.37,.41)
-            c.setLineWidth(.72)
-            c.line(x0,bottom,x0+span,bottom)
-            if i==0:
-                c.line(x0,bottom,x0,top)
+                v.text(c,5,first-21,family.capitalize(),11,'left')
             for j,n in enumerate((32,128,512)):
-                x=x0+(j+.5)*span/3
-                c.setStrokeColorRGB(.39,.43,.47)
-                c.setLineWidth(.65)
-                c.line(x,bottom,x,bottom-3.2)
-                if k:
-                    v.text(c,x,bottom-15,str(n),10.5)
-                for offset,(method,_,col,kind) in zip((-5.7,5.7),methods):
+                y=first-j*18
+                if not k:
+                    v.text(c,95,y-3.2,str(n),10.5,'right')
+                points=[(xpos(cells[family,n][method+'_ms']),y+off,col,kind)
+                        for off,(method,_,col,kind) in zip((4.2,-4.2),methods)]
+                c.setStrokeColorRGB(.68,.72,.74)
+                c.setLineWidth(.64)
+                c.line(points[0][0],points[0][1],points[1][0],points[1][1])
+                for x,y,col,kind in points:
                     c.setLineWidth(1.05)
-                    mark(c,x+offset,ymap(cells[family,n][method+'_ms']),kind,col)
-    v.text(c,(left+right)/2,7,'Client operations',11)
-    c.saveState()
-    c.translate(12,121)
-    c.rotate(90)
-    v.text(c,0,0,'CPU time (ms, log scale)',11)
-    c.restoreState()
+                    mark(c,x,y,kind,col)
+    v.text(c,(left+right)/2,4,'CPU time (ms, log scale)',11)
     c.save()
 
 

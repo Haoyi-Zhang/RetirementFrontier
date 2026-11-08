@@ -11,16 +11,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'plots'))
 import draw_write_ratios as v
 
 W = 430.00462 * v.PT
-INK = (.10, .16, .21)
-MUTED = (.31, .37, .42)
-RULE = (.77, .81, .84)
-BLUE = (.11, .34, .49)
-TEAL = (.10, .40, .35)
-RUST = (.60, .25, .12)
+INK = (.09, .13, .17)
+MUTED = (.29, .34, .38)
+RULE = (.73, .77, .80)
+BLUE = (.10, .29, .43)
+TEAL = (.13, .35, .32)
+RUST = (.58, .24, .12)
 PAPER = (1, 1, 1)
 GREY = (.965, .972, .977)
 PALE_BLUE = (.928, .963, .982)
-PALE_RUST = (.989, .950, .918)
 
 
 def grow(box, amount):
@@ -68,7 +67,7 @@ class Figure:
         self.c.setFillColorRGB(*colour)
         for i, row in enumerate(rows):
             advance = pdfmetrics.stringWidth(row,v.FONT,size)
-            left = x-advance/2 if align=='center' else x
+            left = x-advance/2 if align=='center' else x-advance if align=='right' else x
             base = first-i*leading
             self.words.append((row,(left,self.height-base-ascent,
                                     left+advance,self.height-base-descent),owner))
@@ -141,92 +140,102 @@ class Figure:
 
 
 def motivation(out):
-    d=Figure(out,'reuse-cut',111)
-    for left, heading, root, verdict, colour in (
-        (0,'(a) Older root selected','Older root','Recovery fails: old allocation missing',RUST),
-        (224,'(b) Retiring root selected','Retiring root','Old allocation is not referenced',TEAL),
+    d=Figure(out,'reuse-cut',145)
+    for x,head in ((6,'Selected publication'),(151,'Same overwritten slot'),(291,'Effect of reuse')):
+        d.label(x,13,head,11,'left')
+    d.line((6,25),(422,25),colour=MUTED,weight=.75)
+    d.line((6,87),(422,87),colour=RULE,weight=.6)
+    for y,root,need,result,detail,colour in (
+        (54,'(a) Older root','Still names the old allocation','Recovery fails','Required bytes are absent',RUST),
+        (114,'(b) Retiring root','Does not name the allocation','No stale reference','The old bytes are not needed',TEAL),
     ):
-        d.label(left+3,13,heading,12,'left')
-        d.line((left+3,25),(left+199,25),colour=RULE,weight=.65)
-        d.label(left+47,40,'Selected publication',10.5,colour=MUTED)
-        d.label(left+155,40,'Overwritten slot',10.5,colour=MUTED)
-        d.node(f'root{left}',left+47,63,83,25,root)
-        d.node(f'slot{left}',left+155,63,88,25,'New incarnation',RUST,PALE_RUST)
-        d.label(left+101,99,verdict,11,colour=colour)
-    d.line((88.5,63),(111,63),colour=RUST,dashed=True,arrow=True,weight=1.1)
+        d.label(6,y-6,root,12,'left')
+        d.label(6,y+11,need,10.5,'left',MUTED)
+        d.node(f'slot{y}',202,y,102,30,'New incarnation',MUTED,GREY)
+        d.label(291,y-6,result,12,'left',colour)
+        d.label(291,y+11,detail,10.5,'left',MUTED)
+    d.line((110,53),(151,53),colour=RUST,dashed=True,arrow=True,weight=1.15)
     d.save()
 
 
 def frontier(out):
-    d=Figure(out,'retirement-frontier',145)
-    xs=(44,148,265,380)
-    d.line((15,65),(411,65),colour=RULE)
+    d=Figure(out,'retirement-frontier',147)
+    xs=(43,145,266,381)
+    d.line((15,63),(410,63),colour=RULE)
     for x,title,detail,colour in zip(xs,('Allocation a','Root r','Root q','Writer w'),
             ('Old incarnation','Last root using a','Retires a','Overwrites the slot'),
             (MUTED,INK,BLUE,RUST)):
-        d.dot(x,65,colour)
-        d.label(x,84,title,11.5,colour=colour)
-        d.label(x,103,detail,10.5,colour=MUTED)
-    d.label(96,13,'Root reference',11)
-    d.label(322.5,13,'Persistence dependency',11,colour=BLUE)
-    d.line((148,61),(148,33),(44,33),(44,61),colour=MUTED,dashed=True,arrow=True)
-    d.line((265,61),(265,33),(380,33),(380,61),colour=BLUE,arrow=True,weight=1.2)
-    d.label(214,133,'T(w) = r   <   F(w) = q',13)
+        d.dot(x,63,colour)
+        d.label(x,80,title,12,colour=colour)
+        d.label(x,97,detail,10.5,colour=MUTED)
+    d.label(94,13,'r refers to a',11)
+    d.label(323.5,13,'Durable w forces durable q',11,colour=BLUE)
+    d.line((145,59),(145,33),(43,33),(43,59),colour=MUTED,dashed=True,arrow=True)
+    d.line((266,59),(266,33),(381,33),(381,59),colour=BLUE,arrow=True,weight=1.15)
+    for x,expr,colour in ((145,'T(w) = r',INK),(266,'F(w) = q',BLUE)):
+        d.line((x,108),(x,118),colour=RULE,weight=.75)
+        d.label(x,132,expr,13,colour=colour)
+    d.label(205.5,132,'<',13)
     d.save()
 
 
 def certificate(out):
-    d=Figure(out,'certificate-check',125)
-    d.node('history',53,48,95,35,'Admitted\nhistory',MUTED,GREY)
-    d.node('producer',189,48,94,35,'Frontier\nanalysis')
-    d.node('verifier',369,48,107,35,'Separate\nverifier',BLUE,PALE_BLUE)
-    d.line((100.5,48),(142,48),arrow=True)
-    d.line((236,48),(315.5,48),arrow=True,colour=BLUE,weight=1.1)
-    d.label(275,21,'Positive certificate',10.5,colour=BLUE)
-    d.line((53,65.5),(53,92),(369,92),(369,65.5),arrow=True)
-    d.label(210,111,'Original history',11)
+    d=Figure(out,'certificate-check',146)
+    d.node('history',53,77,100,39,'Admitted\nhistory',MUTED,GREY)
+    d.node('producer',199,37,92,35,'Frontier\nanalysis')
+    d.node('verifier',384,78.5,76,55,'Separate\nverifier',BLUE,PALE_BLUE)
+    d.line((103,77),(123,77))
+    d.line((123,77),(123,37),(153,37),arrow=True)
+    d.line((245,37),(331,37),(331,66),(346,66),arrow=True,colour=BLUE,weight=1.15)
+    d.label(288,11,'Positive certificate',10.5,colour=BLUE)
+    d.line((123,77),(123,114),(331,114),(331,91),(346,91),arrow=True)
+    d.label(228,132,'Original history',11)
     d.save()
 
 
 def selector(out):
-    d=Figure(out,'selector-order',177)
-    xs=(50,160,270,380)
+    d=Figure(out,'selector-order',188)
+    xs=(124,213,302,390)
+    for i,x in enumerate(xs,1):
+        d.label(x,14,f'Step {i}',11,colour=MUTED)
+    d.line((5,26),(423,26),colour=MUTED,weight=.75)
+    d.line((5,108),(423,108),colour=RULE,weight=.6)
     for heading,y,steps,first,last,shade in (
-        ('(a) Ordered protocol',30,('Write B to\na fresh slot','Prepare B\nmanifest','Select B','Reuse old slot'),
-         'A remains recoverable','B is selected before reuse',TEAL),
-        ('(b) Unsafe control',120,('Overwrite A\nwith B','Prepare B\nmanifest','Select B'),
-         'Recovery of A fails','B is recoverable',RUST),
+        ('(a) Ordered',52,('Write B to\nfresh slot','Prepare B\nmanifest','Select B','Reuse old slot'),
+         'A recoverable','B recoverable',TEAL),
+        ('(b) Unsafe',133,('Overwrite A\nwith B','Prepare B\nmanifest','Select B','No further step'),
+         'A unrecoverable','B recoverable',RUST),
     ):
-        d.label(4,y-18,heading,12,'left')
+        d.label(5,y,heading,11.5,'left')
         for i,(x,step) in enumerate(zip(xs,steps)):
-            colour=BLUE if i==2 else shade if i==0 and y>100 else MUTED
-            d.dot(x,y,colour)
-            d.label(x,y+21,step,11)
-            if i:
-                d.line((xs[i-1]+4,y),(x-4,y),arrow=True,colour=MUTED)
-        d.label(105,y+49,first,11,colour=shade)
-        d.label(325 if len(steps)==4 else 270,y+49,last,11,colour=TEAL)
-    d.line((4,89),(424,89),colour=RULE,weight=.6)
+            d.label(x,y,step,11,colour=(BLUE if i==2 else MUTED if y>100 and i==3 else INK))
+        for l,r,label,colour in (
+            (89,247,first,shade),
+            (267,425,last,TEAL) if y<100 else (267,337,last,TEAL),
+        ):
+            d.line((l,y+22),(r,y+22),colour=colour,weight=1.1)
+            d.label((l+r)/2,y+39,label,11,colour=colour)
     d.save()
 
 
 def sqlite(out):
-    d=Figure(out,'evidence-paths',162)
-    d.label(231,9,'Event-model path',11.5,colour=BLUE)
-    d.label(231,150,'Native SQLite path',11.5,colour=TEAL)
-    d.node('commit',52,77,94,37,'Committed\nSQLite state',MUTED,GREY)
-    d.node('audit',174,38,89,34,'Audit\nprojection')
-    d.node('model',277,38,85,34,'Model\nrecovery',BLUE,PALE_BLUE)
-    d.node('records',174,116,89,34,'Retained\nrecords')
-    d.node('native',277,116,85,34,'Native\nrecovery',TEAL,GREY)
-    d.node('compare',380,77,91,38,'Compare\nrecovery results')
-    d.line((99,77),(116,77))
-    d.line((116,77),(116,38),(129.5,38),arrow=True,colour=BLUE)
-    d.line((116,77),(116,116),(129.5,116),arrow=True,colour=TEAL)
-    d.line((218.5,38),(234.5,38),arrow=True,colour=BLUE)
-    d.line((218.5,116),(234.5,116),arrow=True,colour=TEAL)
-    d.line((319.5,38),(380,38),(380,58),arrow=True,colour=BLUE)
-    d.line((319.5,116),(380,116),(380,96),arrow=True,colour=TEAL)
+    d=Figure(out,'evidence-paths',177)
+    d.node('commit',53,93,100,38,'Committed\nSQLite state',MUTED,GREY)
+    d.node('compare',384,93,84,47,'Compare\nrecovery results')
+    d.line((103,93),(123,93))
+    d.label(128,16,'Event-model path',11.5,'left',BLUE)
+    d.label(128,164,'Native SQLite path',11.5,'left',TEAL)
+    for y,ty,port,first,second,colour in (
+        (57,39,78,'Audit projection','Model recovery',BLUE),
+        (128,144,108,'Retained records','Native recovery',TEAL),
+    ):
+        d.label(178,ty,first,11)
+        d.label(269,ty,second,11)
+        for x in (178,269):
+            d.dot(x,y,colour)
+        d.line((123,93),(123,y),(174,y),arrow=True,colour=colour)
+        d.line((182,y),(265,y),arrow=True,colour=colour)
+        d.line((273,y),(330,y),(330,port),(342,port),arrow=True,colour=colour)
     d.save()
 
 

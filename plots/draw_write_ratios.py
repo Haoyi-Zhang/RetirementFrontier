@@ -196,27 +196,43 @@ def main_args(default_width):
 
 def draw(width):
     rows = retained_rows(INPUT)
-    series = [[Decimal(row[key]) for row in rows]
-              for key in ("no_dedup", "sync_metadata", "batch_four_dedup")]
-    height = 178.
+    keys=("no_dedup","sync_metadata","batch_four_dedup")
+    height=223.
     c = new_pdf("write-ratios.pdf", width, height)
-    left, right, base, top = 32.,width-8.,31.,130.
-    step=(right-left)/3
-    def xy(i,y):
-        return left+(i+.5)*step,base+(top-base)*y/6.6
+    left,right,bottom,top=73.,width-29.,35.,190.
+    colours=(GREY,ORANGE,BLUE)
+    def xpos(value):
+        return left+(right-left)*value/6.15
     for n in (0,2,4,6):
-        _,y=xy(0,n)
-        c.setStrokeColorRGB(*((.33,.38,.43) if n==0 else (.81,.85,.88)))
-        c.setLineWidth(.78 if n==0 else .55)
-        c.line(left,y,right,y)
-        text(c,left-7,y-3.2,str(n),10.5,'right')
+        x=xpos(n)
+        c.setStrokeColorRGB(*((.31,.36,.40) if n==0 else (.84,.87,.89)))
+        c.setLineWidth(.8 if n==0 else .5)
+        c.line(x,bottom,x,top)
+        text(c,x,bottom-15,str(n),10.5)
+    c.setStrokeColorRGB(.31,.36,.40)
+    c.setLineWidth(.8)
+    c.line(left,bottom,right,bottom)
     for i,row in enumerate(rows):
-        text(c,xy(i,0)[0],base-17,row['family'],11)
-    text(c,left,height-32,'Encoded bytes per logical input byte',11,'left')
-    colours = [GREY, ORANGE, BLUE]
-    bars(c, xy, range(3), series, colours, 27 * PT)
+        centre=164-i*53
+        text(c,left-10,centre-3.2,row["family"],11.5,"right")
+        for j,(key,colour) in enumerate(zip(keys,colours)):
+            val=float(Decimal(row[key]))
+            y=centre+14-14*j
+            x=xpos(val)
+            c.setFillColorRGB(*colour)
+            c.setStrokeColorRGB(.18,.23,.27)
+            c.setLineWidth(.46)
+            c.rect(left,y-3.6,x-left,7.2,stroke=1,fill=1)
+            label=f'{val:.2f}'
+            tw=pdfmetrics.stringWidth(label,FONT,10.5)
+            if x+7+tw>width-1:
+                raise ValueError('Insufficient margin for encoded-write value')
+            c.setFillColorRGB(1,1,1)
+            c.rect(x+5.7,y-5.5,tw+2.7,11,stroke=0,fill=1)
+            text(c,x+7,y-3.2,label,10.5,'left')
+    text(c,(left+right)/2,4,'Encoded bytes per logical input byte',11)
     legend(c, list(zip(("No deduplication", "Per-operation deduplication", "Batch-four deduplication"),
-                      colours)), width, height - 11, 10.5)
+                      colours)), width, height-13,10.5)
     c.save()
 
 
