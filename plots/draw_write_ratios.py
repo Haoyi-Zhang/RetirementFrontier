@@ -153,9 +153,18 @@ def bars(c, xy, categories, series, colours, barwidth):
             c.setStrokeColorRGB(.18, .23, .28)
             c.setLineWidth(.45)
             # Zero-height bars remain at baseline, never given invented height.
-            c.rect(x - barwidth / 2, baseline, barwidth, top - baseline,
+            drawn_width = .82*barwidth
+            c.rect(x - drawn_width / 2, baseline, drawn_width, top - baseline,
                    stroke=1, fill=1)
-            text(c, x, top + 5, f'{float(values[i]):.2f}', 8.5)
+            label,size=f'{float(values[i]):.2f}',10.25
+            baseline_y=top+5.5
+            ascent,descent=pdfmetrics.getAscentDescent(FONT,size)
+            half_width=pdfmetrics.stringWidth(label,FONT,size)/2
+            # Keep the pale grid out of the glyphs without obscuring the bar.
+            c.setFillColorRGB(1,1,1)
+            c.rect(x-half_width-1.2, baseline_y+descent-.45, 2*half_width+2.4,
+                   ascent-descent+.9, fill=1, stroke=0)
+            text(c, x, baseline_y, label, size)
 
 
 def table(path, delimiter=None):
@@ -189,17 +198,18 @@ def draw(width):
     rows = retained_rows(INPUT)
     series = [[Decimal(row[key]) for row in rows]
               for key in ("no_dedup", "sync_metadata", "batch_four_dedup")]
-    height = 6.4 * CM
+    height = 6.55 * CM
     c = new_pdf("write-ratios.pdf", width, height)
-    xy = axes(c, (48, 34, width - 59, height - 65),
-              (-.5, 2.5), (0, 6.4),
+    xy = axes(c, (42, 32, width - 52, height - 69),
+              (-.5, 2.5), (0, 6.65),
               list(enumerate(row["family"] for row in rows)),
               [(n, str(n)) for n in range(7)],
-              "", "Encoded bytes / logical input byte", ticksize=8.5)
+              "", "", ticksize=10)
+    text(c,42,height-29,'Encoded bytes per logical input byte',10.5,'left')
     colours = [GREY, ORANGE, BLUE]
-    bars(c, xy, range(3), series, colours, 22 * PT)
+    bars(c, xy, range(3), series, colours, 25 * PT)
     legend(c, list(zip(("No deduplication", "Per-operation deduplication", "Batch-four deduplication"),
-                      colours)), width, height - 12, 8.5)
+                      colours)), width, height - 11, 10)
     c.save()
 
 

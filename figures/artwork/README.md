@@ -1,0 +1,7 @@
+# Schematic artwork
+
+`storage-symbols.png` is a frozen, text-free pictogram sheet produced with the built-in OpenAI image generation tool. It supplies document and storage silhouettes only; the slot boundaries, labels, arrows and layout are native vectors in `draw_schematics.py`. The remaining figures do not use generated artwork. This file is neither an observation nor an experiment input. Rebuilding the figures is offline.
+
+## Prompt for storage-symbols.png
+
+Use case: scientific-educational. Generate one extremely clean asset sheet for an archival computer storage systems paper, not a finished chart. Pure white background. Wide horizontal 3:1 or 3:2 canvas with three equally spaced, isolated glyph illustrations at x=1/6, 1/2, 5/6 and centered vertically: (1) a single navy outlined folded-corner document with empty interior, (2) a single teal outlined folded-corner document with empty interior, (3) an understated navy outlined database cylinder with exactly one internal horizontal divider. Each symbol should fit within a central square inside its own third, have the same optical size and crisp medium-weight dark contours, with large completely blank gutters. Flat monochrome SVG-like treatment, restrained archival scientific illustration. No other marks anywhere: no text, glyphs, numbers, frame, labels, icons within icons, arrows, connector lines outside glyphs, gradients, shadows, effects, or background tint. Preserve blank margins.

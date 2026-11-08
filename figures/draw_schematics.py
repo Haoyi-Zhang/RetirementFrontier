@@ -1,18 +1,26 @@
-"""Python vector diagrams with the manuscript's embedded Type 1 font."""
+"""Assemble manuscript schematics with exact vector annotation and frozen artwork."""
 import argparse
 import math
 from pathlib import Path
 import sys
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'plots'))
 import draw_write_ratios as vector
 
 CM = 72 / 2.54
 FONT = vector.FONT
-NODE_PADDING = .12  # cm in the editable diagram, before manuscript scaling
-TEXT_CLEARANCE = .04
+NODE_PADDING = .14  # cm in the editable diagram, before manuscript scaling
+TEXT_CLEARANCE = .08
+ART = Path(__file__).resolve().parent / 'artwork'
+W = 430.00462*vector.PT/CM
+INK = (.12,.18,.24)
+# Insets retain the complete glyph outlines while excluding sheet whitespace.
+DOCUMENT = (.069,.294,.293,.706)
+RETIRED_DOCUMENT = (.393,.294,.615,.706)
+STORAGE = (.695,.292,.939,.708)
 
 
 def arrow_vertices(p, q):
@@ -21,9 +29,9 @@ def arrow_vertices(p, q):
     if length <= 1e-12:
         raise ValueError('Arrow needs a nonzero final segment')
     ux, uy = dx/length, dy/length
-    bx, by = q[0]-4.5/CM*ux, q[1]-4.5/CM*uy
-    return [q, (bx-1.8/CM*uy, by+1.8/CM*ux),
-            (bx+1.8/CM*uy, by-1.8/CM*ux)]
+    bx, by = q[0]-6.0/CM*ux, q[1]-6.0/CM*uy
+    return [q, (bx-2.6/CM*uy, by+2.6/CM*ux),
+            (bx+2.6/CM*uy, by-2.6/CM*ux)]
 
 
 def segment_enters_box(p, q, box):
@@ -50,8 +58,9 @@ class Drawing:
         self.labels = []
         self.segments = []
         self.commands = []
+        self.artwork = []
 
-    def text(self, x, y, label, size=9, ha='center', va='center'):
+    def text(self, x, y, label, size=10.5, ha='center', va='center'):
         if va != 'center':
             raise ValueError('Diagram text uses centered baselines')
         lines = label.split('\n')
@@ -63,13 +72,21 @@ class Drawing:
         box = (left/CM, (first-(len(lines)-1)*leading+descent)/CM,
                (left+width)/CM, (first+ascent)/CM)
         self.labels.append([label, box, None])
+        if any(not 32 <= ord(ch) <= 126 for ch in label.replace('\n','')):
+            raise ValueError('Use glyphs from the embedded manuscript face')
         self.commands.append(('text', x, first/CM, lines, leading/CM, size, ha))
 
-    def box(self, name, x, y, w, h, label, size=9, tone='neutral'):
+    def box(self, name, x, y, w, h, label, size=10.5, tone='neutral', symbol=None):
+        if name in self.nodes:
+            raise ValueError('Duplicate node: '+name)
         self.nodes[name] = (x, y, w, h)
         self.commands.append(('box', x-w/2, y-h/2, w, h, tone))
-        self.text(x, y, label, size)
-        self.labels[-1][2] = (x-w/2, y-h/2, x+w/2, y+h/2)
+        if symbol is not None:
+            source, crop = symbol
+            self.art(source, crop, (x-w/2+.16, y-.30, x-w/2+.77, y+.30))
+        if label:
+            self.text(x+(.29 if symbol else 0), y, label, size)
+            self.labels[-1][2] = (x-w/2, y-h/2, x+w/2, y+h/2)
 
     def point(self, name, side):
         x, y, w, h = self.nodes[name]
@@ -87,8 +104,22 @@ class Drawing:
     def edge(self, a, b, sa='s', sb='n', **kwargs):
         self.arrow(self.point(a, sa), self.point(b, sb), **kwargs)
 
+    def art(self, source, crop, box):
+        self.artwork.append(box)
+        self.commands.append(('art', source, crop, box))
+
     def save(self, out, name):
         x0, y0, x1, y1 = self.bounds
+        node_boxes = [(key,(x-w/2,y-h/2,x+w/2,y+h/2))
+                      for key,(x,y,w,h) in self.nodes.items()]
+        def overlaps(a,b):
+            return min(a[2],b[2]) > max(a[0],b[0]) and min(a[3],b[3]) > max(a[1],b[1])
+        for i,(key,b) in enumerate(node_boxes):
+            if b[0]<x0 or b[1]<y0 or b[2]>x1 or b[3]>y1:
+                raise ValueError(name+': node outside canvas '+key)
+            for other,a in node_boxes[i+1:]:
+                if overlaps(a,b):
+                    raise ValueError(name+': overlapping nodes '+key+' and '+other)
         boxes = []
         for label, b, node in self.labels:
             if b[0] < x0 or b[1] < y0 or b[2] > x1 or b[3] > y1:
@@ -96,15 +127,24 @@ class Drawing:
             if node and (b[0] < node[0]+NODE_PADDING or b[1] < node[1]+NODE_PADDING
                          or b[2] > node[2]-NODE_PADDING or b[3] > node[3]-NODE_PADDING):
                 raise ValueError(name + ': insufficient node padding ' + repr(label))
+            for key,a in node_boxes:
+                if a != node and overlaps(a,b):
+                    raise ValueError(name+': label crosses unrelated node '+key)
             boxes.append((label, b))
         for i, (label, a) in enumerate(boxes):
             for other, b in boxes[i+1:]:
                 if min(a[2], b[2]) > max(a[0], b[0]) and min(a[3], b[3]) > max(a[1], b[1]):
                     raise ValueError(name + ': overlapping labels ' + repr((label, other)))
+            if any(min(a[2], b[2]) > max(a[0], b[0]) and
+                   min(a[3], b[3]) > max(a[1], b[1]) for b in self.artwork):
+                raise ValueError(name + ': artwork overlaps ' + repr(label))
+        if any(b[0]<x0 or b[1]<y0 or b[2]>x1 or b[3]>y1 for b in self.artwork):
+            raise ValueError(name + ': artwork outside page')
         obstacles = [(key, (x-w/2+.02, y-h/2+.02, x+w/2-.02, y+h/2-.02))
                      for key, (x, y, w, h) in self.nodes.items()] + [
             (label,(b[0]-TEXT_CLEARANCE,b[1]-TEXT_CLEARANCE,
-                    b[2]+TEXT_CLEARANCE,b[3]+TEXT_CLEARANCE)) for label,b in boxes]
+                    b[2]+TEXT_CLEARANCE,b[3]+TEXT_CLEARANCE)) for label,b in boxes] + [
+            ('artwork', b) for b in self.artwork]
         # A clear centreline is not sufficient if the arrowhead grazes text.
         segments = list(self.segments)
         for kind,*args in self.commands:
@@ -123,17 +163,36 @@ class Drawing:
         for command in self.commands:
             kind, *args = command
             c.setStrokeColorRGB(0, 0, 0)
-            c.setFillColorRGB(0, 0, 0)
-            c.setLineWidth(.7)
+            c.setFillColorRGB(*INK)
+            c.setLineWidth(.85)
             c.setDash()
             if kind == 'box':
                 x, y, w, h, tone = args
                 fill,accent={'neutral':((.985,.988,.990),(.43,.49,.55)),
                              'blue':((.95,.97,.985),vector.BLUE),
-                             'orange':((.995,.975,.95),vector.ORANGE)}[tone]
+                             'orange':((.993,.929,.85),vector.ORANGE),
+                             'green':((.92,.967,.952),(.15,.40,.35)),
+                             'red':((.992,.917,.895),(.59,.20,.13)),
+                             'paper':((1.,1.,1.),(.43,.49,.55))}[tone]
                 c.setFillColorRGB(*fill)
                 c.setStrokeColorRGB(*accent)
-                c.roundRect(x*CM,y*CM,w*CM,h*CM,2.2,fill=1,stroke=1)
+                c.roundRect(x*CM,y*CM,w*CM,h*CM,2.0,fill=1,stroke=1)
+            elif kind == 'art':
+                source, (l,t,r,b), (x,y,xmax,ymax) = args
+                if not (0 <= l < r <= 1 and 0 <= t < b <= 1):
+                    raise ValueError('Invalid source viewport')
+                img = ImageReader(str(source))
+                pw, ph = img.getSize()
+                scale = min((xmax-x)*CM/(pw*(r-l)), (ymax-y)*CM/(ph*(b-t)))
+                w, h = pw*scale, ph*scale
+                cw, ch = (r-l)*w, (b-t)*h
+                left, bottom = ((x+xmax)*CM-cw)/2, ((y+ymax)*CM-ch)/2
+                c.saveState()
+                clip = c.beginPath()
+                clip.rect(left,bottom,cw,ch)
+                c.clipPath(clip,stroke=0,fill=0)
+                c.drawImage(img,left-l*w,bottom-(1-b)*h,w,h,mask='auto')
+                c.restoreState()
             elif kind == 'text':
                 x, first, lines, leading, size, ha = args
                 c.setFont(FONT, size)
@@ -147,9 +206,10 @@ class Drawing:
                         c.drawString(x*CM, at, line)
             elif kind == 'line':
                 points, dashed = args
-                c.setStrokeColorRGB(.25,.29,.33)
+                c.setStrokeColorRGB(*INK)
+                c.setLineWidth(1.02)
                 if dashed:
-                    c.setDash(3, 2)
+                    c.setDash(3.2, 2.1)
                 path = c.beginPath()
                 path.moveTo(points[0][0]*CM, points[0][1]*CM)
                 for x, y in points[1:]:
@@ -157,7 +217,7 @@ class Drawing:
                 c.drawPath(path)
             elif kind == 'head':
                 p, q = args
-                c.setFillColorRGB(.25,.29,.33)
+                c.setFillColorRGB(*INK)
                 vertices=arrow_vertices(p,q)
                 path = c.beginPath()
                 path.moveTo(vertices[0][0]*CM,vertices[0][1]*CM)
@@ -168,51 +228,103 @@ class Drawing:
 
 
 def frontier(out):
-    d=Drawing((0.,0.,15.2,4.2))
-    for name,x,label,tone in [('a',1.9,'Allocation a\nold incarnation','neutral'),
-                              ('r',5.7,'Root r\nlast user of a','neutral'),
-                              ('q',9.5,'Root q\nallocation retired','blue'),
-                              ('w',13.3,'Writer w\nslot overwritten','orange')]:
-        d.box(name,x,2.05,3.0,1.15,label,10,tone)
-    for a,b in [('a','r'),('r','q'),('q','w')]:d.edge(a,b,'e','w')
-    d.arrow(d.point('r','n'),d.point('a','n'),dashed=True,via=[(5.7,3.3),(1.9,3.3)])
-    d.text(3.8,3.7,'Root reference',size=9)
-    d.text(5.7,.95,'T(w) = r',size=10)
-    d.text(9.5,.95,'F(w) = q',size=10)
-    d.text(7.6,.95,'<',size=12)
-    d.text(5.7,.35,'Last threatened root',size=8.5)
-    d.text(9.5,.35,'Forced durable root',size=8.5)
+    d=Drawing((0.,0.,W,4.75))
+    for name,x,label,tone in [('a',1.78,'Allocation a\nold incarnation','neutral'),
+                              ('r',5.64,'Root r\nlast user of a','neutral'),
+                              ('q',9.50,'Root q\nretires a','blue'),
+                              ('w',13.36,'Writer w\noverwrites slot','orange')]:
+        d.box(name,x,2.45,3.2,1.24,label,11,tone)
+    for a,b in [('a','r'),('r','q'),('q','w')]:
+        d.edge(a,b,'e','w')
+    d.arrow(d.point('r','n'),d.point('a','n'),dashed=True,via=[(5.64,3.75),(1.78,3.75)])
+    d.text(3.71,4.25,'Root reference',10.5)
+    d.text(5.64,1.10,'T(w) = r',13)
+    d.text(7.57,1.10,'<',13)
+    d.text(9.50,1.10,'F(w) = q',13)
+    d.text(5.64,.42,'Last threatened root',10)
+    d.text(9.50,.42,'Forced durable root',10)
     d.save(out,'retirement-frontier')
 
+
+def motivation(out):
+    d = Drawing((0.,0.,W,4.72))
+    glyphs = ART/'storage-symbols.png'
+    for i, (title, tone, crop, root, verdict) in enumerate((
+        ('(a) Older root selected','red',DOCUMENT,'Old root','Recovery fails'),
+        ('(b) Retiring root selected','green',RETIRED_DOCUMENT,'Retiring root','Old allocation unreferenced'),
+    )):
+        left = .22 + 7.64*i
+        d.text(left+3.50,4.33,title,11.5)
+        d.art(glyphs,crop,(left+.36,1.97,left+1.58,3.30))
+        d.text(left+.97,1.59,root,10.5)
+        for j in range(3):
+            d.box(f'slot{i}{j}',left+3.59+1.25*j,2.62,1.12,.85,
+                  'New' if j==1 else '',10.5,'orange' if j==1 else 'neutral')
+        d.text(left+4.84,1.59,'Overwritten slot',10.5)
+        d.box(f'result{i}',left+3.50,.56,6.80,.82,verdict,11,tone)
+        if i==0:
+            d.arrow((left+.93,3.30),d.point('slot01','n'),dashed=True,
+                    via=[(left+.93,3.57),(left+4.84,3.57)])
+            d.text(left+3.30,3.88,'Stale reference',10.5)
+        else:
+            d.text(left+3.35,3.57,'No reference to this slot',10.5)
+    d.save(out,'reuse-cut')
+
+
 def paths(out):
-    d=Drawing((-1.1,0.,15.1,8.55))
-    nodes=[('trace',1.65,4.55,2.8,1.15,'Admitted\nhistory',10,'neutral'),
-           ('producer',5.4,6.8,2.8,1.15,'Frontier\nanalysis',10,'blue'),
-           ('certificate',9.15,6.8,2.8,1.15,'Positive\ncertificate',10,'blue'),
-           ('consumer',13.0,6.8,3.0,1.15,'Separate\nverification',10,'blue'),
-           ('cut',5.4,4.55,2.8,1.15,'Legal\ncrash cut',10,'neutral'),
-           ('image',9.15,4.55,2.8,1.15,'Materialized\ncrash image',10,'neutral'),
-           ('recovery',13.0,4.55,3.0,1.15,'Model\nrecovery',10,'neutral'),
-           ('alternate',5.4,2.9,2.8,.95,'Pairwise / SMT\ncomparison',9,'neutral')]
-    for row in nodes:d.box(*row)
-    for a,b in [('producer','certificate'),('certificate','consumer'),('trace','cut'),('cut','image'),('image','recovery')]:
+    d = Drawing((0.,0.,W,9.08))
+    symbols=ART/'storage-symbols.png'
+    doc=(symbols,DOCUMENT)
+    disk=(symbols,STORAGE)
+    d.text(.25,8.77,'(a) Check a positive certificate',11.5,ha='left')
+    d.text(.25,5.47,'(b) Compare recovery at a SQLite commit',11.5,ha='left')
+    for name,x,y,w,label,tone,icon in (
+        ('trace',1.79,7.70,3.05,'Admitted\nhistory','paper',doc),
+        ('producer',5.64,7.70,3.02,'Frontier\nanalysis','blue',None),
+        ('certificate',9.49,7.70,3.02,'Positive\ncertificate','blue',None),
+        ('consumer',13.34,7.70,3.03,'Separate\nverifier','blue',None),
+        ('commits',1.79,2.61,3.05,'SQLite\ncommit','paper',disk),
+        ('projection',5.64,3.95,3.02,'Audit\nprojection','neutral',None),
+        ('records',5.64,1.27,3.02,'Retained\nrecords','neutral',None),
+        ('model',9.49,3.95,3.02,'Model\nrecovery','blue',None),
+        ('native',9.49,1.27,3.02,'Native\nrecovery','orange',None),
+        ('compare',13.34,2.61,3.03,'Compare\nrecovery results','green',None)):
+        d.box(name,x,y,w,1.12,label,10.5,tone,symbol=icon)
+    for a,b in (('trace','producer'),('producer','certificate'),('certificate','consumer'),
+                ('projection','model'),('records','native')):
         d.edge(a,b,'e','w')
-    d.arrow(d.point('trace','e'),d.point('producer','w'),via=[(3.5,4.55),(3.5,6.8)])
-    d.arrow(d.point('trace','n'),d.point('consumer','n'),via=[(1.65,7.95),(13.,7.95)])
-    d.text(7.3,8.3,'Original history',size=9)
-    d.arrow(d.point('trace','s'),d.point('alternate','w'),via=[(1.65,2.9)])
-    for row in [('sqlite',1.65,1.1,2.8,1.15,'SQLite\ncommits',10,'orange'),
-                ('tables',5.4,1.1,2.8,1.15,'Retained\nslot / root records',9.5,'orange'),
-                ('native',9.15,1.1,2.8,1.15,'Native\nrecovery',10,'orange'),
-                ('compare',13.,1.1,3.,1.15,'Compare prefix\nand object bytes',9.5,'orange')]:
-        d.box(*row)
-    for a,b in [('sqlite','tables'),('tables','native'),('native','compare')]:
-        d.edge(a,b,'e','w')
-    d.edge('recovery','compare','s','n')
-    d.arrow(d.point('sqlite','w'),d.point('trace','w'),
-            via=[(-.7,1.1),(-.7,4.55)],dashed=True)
-    d.text(-.35,2.8,'Audit\nprojection',ha='left',size=8.5)
+    d.arrow(d.point('trace','s'),d.point('consumer','s'),via=[(1.79,6.34),(13.34,6.34)])
+    d.text(7.57,6.00,'Original history',10.5)
+    joint=(3.71,2.61)
+    d.line([d.point('commits','e'),joint])
+    d.arrow(joint,d.point('projection','w'),via=[(3.71,3.95)])
+    d.arrow(joint,d.point('records','w'),via=[(3.71,1.27)])
+    d.arrow(d.point('model','e'),d.point('compare','n'),via=[(13.34,3.95)])
+    d.arrow(d.point('native','e'),d.point('compare','s'),via=[(13.34,1.27)])
     d.save(out,'evidence-paths')
+
+
+def selector(out):
+    d=Drawing((0.,0.,W,6.05))
+    columns=(1.78,5.64,9.50,13.36)
+    for prefix,y,title,steps in (
+        ('safe',4.29,'(a) Ordered protocol',(
+            ('Write B in\nfresh slot','neutral'),('Prepare B\nmanifest','neutral'),
+            ('Select B','blue'),('Reuse old slot','green'))),
+        ('unsafe',1.52,'(b) Unsafe control',(
+            ('Overwrite A\nwith B','red'),('Prepare B\nmanifest','orange'),
+            ('Select B','blue'))),
+    ):
+        d.text(.25,y+1.03,title,11.5,ha='left')
+        for i,(label,tone) in enumerate(steps):
+            d.box(f'{prefix}{i}',columns[i],y,3.2,1.16,label,10.5,tone)
+            if i:
+                d.edge(f'{prefix}{i-1}',f'{prefix}{i}','e','w')
+    d.text(3.71,3.31,'A remains recoverable',10.5)
+    d.text(11.43,3.31,'B is selected before reuse',10.5)
+    d.text(3.71,.54,'Selector still names A: recovery fails',10.5)
+    d.text(9.50,.54,'B is recoverable',10.5)
+    d.save(out,'selector-order')
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -222,7 +334,9 @@ def main():
     vector.register_font(args.font_root)
     args.out.mkdir(parents=True, exist_ok=True)
     frontier(args.out)
+    motivation(args.out)
     paths(args.out)
+    selector(args.out)
 
 
 if __name__ == '__main__':

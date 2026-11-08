@@ -95,12 +95,15 @@ python -B -O -m unittest discover -s tests -p test_posix_event_cuts.py -v
 
 ## Execution requirements
 
-All four optional paper figures use Python ReportLab and `requirements-figures.txt`.
-They embed the installed Type 1 counterpart of the manuscript's Libertine face:
+The optional paper figures use Python ReportLab and `requirements-figures.txt`.
+They embed the installed Type 1 counterpart of the manuscript's Libertine face.
+The two illustrative schematics use the frozen assets under
+`figures/artwork/`; no image-generation service is needed to rebuild them.
 
 ```sh
 python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/diagrams
 python plots/draw_sqlite_costs.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/sqlite-plots
+python plots/draw_analysis_costs.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/cpu-plots
 ```
 
 The SQLite plot reads all 48 primary cost rows and divides the matched policy
