@@ -28,9 +28,9 @@ INPUT = PAPER / "results/scaling/policy-metrics.jsonl"
 FONT = "ManuscriptRoman"
 PT = 72 / 72.27
 CM = 72 / 2.54
-BLUE = (.20, .38, .54)
-ORANGE = (.76, .43, .20)
-GREY = (.78, .81, .83)
+BLUE = (.11, .34, .49)
+ORANGE = (.69, .34, .14)
+GREY = (.77, .81, .84)
 
 
 def register_font(root):
@@ -156,7 +156,7 @@ def bars(c, xy, categories, series, colours, barwidth):
             drawn_width = .82*barwidth
             c.rect(x - drawn_width / 2, baseline, drawn_width, top - baseline,
                    stroke=1, fill=1)
-            label,size=f'{float(values[i]):.2f}',10.25
+            label,size=f'{float(values[i]):.2f}',11
             baseline_y=top+5.5
             ascent,descent=pdfmetrics.getAscentDescent(FONT,size)
             half_width=pdfmetrics.stringWidth(label,FONT,size)/2
@@ -198,18 +198,25 @@ def draw(width):
     rows = retained_rows(INPUT)
     series = [[Decimal(row[key]) for row in rows]
               for key in ("no_dedup", "sync_metadata", "batch_four_dedup")]
-    height = 6.55 * CM
+    height = 178.
     c = new_pdf("write-ratios.pdf", width, height)
-    xy = axes(c, (42, 32, width - 52, height - 69),
-              (-.5, 2.5), (0, 6.65),
-              list(enumerate(row["family"] for row in rows)),
-              [(n, str(n)) for n in range(7)],
-              "", "", ticksize=10)
-    text(c,42,height-29,'Encoded bytes per logical input byte',10.5,'left')
+    left, right, base, top = 32.,width-8.,31.,130.
+    step=(right-left)/3
+    def xy(i,y):
+        return left+(i+.5)*step,base+(top-base)*y/6.6
+    for n in (0,2,4,6):
+        _,y=xy(0,n)
+        c.setStrokeColorRGB(*((.33,.38,.43) if n==0 else (.81,.85,.88)))
+        c.setLineWidth(.78 if n==0 else .55)
+        c.line(left,y,right,y)
+        text(c,left-7,y-3.2,str(n),10.5,'right')
+    for i,row in enumerate(rows):
+        text(c,xy(i,0)[0],base-17,row['family'],11)
+    text(c,left,height-32,'Encoded bytes per logical input byte',11,'left')
     colours = [GREY, ORANGE, BLUE]
-    bars(c, xy, range(3), series, colours, 25 * PT)
+    bars(c, xy, range(3), series, colours, 27 * PT)
     legend(c, list(zip(("No deduplication", "Per-operation deduplication", "Batch-four deduplication"),
-                      colours)), width, height - 11, 10)
+                      colours)), width, height - 11, 10.5)
     c.save()
 
 

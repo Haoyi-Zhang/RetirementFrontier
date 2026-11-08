@@ -97,8 +97,8 @@ python -B -O -m unittest discover -s tests -p test_posix_event_cuts.py -v
 
 The optional paper figures use Python ReportLab and `requirements-figures.txt`.
 They embed the installed Type 1 counterpart of the manuscript's Libertine face.
-The two illustrative schematics use the frozen assets under
-`figures/artwork/`; no image-generation service is needed to rebuild them.
+Schematics, labels and plot marks are native PDF vectors. The figure
+builders do not use bitmap inputs or external services.
 
 ```sh
 python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/diagrams
@@ -107,7 +107,7 @@ python plots/draw_analysis_costs.py --font-root /path/to/texmf-dist/fonts --out 
 ```
 
 The SQLite plot reads all 48 primary cost rows and divides the matched policy
-medians shown side-by-side in the paper's allocation-cost table. Solid and outlined bars distinguish journal
+medians shown side-by-side in the paper's allocation-cost table. Filled squares and open circles distinguish journal
 modes, with aligned values outside the plotting area. The write-ratio plot in
 `plots/draw_write_ratios.py` reads the primary scaling rows
 and uses medians of per-input ratios. Its three policy series are no

@@ -28,58 +28,65 @@ def ratios(rows):
 def draw(width, values):
     from reportlab.pdfbase import pdfmetrics
     import draw_write_ratios as vector
-    height = 7.8*vector.CM
+    height = 208.
     c = vector.new_pdf('sqlite-costs.pdf', width, height)
-    # Values occupy their own aligned column, clear of the bars and grid.
-    label_margin, panel_gap, value_gutter, right_margin = 48., 24., 34., 4.
+    label_margin, panel_gap, value_gutter, right_margin = 53., 20., 41., 5.
     plot_width = (width-label_margin-panel_gap-2*value_gutter-right_margin)/2
-    if plot_width < 85:
+    if plot_width < 105:
         raise ValueError('Figure width is too small for two readable panels')
     colours = (vector.BLUE, vector.ORANGE)
     families = ('shared', 'unique', 'churn', 'backup')
-    bottom, top = 49., height-60.
-    row_step = (top-bottom)/3
+    first_y, last_y = 146.,52.
+    axis_bottom,axis_top = 36.,161.
+    row_step=(first_y-last_y)/3
     boxes = []
+    def point(x,y,index):
+        c.setStrokeColorRGB(*colours[index])
+        c.setFillColorRGB(*(colours[index] if index==0 else (1,1,1)))
+        c.setLineWidth(1.05)
+        if index==0:
+            c.rect(x-2.85,y-2.85,5.7,5.7,stroke=0,fill=1)
+        else:
+            c.circle(x,y,3.2,stroke=1,fill=1)
     for index, (field, title) in enumerate((
             ('slots', '(a) Logical slots'),
             ('bytes_after_checkpoint', '(b) Retained files'))):
         left = label_margin+index*(plot_width+value_gutter+panel_gap)
         scale = plot_width
-        value_right = left+plot_width+value_gutter
-        vector.text(c, left+plot_width/2, height-32, title, 11.5)
-        for value in (0., .25, .5, .75, 1.):
+        end=left+scale
+        value_right=end+value_gutter
+        vector.text(c,left+scale/2,173,title,11.5)
+        c.setStrokeColorRGB(.33,.38,.42)
+        c.setLineWidth(.8)
+        c.line(left,axis_bottom,end,axis_bottom)
+        for value,label in ((0,'0'),(.25,'0.25'),(.5,'0.50'),(.75,'0.75'),(1,'1')):
             x=left+value*scale
-            c.setStrokeColorRGB(*((.48,.52,.56) if value==1. else (.90,.92,.93)))
-            c.setLineWidth(.6 if value==1. else .35)
-            c.setDash(3,2) if value==1. else c.setDash()
-            c.line(x,bottom-16,x,top+16)
-            c.setDash()
-            vector.text(c,x,bottom-29,f'{value:.2f}',10)
-        c.setStrokeColorRGB(.67,.71,.74)
-        c.setLineWidth(.5)
-        c.line(left,bottom-16,left+scale,bottom-16)
+            c.line(x,axis_bottom,x,axis_bottom-3.5)
+            vector.text(c,x,axis_bottom-15,label,10.5)
+        c.setStrokeColorRGB(.46,.51,.55)
+        c.setDash(3,2)
+        c.line(end,axis_bottom,end,axis_top)
+        c.setDash()
         for i,family in enumerate(families):
-            centre_y=top-i*row_step
+            centre_y=first_y-i*row_step
             if index==0:
-                vector.text(c,left-8,centre_y-2,family.capitalize(),10.5,'right')
+                vector.text(c,left-9,centre_y-3,family.capitalize(),11,'right')
             for mode_index,mode in enumerate(('DELETE','WAL')):
-                colour=colours[mode_index]
                 value = values[mode][family][field]
                 if not 0<value<=1.:
                     raise ValueError('Retained workload ratio is outside the fixed display range')
-                y=centre_y+(2.5 if mode_index==0 else -9.5)
-                bar_height=7
-                c.setFillColorRGB(*(colour if mode_index==0 else (1.,1.,1.)))
-                c.setStrokeColorRGB(*colour)
-                c.setLineWidth(1.0)
-                c.rect(left,y,value*scale,bar_height,fill=1,stroke=1)
+                y=centre_y+(6. if mode_index==0 else -6.)
+                c.setStrokeColorRGB(.80,.84,.87)
+                c.setLineWidth(.5)
+                c.line(left,y,end,y)
+                point(left+value*scale,y,mode_index)
                 label,size=f'{value:.3f}',10.5
                 ascent, descent = pdfmetrics.getAscentDescent(vector.FONT, size)
                 label_width = pdfmetrics.stringWidth(label, vector.FONT, size)
                 label_x=value_right-label_width
-                label_y=y+(bar_height-ascent-descent)/2
+                label_y=y-(ascent+descent)/2
                 box=(label_x,label_y+descent,label_x+label_width,label_y+ascent)
-                if box[0]<left+plot_width+5 or box[2]>width or box[1]<bottom-16 or box[3]>top+16:
+                if box[0]<end+7 or box[2]>width or box[1]<axis_bottom or box[3]>axis_top:
                     raise ValueError('Clipped value label')
                 vector.text(c,label_x,label_y,label,size,'left')
                 boxes.append(box)
@@ -87,16 +94,11 @@ def draw(width, values):
         for b in boxes[i+1:]:
             if min(a[2],b[2]) > max(a[0],b[0]) and min(a[3],b[3]) > max(a[1],b[1]):
                 raise ValueError('Overlapping value labels')
-    vector.text(c, width/2, 5, 'Reuse / no-reuse', 10.5)
-    lengths = [14+pdfmetrics.stringWidth(label, vector.FONT, 10) for label in ('DELETE','WAL')]
-    legend_left = (width-sum(lengths)-14)/2
-    for i, (label, colour) in enumerate(zip(('DELETE', 'WAL'), colours)):
-        x=legend_left+(lengths[0]+14 if i else 0)
-        c.setStrokeColorRGB(*colour)
-        c.setFillColorRGB(*(colour if i==0 else (1.,1.,1.)))
-        c.setLineWidth(1.0)
-        c.rect(x,height-13,8,5,fill=1,stroke=1)
-        vector.text(c,x+12,height-13.1,label,10,'left')
+    vector.text(c,width/2,5,'Reuse / no-reuse',11)
+    for i,label in enumerate(('DELETE','WAL')):
+        x=width/2-53+i*66
+        point(x,195,i)
+        vector.text(c,x+9,191.7,label,10.5,'left')
     c.save()
 
 

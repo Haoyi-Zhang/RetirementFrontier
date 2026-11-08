@@ -1,344 +1,245 @@
-"""Assemble manuscript schematics with exact vector annotation and frozen artwork."""
+"""Draw storage relationships as text and native PDF vectors at column size."""
 import argparse
 import math
 from pathlib import Path
 import sys
+
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen.canvas import Canvas
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'plots'))
-import draw_write_ratios as vector
+import draw_write_ratios as v
 
-CM = 72 / 2.54
-FONT = vector.FONT
-NODE_PADDING = .14  # cm in the editable diagram, before manuscript scaling
-TEXT_CLEARANCE = .08
-ART = Path(__file__).resolve().parent / 'artwork'
-W = 430.00462*vector.PT/CM
-INK = (.12,.18,.24)
-# Insets retain the complete glyph outlines while excluding sheet whitespace.
-DOCUMENT = (.069,.294,.293,.706)
-RETIRED_DOCUMENT = (.393,.294,.615,.706)
-STORAGE = (.695,.292,.939,.708)
-
-
-def arrow_vertices(p, q):
-    dx, dy = q[0]-p[0], q[1]-p[1]
-    length = math.hypot(dx, dy)
-    if length <= 1e-12:
-        raise ValueError('Arrow needs a nonzero final segment')
-    ux, uy = dx/length, dy/length
-    bx, by = q[0]-6.0/CM*ux, q[1]-6.0/CM*uy
-    return [q, (bx-2.6/CM*uy, by+2.6/CM*ux),
-            (bx+2.6/CM*uy, by-2.6/CM*ux)]
+W = 430.00462 * v.PT
+INK = (.10, .16, .21)
+MUTED = (.31, .37, .42)
+RULE = (.77, .81, .84)
+BLUE = (.11, .34, .49)
+TEAL = (.10, .40, .35)
+RUST = (.60, .25, .12)
+PAPER = (1, 1, 1)
+GREY = (.965, .972, .977)
+PALE_BLUE = (.928, .963, .982)
+PALE_RUST = (.989, .950, .918)
 
 
-def segment_enters_box(p, q, box):
-    """Liang--Barsky clipping for connector/text clearance."""
+def grow(box, amount):
+    l, t, r, b = box
+    return l-amount, t-amount, r+amount, b+amount
+
+
+def overlap(a, b):
+    return max(a[0], b[0]) < min(a[2], b[2]) and max(a[1], b[1]) < min(a[3], b[3])
+
+
+def intersects_segment(p, q, box):
+    """Open-box clipping; intentional endpoints may touch a node border."""
     lo, hi = 0., 1.
-    for start, delta, lower, upper in (
-            (p[0], q[0]-p[0], box[0], box[2]),
-            (p[1], q[1]-p[1], box[1], box[3])):
-        if abs(delta) < 1e-12:
-            if not lower < start < upper:
+    for x, y, lower, upper in ((p[0],q[0],box[0],box[2]),
+                                (p[1],q[1],box[1],box[3])):
+        if x == y:
+            if not lower < x < upper:
                 return False
         else:
-            a, b = sorted(((lower-start)/delta, (upper-start)/delta))
-            lo, hi = max(lo, a), min(hi, b)
+            a, b = sorted(((lower-x)/(y-x), (upper-x)/(y-x)))
+            lo, hi = max(a, lo), min(b, hi)
             if lo >= hi:
                 return False
     return lo < hi
 
 
-class Drawing:
-    def __init__(self, bounds):
-        self.bounds = bounds
-        self.nodes = {}
-        self.labels = []
-        self.segments = []
-        self.commands = []
-        self.artwork = []
+class Figure:
+    def __init__(self, out, name, height):
+        self.height = height
+        self.name = name
+        self.c = Canvas(str(out / f'{name}.pdf'), pagesize=(W,height),
+                        invariant=1, initialFontName=v.FONT, initialFontSize=11)
+        self.c.setCreator('Python ReportLab')
+        self.words, self.nodes, self.lines = [], {}, []
 
-    def text(self, x, y, label, size=10.5, ha='center', va='center'):
-        if va != 'center':
-            raise ValueError('Diagram text uses centered baselines')
-        lines = label.split('\n')
-        leading = size * 1.15
-        ascent, descent = pdfmetrics.getAscentDescent(FONT, size)
-        first = y*CM + (len(lines)-1)*leading/2 - (ascent+descent)/2
-        width = max(pdfmetrics.stringWidth(line, FONT, size) for line in lines)
-        left = x*CM - (width/2 if ha == 'center' else width if ha == 'right' else 0)
-        box = (left/CM, (first-(len(lines)-1)*leading+descent)/CM,
-               (left+width)/CM, (first+ascent)/CM)
-        self.labels.append([label, box, None])
-        if any(not 32 <= ord(ch) <= 126 for ch in label.replace('\n','')):
-            raise ValueError('Use glyphs from the embedded manuscript face')
-        self.commands.append(('text', x, first/CM, lines, leading/CM, size, ha))
+    def label(self, x, y, text, size=11, align='center', colour=INK, owner=None):
+        if not all(32 <= ord(ch) <= 126 for ch in text.replace('\n','')):
+            raise ValueError('Unsupported figure glyph')
+        rows = text.split('\n')
+        ascent, descent = pdfmetrics.getAscentDescent(v.FONT, size)
+        leading = size * 1.13
+        first = self.height-y+(len(rows)-1)*leading/2-(ascent+descent)/2
+        self.c.setFont(v.FONT,size)
+        self.c.setFillColorRGB(*colour)
+        for i, row in enumerate(rows):
+            advance = pdfmetrics.stringWidth(row,v.FONT,size)
+            left = x-advance/2 if align=='center' else x
+            base = first-i*leading
+            self.words.append((row,(left,self.height-base-ascent,
+                                    left+advance,self.height-base-descent),owner))
+            self.c.drawString(left,base,row)
 
-    def box(self, name, x, y, w, h, label, size=10.5, tone='neutral', symbol=None):
-        if name in self.nodes:
-            raise ValueError('Duplicate node: '+name)
-        self.nodes[name] = (x, y, w, h)
-        self.commands.append(('box', x-w/2, y-h/2, w, h, tone))
-        if symbol is not None:
-            source, crop = symbol
-            self.art(source, crop, (x-w/2+.16, y-.30, x-w/2+.77, y+.30))
-        if label:
-            self.text(x+(.29 if symbol else 0), y, label, size)
-            self.labels[-1][2] = (x-w/2, y-h/2, x+w/2, y+h/2)
+    def node(self, key, x, y, width, height, text, edge=MUTED, fill=PAPER):
+        if key in self.nodes:
+            raise ValueError(f'Duplicate node {key}')
+        self.nodes[key] = (x-width/2,y-height/2,x+width/2,y+height/2)
+        self.c.setStrokeColorRGB(*edge)
+        self.c.setFillColorRGB(*fill)
+        self.c.setLineWidth(.85)
+        self.c.rect(x-width/2,self.height-y-height/2,width,height,fill=1,stroke=1)
+        self.label(x,y,text,owner=key)
 
-    def point(self, name, side):
-        x, y, w, h = self.nodes[name]
-        return {'n': (x, y+h/2), 's': (x, y-h/2),
-                'e': (x+w/2, y), 'w': (x-w/2, y)}[side]
+    def line(self, *points, colour=MUTED, weight=.9, dashed=False, arrow=False):
+        if len(points)<2:
+            raise ValueError('Line requires two points')
+        self.lines.extend(zip(points,points[1:]))
+        self.c.setLineWidth(weight)
+        self.c.setStrokeColorRGB(*colour)
+        self.c.setDash(3.2,2.5) if dashed else self.c.setDash()
+        def path(coords):
+            p=self.c.beginPath()
+            p.moveTo(coords[0][0],self.height-coords[0][1])
+            for x,y in coords[1:]:
+                p.lineTo(x,self.height-y)
+            return p
+        self.c.drawPath(path(points))
+        self.c.setDash()
+        if arrow:
+            p,q=points[-2:]
+            d=math.hypot(q[0]-p[0],q[1]-p[1])
+            if d<8:
+                raise ValueError(f'Arrow has insufficient run in {self.name}')
+            ux,uy=(q[0]-p[0])/d,(q[1]-p[1])/d
+            x,y=q[0]-6*ux,q[1]-6*uy
+            tri=(q,(x-2.5*uy,y+2.5*ux),(x+2.5*uy,y-2.5*ux),q)
+            self.lines.extend(zip(tri,tri[1:]))
+            self.c.setFillColorRGB(*colour)
+            self.c.drawPath(path(tri),fill=1,stroke=0)
 
-    def line(self, points, dashed=False):
-        self.segments.extend(zip(points, points[1:]))
-        self.commands.append(('line', points, dashed))
+    def dot(self,x,y,colour=INK,radius=3.1):
+        self.c.setFillColorRGB(*colour)
+        self.c.circle(x,self.height-y,radius,fill=1,stroke=0)
 
-    def arrow(self, p, q, dashed=False, via=()):
-        self.line([p, *via, q], dashed)
-        self.commands.append(('head', ([p, *via])[-1], q))
-
-    def edge(self, a, b, sa='s', sb='n', **kwargs):
-        self.arrow(self.point(a, sa), self.point(b, sb), **kwargs)
-
-    def art(self, source, crop, box):
-        self.artwork.append(box)
-        self.commands.append(('art', source, crop, box))
-
-    def save(self, out, name):
-        x0, y0, x1, y1 = self.bounds
-        node_boxes = [(key,(x-w/2,y-h/2,x+w/2,y+h/2))
-                      for key,(x,y,w,h) in self.nodes.items()]
-        def overlaps(a,b):
-            return min(a[2],b[2]) > max(a[0],b[0]) and min(a[3],b[3]) > max(a[1],b[1])
-        for i,(key,b) in enumerate(node_boxes):
-            if b[0]<x0 or b[1]<y0 or b[2]>x1 or b[3]>y1:
-                raise ValueError(name+': node outside canvas '+key)
-            for other,a in node_boxes[i+1:]:
-                if overlaps(a,b):
-                    raise ValueError(name+': overlapping nodes '+key+' and '+other)
-        boxes = []
-        for label, b, node in self.labels:
-            if b[0] < x0 or b[1] < y0 or b[2] > x1 or b[3] > y1:
-                raise ValueError(name + ': clipped label ' + repr(label))
-            if node and (b[0] < node[0]+NODE_PADDING or b[1] < node[1]+NODE_PADDING
-                         or b[2] > node[2]-NODE_PADDING or b[3] > node[3]-NODE_PADDING):
-                raise ValueError(name + ': insufficient node padding ' + repr(label))
-            for key,a in node_boxes:
-                if a != node and overlaps(a,b):
-                    raise ValueError(name+': label crosses unrelated node '+key)
-            boxes.append((label, b))
-        for i, (label, a) in enumerate(boxes):
-            for other, b in boxes[i+1:]:
-                if min(a[2], b[2]) > max(a[0], b[0]) and min(a[3], b[3]) > max(a[1], b[1]):
-                    raise ValueError(name + ': overlapping labels ' + repr((label, other)))
-            if any(min(a[2], b[2]) > max(a[0], b[0]) and
-                   min(a[3], b[3]) > max(a[1], b[1]) for b in self.artwork):
-                raise ValueError(name + ': artwork overlaps ' + repr(label))
-        if any(b[0]<x0 or b[1]<y0 or b[2]>x1 or b[3]>y1 for b in self.artwork):
-            raise ValueError(name + ': artwork outside page')
-        obstacles = [(key, (x-w/2+.02, y-h/2+.02, x+w/2-.02, y+h/2-.02))
-                     for key, (x, y, w, h) in self.nodes.items()] + [
-            (label,(b[0]-TEXT_CLEARANCE,b[1]-TEXT_CLEARANCE,
-                    b[2]+TEXT_CLEARANCE,b[3]+TEXT_CLEARANCE)) for label,b in boxes] + [
-            ('artwork', b) for b in self.artwork]
-        # A clear centreline is not sufficient if the arrowhead grazes text.
-        segments = list(self.segments)
-        for kind,*args in self.commands:
-            if kind == 'head':
-                vertices=arrow_vertices(*args)
-                segments.extend(zip(vertices,vertices[1:]+vertices[:1]))
-        for p, q in segments:
-            for label, box in obstacles:
-                if segment_enters_box(p, q, box):
-                    raise ValueError(name + ': connector crosses ' + repr(label))
-        c = canvas.Canvas(str(out / (name+'.pdf')),
-                          pagesize=((x1-x0)*CM, (y1-y0)*CM), invariant=1,
-                          initialFontName=FONT, initialFontSize=9)
-        c.setCreator('Python ReportLab')
-        c.translate(-x0*CM, -y0*CM)
-        for command in self.commands:
-            kind, *args = command
-            c.setStrokeColorRGB(0, 0, 0)
-            c.setFillColorRGB(*INK)
-            c.setLineWidth(.85)
-            c.setDash()
-            if kind == 'box':
-                x, y, w, h, tone = args
-                fill,accent={'neutral':((.985,.988,.990),(.43,.49,.55)),
-                             'blue':((.95,.97,.985),vector.BLUE),
-                             'orange':((.993,.929,.85),vector.ORANGE),
-                             'green':((.92,.967,.952),(.15,.40,.35)),
-                             'red':((.992,.917,.895),(.59,.20,.13)),
-                             'paper':((1.,1.,1.),(.43,.49,.55))}[tone]
-                c.setFillColorRGB(*fill)
-                c.setStrokeColorRGB(*accent)
-                c.roundRect(x*CM,y*CM,w*CM,h*CM,2.0,fill=1,stroke=1)
-            elif kind == 'art':
-                source, (l,t,r,b), (x,y,xmax,ymax) = args
-                if not (0 <= l < r <= 1 and 0 <= t < b <= 1):
-                    raise ValueError('Invalid source viewport')
-                img = ImageReader(str(source))
-                pw, ph = img.getSize()
-                scale = min((xmax-x)*CM/(pw*(r-l)), (ymax-y)*CM/(ph*(b-t)))
-                w, h = pw*scale, ph*scale
-                cw, ch = (r-l)*w, (b-t)*h
-                left, bottom = ((x+xmax)*CM-cw)/2, ((y+ymax)*CM-ch)/2
-                c.saveState()
-                clip = c.beginPath()
-                clip.rect(left,bottom,cw,ch)
-                c.clipPath(clip,stroke=0,fill=0)
-                c.drawImage(img,left-l*w,bottom-(1-b)*h,w,h,mask='auto')
-                c.restoreState()
-            elif kind == 'text':
-                x, first, lines, leading, size, ha = args
-                c.setFont(FONT, size)
-                for i, line in enumerate(lines):
-                    at = (first-i*leading)*CM
-                    if ha == 'center':
-                        c.drawCentredString(x*CM, at, line)
-                    elif ha == 'right':
-                        c.drawRightString(x*CM, at, line)
-                    else:
-                        c.drawString(x*CM, at, line)
-            elif kind == 'line':
-                points, dashed = args
-                c.setStrokeColorRGB(*INK)
-                c.setLineWidth(1.02)
-                if dashed:
-                    c.setDash(3.2, 2.1)
-                path = c.beginPath()
-                path.moveTo(points[0][0]*CM, points[0][1]*CM)
-                for x, y in points[1:]:
-                    path.lineTo(x*CM, y*CM)
-                c.drawPath(path)
-            elif kind == 'head':
-                p, q = args
-                c.setFillColorRGB(*INK)
-                vertices=arrow_vertices(p,q)
-                path = c.beginPath()
-                path.moveTo(vertices[0][0]*CM,vertices[0][1]*CM)
-                for x,y in vertices[1:]:path.lineTo(x*CM,y*CM)
-                path.close()
-                c.drawPath(path, fill=1, stroke=0)
-        c.save()
-
-
-def frontier(out):
-    d=Drawing((0.,0.,W,4.75))
-    for name,x,label,tone in [('a',1.78,'Allocation a\nold incarnation','neutral'),
-                              ('r',5.64,'Root r\nlast user of a','neutral'),
-                              ('q',9.50,'Root q\nretires a','blue'),
-                              ('w',13.36,'Writer w\noverwrites slot','orange')]:
-        d.box(name,x,2.45,3.2,1.24,label,11,tone)
-    for a,b in [('a','r'),('r','q'),('q','w')]:
-        d.edge(a,b,'e','w')
-    d.arrow(d.point('r','n'),d.point('a','n'),dashed=True,via=[(5.64,3.75),(1.78,3.75)])
-    d.text(3.71,4.25,'Root reference',10.5)
-    d.text(5.64,1.10,'T(w) = r',13)
-    d.text(7.57,1.10,'<',13)
-    d.text(9.50,1.10,'F(w) = q',13)
-    d.text(5.64,.42,'Last threatened root',10)
-    d.text(9.50,.42,'Forced durable root',10)
-    d.save(out,'retirement-frontier')
+    def save(self):
+        inside = (0,0,W,self.height)
+        def contains(a,b):
+            return a[0] <= b[0] and a[1] <= b[1] and b[2] <= a[2] and b[3] <= a[3]
+        for i,(key,box) in enumerate(self.nodes.items()):
+            if not contains(inside,box) or any(overlap(box,b) for b in list(self.nodes.values())[i+1:]):
+                raise ValueError(f'{self.name}: intersecting or clipped node {key}')
+        for i,(word,b,key) in enumerate(self.words):
+            if not contains(inside,b):
+                raise ValueError(f'{self.name}: clipped label {word}')
+            if key and not contains(grow(self.nodes[key],-3.6),b):
+                raise ValueError(f'{self.name}: insufficient padding for {word}')
+            if any(overlap(grow(b,.65), bb) for _,bb,_ in self.words[i+1:]):
+                raise ValueError(f'{self.name}: overlapping labels near {word}')
+            if any(k!=key and overlap(grow(b,1),bb) for k,bb in self.nodes.items()):
+                raise ValueError(f'{self.name}: label overlaps an unrelated node: {word}')
+        obstacles=[(w,grow(b,1.8)) for w,b,_ in self.words]
+        obstacles += [(k,grow(b,-.38)) for k,b in self.nodes.items()]
+        for p,q in self.lines:
+            for label,box in obstacles:
+                if intersects_segment(p,q,box):
+                    raise ValueError(f'{self.name}: connector crosses {label}')
+        self.c.save()
 
 
 def motivation(out):
-    d = Drawing((0.,0.,W,4.72))
-    glyphs = ART/'storage-symbols.png'
-    for i, (title, tone, crop, root, verdict) in enumerate((
-        ('(a) Older root selected','red',DOCUMENT,'Old root','Recovery fails'),
-        ('(b) Retiring root selected','green',RETIRED_DOCUMENT,'Retiring root','Old allocation unreferenced'),
-    )):
-        left = .22 + 7.64*i
-        d.text(left+3.50,4.33,title,11.5)
-        d.art(glyphs,crop,(left+.36,1.97,left+1.58,3.30))
-        d.text(left+.97,1.59,root,10.5)
-        for j in range(3):
-            d.box(f'slot{i}{j}',left+3.59+1.25*j,2.62,1.12,.85,
-                  'New' if j==1 else '',10.5,'orange' if j==1 else 'neutral')
-        d.text(left+4.84,1.59,'Overwritten slot',10.5)
-        d.box(f'result{i}',left+3.50,.56,6.80,.82,verdict,11,tone)
-        if i==0:
-            d.arrow((left+.93,3.30),d.point('slot01','n'),dashed=True,
-                    via=[(left+.93,3.57),(left+4.84,3.57)])
-            d.text(left+3.30,3.88,'Stale reference',10.5)
-        else:
-            d.text(left+3.35,3.57,'No reference to this slot',10.5)
-    d.save(out,'reuse-cut')
+    d=Figure(out,'reuse-cut',111)
+    for left, heading, root, verdict, colour in (
+        (0,'(a) Older root selected','Older root','Recovery fails: old allocation missing',RUST),
+        (224,'(b) Retiring root selected','Retiring root','Old allocation is not referenced',TEAL),
+    ):
+        d.label(left+3,13,heading,12,'left')
+        d.line((left+3,25),(left+199,25),colour=RULE,weight=.65)
+        d.label(left+47,40,'Selected publication',10.5,colour=MUTED)
+        d.label(left+155,40,'Overwritten slot',10.5,colour=MUTED)
+        d.node(f'root{left}',left+47,63,83,25,root)
+        d.node(f'slot{left}',left+155,63,88,25,'New incarnation',RUST,PALE_RUST)
+        d.label(left+101,99,verdict,11,colour=colour)
+    d.line((88.5,63),(111,63),colour=RUST,dashed=True,arrow=True,weight=1.1)
+    d.save()
 
 
-def paths(out):
-    d = Drawing((0.,0.,W,9.08))
-    symbols=ART/'storage-symbols.png'
-    doc=(symbols,DOCUMENT)
-    disk=(symbols,STORAGE)
-    d.text(.25,8.77,'(a) Check a positive certificate',11.5,ha='left')
-    d.text(.25,5.47,'(b) Compare recovery at a SQLite commit',11.5,ha='left')
-    for name,x,y,w,label,tone,icon in (
-        ('trace',1.79,7.70,3.05,'Admitted\nhistory','paper',doc),
-        ('producer',5.64,7.70,3.02,'Frontier\nanalysis','blue',None),
-        ('certificate',9.49,7.70,3.02,'Positive\ncertificate','blue',None),
-        ('consumer',13.34,7.70,3.03,'Separate\nverifier','blue',None),
-        ('commits',1.79,2.61,3.05,'SQLite\ncommit','paper',disk),
-        ('projection',5.64,3.95,3.02,'Audit\nprojection','neutral',None),
-        ('records',5.64,1.27,3.02,'Retained\nrecords','neutral',None),
-        ('model',9.49,3.95,3.02,'Model\nrecovery','blue',None),
-        ('native',9.49,1.27,3.02,'Native\nrecovery','orange',None),
-        ('compare',13.34,2.61,3.03,'Compare\nrecovery results','green',None)):
-        d.box(name,x,y,w,1.12,label,10.5,tone,symbol=icon)
-    for a,b in (('trace','producer'),('producer','certificate'),('certificate','consumer'),
-                ('projection','model'),('records','native')):
-        d.edge(a,b,'e','w')
-    d.arrow(d.point('trace','s'),d.point('consumer','s'),via=[(1.79,6.34),(13.34,6.34)])
-    d.text(7.57,6.00,'Original history',10.5)
-    joint=(3.71,2.61)
-    d.line([d.point('commits','e'),joint])
-    d.arrow(joint,d.point('projection','w'),via=[(3.71,3.95)])
-    d.arrow(joint,d.point('records','w'),via=[(3.71,1.27)])
-    d.arrow(d.point('model','e'),d.point('compare','n'),via=[(13.34,3.95)])
-    d.arrow(d.point('native','e'),d.point('compare','s'),via=[(13.34,1.27)])
-    d.save(out,'evidence-paths')
+def frontier(out):
+    d=Figure(out,'retirement-frontier',145)
+    xs=(44,148,265,380)
+    d.line((15,65),(411,65),colour=RULE)
+    for x,title,detail,colour in zip(xs,('Allocation a','Root r','Root q','Writer w'),
+            ('Old incarnation','Last root using a','Retires a','Overwrites the slot'),
+            (MUTED,INK,BLUE,RUST)):
+        d.dot(x,65,colour)
+        d.label(x,84,title,11.5,colour=colour)
+        d.label(x,103,detail,10.5,colour=MUTED)
+    d.label(96,13,'Root reference',11)
+    d.label(322.5,13,'Persistence dependency',11,colour=BLUE)
+    d.line((148,61),(148,33),(44,33),(44,61),colour=MUTED,dashed=True,arrow=True)
+    d.line((265,61),(265,33),(380,33),(380,61),colour=BLUE,arrow=True,weight=1.2)
+    d.label(214,133,'T(w) = r   <   F(w) = q',13)
+    d.save()
+
+
+def certificate(out):
+    d=Figure(out,'certificate-check',125)
+    d.node('history',53,48,95,35,'Admitted\nhistory',MUTED,GREY)
+    d.node('producer',189,48,94,35,'Frontier\nanalysis')
+    d.node('verifier',369,48,107,35,'Separate\nverifier',BLUE,PALE_BLUE)
+    d.line((100.5,48),(142,48),arrow=True)
+    d.line((236,48),(315.5,48),arrow=True,colour=BLUE,weight=1.1)
+    d.label(275,21,'Positive certificate',10.5,colour=BLUE)
+    d.line((53,65.5),(53,92),(369,92),(369,65.5),arrow=True)
+    d.label(210,111,'Original history',11)
+    d.save()
 
 
 def selector(out):
-    d=Drawing((0.,0.,W,6.05))
-    columns=(1.78,5.64,9.50,13.36)
-    for prefix,y,title,steps in (
-        ('safe',4.29,'(a) Ordered protocol',(
-            ('Write B in\nfresh slot','neutral'),('Prepare B\nmanifest','neutral'),
-            ('Select B','blue'),('Reuse old slot','green'))),
-        ('unsafe',1.52,'(b) Unsafe control',(
-            ('Overwrite A\nwith B','red'),('Prepare B\nmanifest','orange'),
-            ('Select B','blue'))),
+    d=Figure(out,'selector-order',177)
+    xs=(50,160,270,380)
+    for heading,y,steps,first,last,shade in (
+        ('(a) Ordered protocol',30,('Write B to\na fresh slot','Prepare B\nmanifest','Select B','Reuse old slot'),
+         'A remains recoverable','B is selected before reuse',TEAL),
+        ('(b) Unsafe control',120,('Overwrite A\nwith B','Prepare B\nmanifest','Select B'),
+         'Recovery of A fails','B is recoverable',RUST),
     ):
-        d.text(.25,y+1.03,title,11.5,ha='left')
-        for i,(label,tone) in enumerate(steps):
-            d.box(f'{prefix}{i}',columns[i],y,3.2,1.16,label,10.5,tone)
+        d.label(4,y-18,heading,12,'left')
+        for i,(x,step) in enumerate(zip(xs,steps)):
+            colour=BLUE if i==2 else shade if i==0 and y>100 else MUTED
+            d.dot(x,y,colour)
+            d.label(x,y+21,step,11)
             if i:
-                d.edge(f'{prefix}{i-1}',f'{prefix}{i}','e','w')
-    d.text(3.71,3.31,'A remains recoverable',10.5)
-    d.text(11.43,3.31,'B is selected before reuse',10.5)
-    d.text(3.71,.54,'Selector still names A: recovery fails',10.5)
-    d.text(9.50,.54,'B is recoverable',10.5)
-    d.save(out,'selector-order')
+                d.line((xs[i-1]+4,y),(x-4,y),arrow=True,colour=MUTED)
+        d.label(105,y+49,first,11,colour=shade)
+        d.label(325 if len(steps)==4 else 270,y+49,last,11,colour=TEAL)
+    d.line((4,89),(424,89),colour=RULE,weight=.6)
+    d.save()
+
+
+def sqlite(out):
+    d=Figure(out,'evidence-paths',162)
+    d.label(231,9,'Event-model path',11.5,colour=BLUE)
+    d.label(231,150,'Native SQLite path',11.5,colour=TEAL)
+    d.node('commit',52,77,94,37,'Committed\nSQLite state',MUTED,GREY)
+    d.node('audit',174,38,89,34,'Audit\nprojection')
+    d.node('model',277,38,85,34,'Model\nrecovery',BLUE,PALE_BLUE)
+    d.node('records',174,116,89,34,'Retained\nrecords')
+    d.node('native',277,116,85,34,'Native\nrecovery',TEAL,GREY)
+    d.node('compare',380,77,91,38,'Compare\nrecovery results')
+    d.line((99,77),(116,77))
+    d.line((116,77),(116,38),(129.5,38),arrow=True,colour=BLUE)
+    d.line((116,77),(116,116),(129.5,116),arrow=True,colour=TEAL)
+    d.line((218.5,38),(234.5,38),arrow=True,colour=BLUE)
+    d.line((218.5,116),(234.5,116),arrow=True,colour=TEAL)
+    d.line((319.5,38),(380,38),(380,58),arrow=True,colour=BLUE)
+    d.line((319.5,116),(380,116),(380,96),arrow=True,colour=TEAL)
+    d.save()
+
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--font-root', type=Path, required=True)
-    args = parser.parse_args()
-    vector.register_font(args.font_root)
-    args.out.mkdir(parents=True, exist_ok=True)
-    frontier(args.out)
-    motivation(args.out)
-    paths(args.out)
-    selector(args.out)
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--out',type=Path,required=True)
+    parser.add_argument('--font-root',type=Path,required=True)
+    args=parser.parse_args()
+    v.register_font(args.font_root)
+    args.out.mkdir(parents=True,exist_ok=True)
+    for draw in (motivation,frontier,certificate,selector,sqlite):
+        draw(args.out)
 
 
-if __name__ == '__main__':
+if __name__=='__main__':
     main()
-
