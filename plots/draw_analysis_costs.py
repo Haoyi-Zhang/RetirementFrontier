@@ -12,10 +12,10 @@ sys.path.insert(0, str(ROOT/'scripts'))
 from analysis_costs import aggregates
 
 METHODS = (
-    ('admission', 'Admission', (.32,.35,.39), 'square'),
-    ('consumer', 'Certificate check', (.13,.38,.34), 'diamond'),
-    ('pair', 'Pairs', v.ORANGE, 'triangle'),
-    ('frontier', 'Frontier + cert.', v.BLUE, 'circle'),
+    ('admission', 'Admission', v.SLATE, 'square'),
+    ('consumer', 'Certificate check', v.BLUE, 'diamond'),
+    ('pair', 'Pair analysis', v.SLATE, 'triangle'),
+    ('frontier', 'Frontier + certificate', v.BLUE, 'circle'),
 )
 
 
@@ -45,64 +45,58 @@ def mark(c, x, y, kind, color):
 
 
 def draw(width, cells):
-    height=277.
-    c = v.new_pdf('analysis-cpu.pdf',width,height)
-    left,right,gap=107.,width-8.,20.
-    span=(right-left-gap)/2
-    if span<142:
-        raise ValueError('Insufficient plot width')
-    # Horizontal positions encode observed time. The vertical displacement
-    # separates the two routines measured for the same input category.
-    bottom,top=32.,217.
-    ink,grid=(.27,.32,.36),(.83,.86,.88)
-    for k,(title,methods,lo,hi,ticks) in enumerate((
-        ('(a) Admission and verification',METHODS[:2],3,450,(5,20,100,400)),
-        ('(b) Retirement analysis',METHODS[2:],.016,20,(.03,.1,1,10)),
-    )):
-        x0=left+k*(span+gap)
-        def xpos(value):
-            if not lo<value<hi:
-                raise ValueError(f'CPU median outside visible axis: {value}')
-            return x0+span*math.log(value/lo)/math.log(hi/lo)
-        v.text(c,x0,257,title,11.5,'left')
-        for i,(_,label,col,kind) in enumerate(methods):
-            x=x0+3+i*64
-            c.setLineWidth(1.05)
-            mark(c,x,240,kind,col)
-            v.text(c,x+8,237,label,10.5,'left')
-        for tick in ticks:
-            x=xpos(tick)
-            c.setStrokeColorRGB(*grid)
-            c.setLineWidth(.52)
-            c.line(x,bottom,x,top)
-            v.text(c,x,bottom-14,f'{tick:g}',10.5)
-        c.setStrokeColorRGB(*ink)
-        c.setLineWidth(.82)
-        c.line(x0,bottom,x0+span,bottom)
-        if k==0:
-            v.text(c,5,225,'Workload',10.5,'left')
-            v.text(c,95,225,'Ops',10.5,'right')
-        for i,family in enumerate(('shared','unique','churn')):
-            first=203-i*60
-            if i:
-                c.setStrokeColorRGB(.68,.73,.76)
-                c.setLineWidth(.6)
-                c.line(x0,first+12,x0+span,first+12)
-            if not k:
-                v.text(c,5,first-21,family.capitalize(),11,'left')
-            for j,n in enumerate((32,128,512)):
-                y=first-j*18
-                if not k:
-                    v.text(c,95,y-3.2,str(n),10.5,'right')
-                points=[(xpos(cells[family,n][method+'_ms']),y+off,col,kind)
-                        for off,(method,_,col,kind) in zip((4.2,-4.2),methods)]
-                c.setStrokeColorRGB(.68,.72,.74)
-                c.setLineWidth(.64)
-                c.line(points[0][0],points[0][1],points[1][0],points[1][1])
-                for x,y,col,kind in points:
-                    c.setLineWidth(1.05)
-                    mark(c,x,y,kind,col)
-    v.text(c,(left+right)/2,4,'CPU time (ms, log scale)',11)
+    c=v.new_pdf('analysis-cpu.pdf',width,184)
+    left,right,gap=43.,width-6.,13.
+    panel=(right-left-2*gap)/3
+    if panel<107:
+        raise ValueError('Plot needs three legible facets')
+    lo,hi=.015,410.
+    bottom,top=33.,136.
+    def ypos(y):
+        if not lo<y<hi:
+            raise ValueError(f'CPU time outside the plot: {y}')
+        return bottom+(top-bottom)*math.log(y/lo)/math.log(hi/lo)
+    from reportlab.pdfbase import pdfmetrics
+    key_widths=[13+pdfmetrics.stringWidth(method[1],v.FONT,v.TICK) for method in METHODS]
+    key_gap=18.
+    key_x=(width-sum(key_widths)-(len(key_widths)-1)*key_gap)/2
+    if key_x<5:
+        raise ValueError('CPU legend exceeds available width')
+    for method,key_width in zip(METHODS,key_widths):
+        c.setLineWidth(1.04)
+        mark(c,key_x+4,173,method[3],method[2])
+        v.text(c,key_x+12,169.8,method[1],v.TICK,'left')
+        key_x+=key_width+key_gap
+    for i,family in enumerate(('shared','unique','churn')):
+        l=left+i*(panel+gap)
+        v.text(c,l+panel/2,148,family.capitalize(),v.LABEL)
+        for tick in (.03,.1,1,10,100):
+            y=ypos(tick)
+            c.setLineWidth(.49)
+            c.setStrokeColorRGB(.83,.87,.89)
+            c.line(l,y,l+panel,y)
+            if i==0:
+                v.text(c,l-5,y-3.1,f'{tick:g}',v.TICK,'right')
+        c.setLineWidth(.75)
+        c.setStrokeColorRGB(.28,.34,.39)
+        c.line(l,bottom,l+panel,bottom)
+        if not i:
+            c.line(l,bottom,l,top)
+        for j,count in enumerate((32,128,512)):
+            x=l+(j+.5)*panel/3
+            v.text(c,x,19,str(count),v.TICK)
+            # The mark order matches the legend. The four positions within
+            # each category are distinct even when two medians are equal.
+            for offset,(key,_,colour,shape) in zip((-11.,-3.7,3.7,11.),METHODS):
+                y=ypos(cells[family,count][key+'_ms'])
+                c.setLineWidth(1.08)
+                mark(c,x+offset,y,shape,colour)
+    v.text(c,(left+right)/2,4,'Client operations',v.LABEL)
+    c.saveState()
+    c.translate(11,(bottom+top)/2)
+    c.rotate(90)
+    v.text(c,0,0,'CPU time (ms, log scale)',v.LABEL)
+    c.restoreState()
     c.save()
 
 

@@ -28,9 +28,12 @@ INPUT = PAPER / "results/scaling/policy-metrics.jsonl"
 FONT = "ManuscriptRoman"
 PT = 72 / 72.27
 CM = 72 / 2.54
-BLUE = (.11, .34, .49)
-ORANGE = (.69, .34, .14)
-GREY = (.77, .81, .84)
+BLUE = (.12, .27, .41)
+SLATE = (.32, .39, .46)
+MID = (.49, .56, .63)
+GREY = (.81, .83, .85)
+TICK = 9.75
+LABEL = 10.25
 
 
 def register_font(root):
@@ -110,12 +113,27 @@ def legend(c, items, width, y, size=8):
         raise ValueError("Legend would exceed the figure width")
     x = (width - total) / 2
     c.setLineWidth(.5)
-    for (name, colour), length in zip(items, lengths):
-        c.setStrokeColorRGB(0, 0, 0)
-        c.setFillColorRGB(*colour)
-        c.rect(x, y, 8, 5, fill=1, stroke=1)
+    for j, ((name, colour), length) in enumerate(zip(items, lengths)):
+        policy_bar(c, x, y, 8, 5, colour, hatched=(j==1))
         text(c, x + 12, y - .1, name, size, "left")
         x += length + 14
+
+
+def policy_bar(c, x, y, width, height, colour, hatched):
+    c.setFillColorRGB(*colour)
+    c.setStrokeColorRGB(.23, .28, .32)
+    c.setLineWidth(.52)
+    c.rect(x, y, width, height, stroke=1, fill=1)
+    if hatched and height > 0:
+        c.saveState()
+        p = c.beginPath()
+        p.rect(x+.3,y+.3,width-.6,height-.6)
+        c.clipPath(p,stroke=0,fill=0)
+        c.setStrokeColorRGB(.93,.95,.97)
+        c.setLineWidth(.44)
+        for n in range(-math.ceil(height),math.ceil(width)+1,5):
+            c.line(x+n,y,x+n+height,y+height)
+        c.restoreState()
 
 
 def line_points(c, points, shape="circle", radius=1.8, connect=True):
@@ -195,44 +213,44 @@ def main_args(default_width):
     return args.column_width_pt * PT
 
 def draw(width):
-    rows = retained_rows(INPUT)
-    keys=("no_dedup","sync_metadata","batch_four_dedup")
-    height=223.
-    c = new_pdf("write-ratios.pdf", width, height)
-    left,right,bottom,top=73.,width-29.,35.,190.
-    colours=(GREY,ORANGE,BLUE)
-    def xpos(value):
-        return left+(right-left)*value/6.15
-    for n in (0,2,4,6):
-        x=xpos(n)
-        c.setStrokeColorRGB(*((.31,.36,.40) if n==0 else (.84,.87,.89)))
-        c.setLineWidth(.8 if n==0 else .5)
-        c.line(x,bottom,x,top)
-        text(c,x,bottom-15,str(n),10.5)
-    c.setStrokeColorRGB(.31,.36,.40)
-    c.setLineWidth(.8)
-    c.line(left,bottom,right,bottom)
+    rows=retained_rows(INPUT)
+    keys=('no_dedup','sync_metadata','batch_four_dedup')
+    colours=(GREY,MID,BLUE)
+    height=176.
+    c=new_pdf('write-ratios.pdf',width,height)
+    left,right,base,top=49.,width-8.,29.,147.
+    step=(right-left)/3
+    def position(y):
+        return base+(top-base)*y/6.6
+    for tick in (0,1,2,4,6):
+        y=position(tick)
+        c.setStrokeColorRGB(*((.43,.49,.54) if tick in (0,1) else (.83,.87,.89)))
+        c.setLineWidth(.8 if tick==0 else .58)
+        if tick==1:
+            c.setDash(3,2.2)
+        c.line(left,y,right,y)
+        c.setDash()
+        text(c,left-6,y-3.1,str(tick),TICK,'right')
     for i,row in enumerate(rows):
-        centre=164-i*53
-        text(c,left-10,centre-3.2,row["family"],11.5,"right")
+        centre=left+(i+.5)*step
+        text(c,centre,12,row['family'],LABEL)
         for j,(key,colour) in enumerate(zip(keys,colours)):
-            val=float(Decimal(row[key]))
-            y=centre+14-14*j
-            x=xpos(val)
-            c.setFillColorRGB(*colour)
-            c.setStrokeColorRGB(.18,.23,.27)
-            c.setLineWidth(.46)
-            c.rect(left,y-3.6,x-left,7.2,stroke=1,fill=1)
-            label=f'{val:.2f}'
-            tw=pdfmetrics.stringWidth(label,FONT,10.5)
-            if x+7+tw>width-1:
-                raise ValueError('Insufficient margin for encoded-write value')
+            value=float(Decimal(row[key]))
+            x=centre+(j-1)*27
+            y=position(value)
+            policy_bar(c,x-9,base,18,y-base,colour,hatched=(j==1))
+            label=f'{value:.2f}'
+            bw=pdfmetrics.stringWidth(label,FONT,TICK)
             c.setFillColorRGB(1,1,1)
-            c.rect(x+5.7,y-5.5,tw+2.7,11,stroke=0,fill=1)
-            text(c,x+7,y-3.2,label,10.5,'left')
-    text(c,(left+right)/2,4,'Encoded bytes per logical input byte',11)
-    legend(c, list(zip(("No deduplication", "Per-operation deduplication", "Batch-four deduplication"),
-                      colours)), width, height-13,10.5)
+            c.rect(x-bw/2-.7,y+3,bw+1.4,TICK,stroke=0,fill=1)
+            text(c,x,y+4.4,label,TICK)
+    c.saveState()
+    c.translate(17,(base+top)/2)
+    c.rotate(90)
+    text(c,0,0,'Encoded bytes / logical input byte',LABEL)
+    c.restoreState()
+    legend(c,list(zip(('No deduplication','Per-operation deduplication',
+                        'Batch-four deduplication'),colours)),width,height-12,TICK)
     c.save()
 
 

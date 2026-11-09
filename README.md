@@ -10,13 +10,13 @@ yangliu@ntu.edu.sg.
 
 ## Scope
 
-The central question is when an allocation that is no longer live is also
-past every root that recovery may select. Publication, retirement and
-acknowledgement characterize strict latest-root safety in the finite model.
-Frontiers compress the root--writer conflict relation for the decision;
-minimum failure diagnostics still compare predecessor-closed candidates.
-The measurements distinguish this smaller obligation set from complete
-analysis CPU cost, and logical slot reuse from retained-file savings.
+Retirement frontiers relate a destructive write to the last roots using
+the allocations it threatens. Publication, retirement and acknowledgement
+characterize strict latest-root safety in the finite model. The frontier
+reduces the root--writer comparisons for deciding safety; a minimum failure
+diagnosis still compares predecessor-closed candidates. The evaluation
+reports analysis CPU cost, logical slot reuse and retained-file savings
+separately.
 
 The finite model has serial events, atomic byte-bearing DATA records (including whole manifests), FREE records, immutable retained ROOTs, unique physical incarnations, and an explicit backward dependency DAG. A crash cut is downward closed. Strict recovery selects the greatest durable ROOT. Acknowledgements promise a recoverable operation prefix, not indefinite retention of overwritten object versions.
 
@@ -97,8 +97,10 @@ python -B -O -m unittest discover -s tests -p test_posix_event_cuts.py -v
 
 The optional paper figures use Python ReportLab and `requirements-figures.txt`.
 They embed the installed Type 1 counterpart of the manuscript's Libertine face.
-Schematics, labels and plot marks are native PDF vectors. The figure
-builders do not use bitmap inputs or external services.
+The figure builders use the retained pictograms under `figures/artwork/`,
+which also documents their origin. Labels, arrows, notation and data marks
+are native PDF vectors. Rebuilding the figures reads these local assets and
+measurements offline.
 
 ```sh
 python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/diagrams
@@ -107,9 +109,8 @@ python plots/draw_analysis_costs.py --font-root /path/to/texmf-dist/fonts --out 
 ```
 
 The SQLite plot reads all 48 primary cost rows and divides the matched policy
-medians shown side-by-side in the paper's allocation-cost table. Each segment
-joins the slot and file ratios for one workload and journal mode; the
-endpoints are labeled with their ratios. The write-ratio plot in
+medians shown side-by-side in the paper's allocation-cost table. Squares
+and circles distinguish slot and file ratios on one common axis. The write-ratio plot in
 `plots/draw_write_ratios.py` reads the primary scaling rows
 and uses medians of per-input ratios. Its three policy series are no
 deduplication, per-operation deduplication and batch-four deduplication.
