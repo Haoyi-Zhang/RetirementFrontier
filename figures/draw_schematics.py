@@ -327,6 +327,44 @@ def certificate(out):
     d.save()
 
 
+def minimum_witness(out):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+    from witness_examples import shared_comparison
+
+    evidence = shared_comparison()
+    d = Figure(out, 'minimum-witness', 126)
+    d.label(16, 20, 'Durable state', 11.5, 'left')
+    columns = (172, 215, 258, 301, 344, 387)
+    for i, (x, name) in enumerate(zip(columns, ('chunk', 'manifest', 'root', 'manifest', 'root', 'free'))):
+        d.label(x, 15, str(i), 11.7)
+        d.label(x, 31, name, 10.1, colour=MUTED)
+    d.line((16, 43), (412, 43), colour=RULE, weight=.75)
+
+    def ring(x, y):
+        d.c.setStrokeColorRGB(*BLUE)
+        d.c.setLineWidth(1.5)
+        d.c.circle(x, d.height-y, 4.7, fill=0, stroke=1)
+
+    rows = (('Using the frontier root', evidence['frontier_cut'], 61),
+            ('Minimum bad cut', evidence['minimum_cut'], 88))
+    for (name, cut, y), selected in zip(rows, evidence['selected_roots'], strict=True):
+        d.label(16, y, name, 11.4, 'left', BLUE if y == 88 else INK)
+        for i, x in enumerate(columns):
+            if i == selected:
+                ring(x, y)
+            elif i in cut:
+                d.dot(x, y, INK, 3.3)
+            else:
+                d.line((x-3.1, y), (x+3.1, y), colour=MUTED, weight=.9)
+    ring(121, 113)
+    d.label(134, 113, 'Selected root', 10.4, 'left')
+    d.dot(225, 113, INK, 3.3)
+    d.label(236, 113, 'Other durable event', 10.4, 'left')
+    d.line((347, 113), (353, 113), colour=MUTED, weight=.9)
+    d.label(360, 113, 'Absent', 10.4, 'left')
+    d.save()
+
+
 def selector(out):
     d=Figure(out,'selector-order',163)
     d.art('publication-symbols','rail',11,11,78,46)
@@ -406,7 +444,7 @@ def main():
     args=parser.parse_args()
     v.register_font(args.font_root)
     args.out.mkdir(parents=True,exist_ok=True)
-    for draw in (motivation,frontier,certificate,selector,sqlite):
+    for draw in (motivation,frontier,certificate,minimum_witness,selector,sqlite):
         draw(args.out)
 
 

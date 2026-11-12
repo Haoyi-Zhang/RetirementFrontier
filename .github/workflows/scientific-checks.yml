@@ -99,6 +99,8 @@ jobs:
             python -B scripts/restart_reclamation.py --run 2>&1 \
             | tee "$RUNNER_TEMP/retirementfrontier-scientific/restart-reclamation.log"
           python -B scripts/run_tests.py --pattern test_restart_reclamation.py
+      - name: Check manuscript witnesses against materialized recovery
+        run: python -B scripts/run_tests.py --pattern test_witness_examples.py
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |

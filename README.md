@@ -413,12 +413,18 @@ not execute experiments or replace the retained observations. Choose an empty
 output directory. `--input` and `--column-width-pt` can select another validated
 input file and the manuscript's actual TeX column width.
 
-The eight manuscript figures are assembled in Python. The range-compaction
+The nine manuscript figures are assembled in Python. The range-compaction
 overview and its companion listing are generated together from the decoded
 native edit. The diagram distinguishes observed file membership from
 projected durability dependencies. Other schematics show the frontier,
 certificate verification, selector ordering, and the recovery comparison.
 The renderer checks label clearance, node padding, and connector geometry.
+
+The minimum-witness diagram is generated from an executable six-event
+shared-chunk case. Run `python -B scripts/witness_examples.py` to check it and
+the two range-compaction model witnesses against pairwise analysis and
+exhaustive materialized recovery. The range check reads the retained decoded
+edit; it does not start RocksDB or reproduce an upstream fault.
 
 The three data plots use retained observations. The write-cost chart uses
 medians of five per-input ratios. The SQLite chart plots ratios of policy
