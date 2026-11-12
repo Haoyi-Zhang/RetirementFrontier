@@ -233,49 +233,54 @@ def motivation(out):
     previous, current = set(before['files']), set(after['files'])
     old = ', '.join(str(int(Path(n).stem)) for n in sorted(previous - current))
     new, = (int(Path(n).stem) for n in current - previous)
-    shared, = (int(Path(n).stem) for n in previous & current)
+    def ids(files):
+        return ', '.join(str(int(Path(n).stem)) for n in sorted(files))
     ordered = case['outcomes']['ordered']
     bad = case['outcomes']['unguarded-retirement']['minimum']
-    lost, = (int(Path(n).stem) for n in bad['missing'])
     if (bad['view'] != 'epoch:before' or ordered['bad_cuts'] != 0
             or {a for a, b in ordered['certificate_guards'] if b == 'epoch:after'}
                != {f'retire:{name}' for name in previous - current}):
         raise ValueError('Native overview does not match the guard or failure evidence')
 
-    # Exact set membership and predecessor arrows; the graphic is not a time measurement.
-    d = Figure(out, 'reuse-cut', 218)
-    d.label(15, 15, '(a) Decoded RocksDB edit', 12.2, 'left')
-    d.label(226, 15, '(b) Projected persistence order', 12.2, 'left')
-    d.label(15, 39, f'Same client sequence: {before["sequence"]}', 10.8, 'left', MUTED)
-    d.label(15, 65, 'SST', 11, 'left')
-    d.label(126, 65, 'Before', 11)
-    d.label(180, 65, 'After', 11)
-    d.line((15, 76), (204, 76), colour=RULE, weight=.7)
-    for y, name, flags in ((94, old, (True, False)),
-                           (117, str(shared), (True, True)),
-                           (140, str(new), (False, True))):
-        d.label(15, y, name, 12, 'left')
-        for x, present in zip((126, 180), flags):
-            if present:
-                d.dot(x, y, BLUE, 3.4)
-            else:
-                d.line((x-3, y), (x+3, y), colour=MUTED, weight=.8)
-    d.dot(20, 166, BLUE, 3.4)
-    d.label(31, 166, 'Required by the view', 10.5, 'left', MUTED)
-    d.line((214, 37), (214, 190), colour=RULE, weight=.6)
+    evidence = Path(__file__).resolve().parents[1] / 'results/publication-handoff/transaction-boundary.json'
+    observed = [r for r in json.loads(evidence.read_bytes())['observations']
+                if r['mode'] == 'WAL' and r['shape'] == 'merge']
+    cells = {(r['policy'], r['boundary']): r for r in observed}
+    if len(observed) != 6 or len(cells) != 6 or any(r['sqlite_integrity'] != 'ok' for r in observed):
+        raise ValueError('Overview requires six intact catalogs in the WAL merge')
+    # Native sets and their required ordering, then native fixture outcomes.
+    # The arrow is a metadata transition, not a time or throughput measurement.
+    d = Figure(out, 'reuse-cut', 245)
+    d.label(15, 16, '(a) RocksDB range compaction', 12.2, 'left')
+    d.label(415, 16, f'Client sequence: {before["sequence"]} in both views', 10.9, 'right', MUTED)
+    d.label(80, 43, 'Before', 11.3)
+    d.label(351, 43, 'After', 11.3)
+    d.node('old', 80, 64, 129, 23, f'SSTs {ids(previous)}', MUTED, GREY)
+    d.node('new', 351, 64, 128, 23, f'SSTs {ids(current)}', BLUE, PALE_BLUE)
+    d.line((148, 64), (282, 64), arrow=True, colour=BLUE, weight=1.15)
+    d.label(215, 51, 'MANIFEST edit', 10.8, colour=BLUE)
+    d.label(215, 92, f'Required order: persist {new}, publish the new view, then unlink {old}', 11.1, colour=BLUE)
 
-    for key, y, label in (('create', 41, f'SST {new} present'),
-                          ('publish', 94, 'New view durable'),
-                          ('retire', 147, f'Unlink {old}')):
-        d.node(key, 313, y, 147, 23, label, BLUE, PALE_BLUE if key == 'publish' else PAPER)
-    for lo, hi, label in ((54, 80, 'P: publish'), (107, 133, 'D: retire')):
-        d.line((313, lo), (313, hi), arrow=True, colour=BLUE, weight=1.15)
-        d.label(327, (lo+hi)/2, label, 10.2, 'left', BLUE)
-    d.label(313, 169, 'Arrows: durability prerequisites', 10.2, colour=MUTED)
-    d.label(313, 188, 'For each unlink: T = before < F = after', 10.8, colour=BLUE)
-    d.line((15, 198), (415, 198), colour=RULE, weight=.7)
-    d.label(15, 210, f'Both edges: {ordered["legal_cuts"]} cuts, no missing SST', 10.2, 'left', BLUE)
-    d.label(230, 210, f'Without D: old view can miss SST {lost}', 10.2, 'left', RUST)
+    d.label(15, 121, '(b) SQLite-backed WAL merge: same handoff, no reply', 12.2, 'left')
+    d.label(15, 150, 'Cleaner keeps', 11.1, 'left')
+    d.label(222, 150, 'Exit before commit', 11.1)
+    d.label(361, 150, 'Exit after commit', 11.1)
+    d.line((15, 161), (415, 161), colour=RULE, weight=.7)
+    for y, policy, title in ((176, 'keep-before', 'Before layout only'),
+                             (195, 'keep-after', 'After layout only'),
+                             (214, 'keep-both', 'Both layouts')):
+        d.label(15, y, title, 11, 'left', BLUE if policy == 'keep-both' else INK)
+        for x, boundary in ((222, 'before-commit'), (361, 'after-commit')):
+            row = cells[policy, boundary]
+            count = len(row['missing_segments'])
+            if count:
+                label = f'{count} segment{"s" if count != 1 else ""} missing'
+            elif len(row['exact_objects']) == 2:
+                label = 'Both objects intact'
+            else:
+                raise ValueError('Missing byte recovery outcome in WAL merge')
+            d.label(x, y, label, 11, colour=RUST if count else INK)
+    d.label(415, 235, 'SQLite integrity check: OK in all six outcomes', 10.8, 'right', MUTED)
     d.save()
 
 

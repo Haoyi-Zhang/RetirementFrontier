@@ -1,0 +1,571 @@
+{
+  "observations": [
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-before",
+      "removed": [
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "left.bin",
+        "right.bin"
+      ],
+      "mode": "DELETE",
+      "policy": "keep-after",
+      "removed": [
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-both",
+      "removed": [
+        "archive.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "whole.bin"
+      ],
+      "mode": "DELETE",
+      "policy": "keep-before",
+      "removed": [
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-after",
+      "removed": [
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-both",
+      "removed": [
+        "archive.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-before",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "whole.bin"
+      ],
+      "mode": "DELETE",
+      "policy": "keep-after",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-both",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "left.bin",
+        "right.bin"
+      ],
+      "mode": "DELETE",
+      "policy": "keep-before",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-after",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "DELETE",
+      "policy": "keep-both",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-before",
+      "removed": [
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "left.bin",
+        "right.bin"
+      ],
+      "mode": "WAL",
+      "policy": "keep-after",
+      "removed": [
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-both",
+      "removed": [
+        "archive.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "whole.bin"
+      ],
+      "mode": "WAL",
+      "policy": "keep-before",
+      "removed": [
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-after",
+      "removed": [
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-both",
+      "removed": [
+        "archive.bin"
+      ],
+      "shape": "merge",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-before",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "whole.bin"
+      ],
+      "mode": "WAL",
+      "policy": "keep-after",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "before-commit",
+      "catalog_layouts": [
+        0
+      ],
+      "client_prefix": 1,
+      "epoch": 0,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-both",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "beta"
+      ],
+      "missing_segments": [
+        "left.bin",
+        "right.bin"
+      ],
+      "mode": "WAL",
+      "policy": "keep-before",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-after",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    },
+    {
+      "boundary": "after-commit",
+      "catalog_layouts": [
+        0,
+        1
+      ],
+      "client_prefix": 1,
+      "epoch": 1,
+      "exact_objects": [
+        "alpha",
+        "beta"
+      ],
+      "missing_segments": [],
+      "mode": "WAL",
+      "policy": "keep-both",
+      "removed": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "shape": "split",
+      "sqlite_integrity": "ok"
+    }
+  ],
+  "sources": {
+    "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
+    "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
+    "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
+    "scripts/check_native_epochs.py": "d616cc9b1b42811904f257a3ca5cdff9a1903aada1fa3e7b36a28dc33b9ef09a",
+    "scripts/publication_handoff.py": "14e9d7d0e277bd72c7c20e3e29f478a7091fcdff3583b42a76375ffe44dc4bd5",
+    "scripts/rocksdb_lifecycle.py": "bf7da7d1f0dc2c4ba0e83352aec7d1394a0e31ccd1cb522e308f14fdac360a60",
+    "scripts/transaction_boundary.py": "d9efbb6ace27846b8f0ae07a20bc287164d1e4838b8bf65e4600b34feccd5329"
+  },
+  "summary": {
+    "intact_catalogs": 24,
+    "policies": {
+      "keep-after": {
+        "object_failures": 4,
+        "trials": 8
+      },
+      "keep-before": {
+        "object_failures": 4,
+        "trials": 8
+      },
+      "keep-both": {
+        "object_failures": 0,
+        "trials": 8
+      }
+    },
+    "trials": 24
+  }
+}

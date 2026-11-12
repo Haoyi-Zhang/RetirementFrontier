@@ -93,6 +93,14 @@ both recover the exact object bytes; the guard moves eligible unlinks
 earlier but does not increase eventual reclamation. This experiment
 does not inject a fault into SQLite or RocksDB.
 
+The paired diagnostic control, `python -B scripts/transaction_boundary.py --run`,
+reopens real SQLite catalogs after three cleanup rules act on the same
+kind of no-reply handoff. All runs use fresh temporary application-owned
+files. The verifier separately checks the selector, complete manifest
+and database integrity, then reads the actual external segment bytes.
+The retained observations distinguish a valid catalog from an unreadable
+object. This is a test of application cleanup, not a fault in the database.
+
 To replay confirmed publications while WAL readers retain older snapshots,
 run `python -B scripts/reader_pins.py --run`. The test uses separate
 reader processes and crosses two reader release orders with pin-aware

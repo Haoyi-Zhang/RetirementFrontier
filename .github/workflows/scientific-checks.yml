@@ -77,6 +77,8 @@ jobs:
           timeout --signal=TERM --kill-after=15s 180s \
             python -B scripts/publication_handoff.py --run 2>&1 \
             | tee "$RUNNER_TEMP/retirementfrontier-scientific/publication-handoff.log"
+      - name: Compare intact SQLite catalogs with external object reads
+        run: timeout --signal=TERM --kill-after=15s 120s python -B scripts/transaction_boundary.py --run
       - name: Replay overlapping WAL snapshots and reader release
         shell: bash
         run: |

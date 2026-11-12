@@ -99,6 +99,16 @@ not identify candidate states of a failed native MANIFEST publication.
 
 ## Publication handoff with real transactions
 
+The transaction changes the catalog's selector and manifest together.
+Filesystem cleanup acts on application-owned files outside that transaction.
+The companion transaction-boundary control applies each of three policies
+in fresh disposable directories before reopening the catalog. It verifies
+the atomic outcome and integrity of the SQLite catalog separately from
+byte reconstruction. A wrong guessed layout can leave a missing external
+segment despite an intact catalog. Protecting both complete layouts avoids
+that failure in the same before/after comparison. The experiment is not
+a reproduction of the upstream RocksDB report.
+
 The owned fixture separates the SQLite metadata transaction from the
 lifetime of files outside that transaction. It synchronizes payloads and
 a pending record containing both complete layouts before publication.
