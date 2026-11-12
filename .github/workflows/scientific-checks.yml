@@ -70,6 +70,8 @@ jobs:
               print("\n".join(mismatches[:80]))
               raise SystemExit(f"{len(mismatches)} fields differed from retained native evidence")
           PY
+      - name: Replay staged checkpoint retention with the native RocksDB reader
+        run: timeout --signal=TERM --kill-after=15s 300s python -B scripts/checkpoint_restore.py --run
       - name: Replay the publication handoff on SQLite and real files
         shell: bash
         run: |

@@ -259,7 +259,7 @@ def motivation(out):
     d.node('new', 351, 64, 128, 23, f'SSTs {ids(current)}', BLUE, PALE_BLUE)
     d.line((148, 64), (282, 64), arrow=True, colour=BLUE, weight=1.15)
     d.label(215, 51, 'MANIFEST edit', 10.8, colour=BLUE)
-    d.label(215, 92, f'Required order: persist {new}, publish the new view, then unlink {old}', 11.1, colour=BLUE)
+    d.label(215, 92, f'Projected order: persist {new}, publish the new view, then unlink {old}', 11.1, colour=BLUE)
 
     d.label(15, 121, '(b) SQLite-backed WAL merge: same handoff, no reply', 12.2, 'left')
     d.label(15, 150, 'Cleaner keeps', 11.1, 'left')

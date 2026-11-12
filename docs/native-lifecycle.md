@@ -97,6 +97,16 @@ against both surviving views. The result establishes a benefit of
 selective retention over holding the entire observed catalog; it does
 not identify candidate states of a failed native MANIFEST publication.
 
+The staged-restore comparison uses the same native checkpoint procedure.
+For each choice of recovery metadata, an external backup manager retains
+one candidate's SSTs or their union in its own temporary pool. An unchanged
+copy of the selected checkpoint's metadata goes to the restore directory
+with the surviving SSTs. Native read-only reopen rejects both wrong-view
+staged backups, while both union-retention attempts recover all expected
+values at the original sequence. The source database and original
+checkpoints are not changed by this comparison. This is an application
+backup failure, not a replay of an internal RocksDB MANIFEST error.
+
 ## Publication handoff with real transactions
 
 The transaction changes the catalog's selector and manifest together.

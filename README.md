@@ -83,6 +83,12 @@ comparison contrasts candidate-union retention with holding all files or
 assuming a single view. The experiment uses fresh temporary databases
 and ordinary RocksDB operations, not injected publication errors.
 
+To compare retention decisions on staged native backups, run
+`python -B scripts/checkpoint_restore.py --run`. The test creates ordinary
+RocksDB checkpoints, copies their tables into disposable staging pools,
+and verifies restore with RocksDB's read-only API. It does not alter the
+source checkpoints or inject errors into RocksDB.
+
 For a direct test of the transaction boundary, run
 `python -B scripts/publication_handoff.py --run`.
 The owned POSIX fixture publishes a physical layout in one real SQLite
