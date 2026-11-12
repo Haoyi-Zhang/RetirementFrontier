@@ -86,8 +86,11 @@ and ordinary RocksDB operations, not injected publication errors.
 To compare retention decisions on staged native backups, run
 `python -B scripts/checkpoint_restore.py --run`. The test creates ordinary
 RocksDB checkpoints, copies their tables into disposable staging pools,
-and verifies restore with RocksDB's read-only API. It does not alter the
-source checkpoints or inject errors into RocksDB.
+and verifies restore with RocksDB's read-only API. All four policies
+start with the same pool, including expired-only tables. The receipt
+records both native restore outcomes and SST payload bytes released
+before selection, separately from the final pool size. The experiment
+does not alter the source checkpoints or inject errors into RocksDB.
 
 For a direct test of the transaction boundary, run
 `python -B scripts/publication_handoff.py --run`.

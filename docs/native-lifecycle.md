@@ -99,13 +99,17 @@ not identify candidate states of a failed native MANIFEST publication.
 
 The staged-restore comparison uses the same native checkpoint procedure.
 For each choice of recovery metadata, an external backup manager retains
-one candidate's SSTs or their union in its own temporary pool. An unchanged
+one candidate's SSTs, their union, or the entire six-table pool. An unchanged
 copy of the selected checkpoint's metadata goes to the restore directory
 with the surviving SSTs. Native read-only reopen rejects both wrong-view
 staged backups, while both union-retention attempts recover all expected
-values at the original sequence. The source database and original
-checkpoints are not changed by this comparison. This is an application
-backup failure, not a replay of an internal RocksDB MANIFEST error.
+values at the original sequence, as do the hold-all controls. The union
+removes two expired-only tables before selection; hold-all removes none.
+After selection, both retain the same SST bytes for that checkpoint. The
+measurement counts file lengths, not allocated filesystem blocks. The
+source database and surviving checkpoints are not changed by this
+comparison. This is an application backup failure, not a replay of an
+internal RocksDB MANIFEST error.
 
 ## Publication handoff with real transactions
 

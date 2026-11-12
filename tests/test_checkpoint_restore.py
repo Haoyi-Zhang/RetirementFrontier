@@ -12,8 +12,11 @@ class NativeCheckpointRestoreEvidence(unittest.TestCase):
     def test_one_native_open_failure_for_each_single_view_rule(self):
         receipt = json.loads(RECEIPT.read_bytes())
         summary = checked(receipt)
-        self.assertEqual(summary["failures"], {"keep-before": 1, "keep-after": 1, "keep-both": 0})
-        self.assertEqual(summary["exact_reopens"], 4)
+        self.assertEqual(summary["failures"], {"keep-before": 1, "keep-after": 1,
+                                               "keep-both": 0, "hold-all": 0})
+        self.assertEqual(summary["exact_reopens"], 6)
+        self.assertEqual(summary["early_bytes_per_trial"]["hold-all"], 0)
+        self.assertEqual(summary["early_bytes_per_trial"]["keep-both"], 192103)
         self.assertEqual([row["native_status"] for row in receipt["rows"] if row["missing"]],
                          ["open-failed", "open-failed"])
 
@@ -21,4 +24,10 @@ class NativeCheckpointRestoreEvidence(unittest.TestCase):
         receipt = json.loads(RECEIPT.read_bytes())
         next(row for row in receipt["rows"] if row["missing"])["native_status"] = "ok:64"
         with self.assertRaisesRegex(ValueError, "native restore did not agree"):
+            checked(receipt)
+
+    def test_byte_savings_cannot_be_inferred_from_an_incorrect_pool_total(self):
+        receipt = json.loads(RECEIPT.read_bytes())
+        next(row for row in receipt["rows"] if row["policy"] == "keep-both")["early_bytes"] += 1
+        with self.assertRaisesRegex(ValueError, "pool byte accounting"):
             checked(receipt)

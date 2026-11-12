@@ -18,7 +18,21 @@ from rocksdb_lifecycle import CORPUS, ROOT, SST
 READER = ROOT / "scripts/rocksdb_checkpoint_reader.cc"
 RECEIPT = ROOT / "results/rocksdb-lifecycle/checkpoint-restore.json"
 VIEWS = ("before", "after")
-POLICIES = ("keep-before", "keep-after", "keep-both")
+POLICIES = ("keep-before", "keep-after", "keep-both", "hold-all")
+
+
+def catalog_of(views: dict) -> dict:
+    return {name: size for view in ("archive", *VIEWS) for name, size in views[view].items()}
+
+
+def keep_set(views: dict, policy: str) -> set[str]:
+    if policy == "hold-all":
+        return set(catalog_of(views))
+    if policy == "keep-both":
+        return set(views["before"]) | set(views["after"])
+    if policy in ("keep-before", "keep-after"):
+        return set(views[policy.removeprefix("keep-")])
+    raise ValueError("unknown retention policy")
 
 
 def binding() -> dict:
@@ -32,18 +46,23 @@ def run_case(snapshots: Path, work: Path, reader: Path, views: dict, chosen: str
     # The selection is a controlled outcome. The retention decision uses
     # only the two candidates and their immutable file identities.
     required = set(views[chosen])
-    candidates = set().union(*(views[name] for name in VIEWS))
-    kept = candidates if policy == "keep-both" else set(views[policy.removeprefix("keep-")])
+    catalog = catalog_of(views)
+    kept = keep_set(views, policy)
     pool, destination = work / "pool", work / "restore"
     pool.mkdir()
     destination.mkdir()
-    for name in sorted(candidates):
-        src = next(snapshots / view / name for view in VIEWS if name in views[view])
-        if not SST.fullmatch(name) or not src.is_file():
+    for name, size in sorted(catalog.items()):
+        src = next((snapshots / view / name for view in VIEWS if name in views[view]),
+                   snapshots / "expired-tables" / name)
+        if not SST.fullmatch(name) or not src.is_file() or src.stat().st_size != size:
             raise ValueError("invalid native source table")
         shutil.copyfile(src, pool / name)
-    for name in sorted(candidates - kept):
+    before = sum(path.stat().st_size for path in pool.iterdir())
+    for name in sorted(catalog.keys() - kept):
         (pool / name).unlink()
+    if {path.name for path in pool.iterdir()} != kept:
+        raise ValueError("retained pool inventory differs")
+    after = sum(path.stat().st_size for path in pool.iterdir())
     for path in (snapshots / chosen).iterdir():
         if not path.is_file() or path.is_symlink():
             raise ValueError("unexpected checkpoint member")
@@ -56,8 +75,16 @@ def run_case(snapshots: Path, work: Path, reader: Path, views: dict, chosen: str
                                      text=True, timeout=30).strip()
     if not re.fullmatch(r"ok:64|(?:open|read):[1-9][0-9]*", status):
         raise ValueError(f"unexpected reader output: {status}")
-    return dict(chosen=chosen, policy=policy, reclaimed=sorted(candidates - kept),
-                missing=missing, native_status=status)
+    released = before - after
+    final = None
+    if status == "ok:64":
+        for name in sorted(kept - required):
+            (pool / name).unlink()
+        if {path.name for path in pool.iterdir()} != required:
+            raise ValueError("resolved pool inventory differs")
+        final = sum(path.stat().st_size for path in pool.iterdir())
+    return dict(chosen=chosen, policy=policy, reclaimed=sorted(catalog.keys() - kept),
+                missing=missing, native_status=status, early_bytes=released, final_bytes=final)
 
 
 def evaluate(rows: list[dict], views: dict) -> dict:
@@ -65,11 +92,13 @@ def evaluate(rows: list[dict], views: dict) -> dict:
     if [(r["chosen"], r["policy"]) for r in rows] != matrix:
         raise ValueError("incomplete checkpoint-restore comparison")
     counts = {p: 0 for p in POLICIES}
+    sizes = catalog_of(views)
+    savings = {p: set() for p in POLICIES}
+    final = {}
     for row in rows:
         chosen, policy = row["chosen"], row["policy"]
         missing = set(views[chosen]) & set(row["reclaimed"])
-        expected_removed = set() if policy == "keep-both" else (
-            set().union(*(views[name] for name in VIEWS)) - set(views[policy.removeprefix("keep-")]))
+        expected_removed = sizes.keys() - keep_set(views, policy)
         if row["reclaimed"] != sorted(expected_removed) or row["missing"] != sorted(missing):
             raise ValueError("backup inventory does not match the observed missing tables")
         # The native failure kind is not used to derive the file inventory.
@@ -77,9 +106,20 @@ def evaluate(rows: list[dict], views: dict) -> dict:
         status = row["native_status"]
         if status not in ("open-failed", "read-failed", "ok:64") or (status == "ok:64") == bool(missing):
             raise ValueError("native restore did not agree with the matched control")
+        size = sum(sizes[name] for name in expected_removed)
+        end_size = sum(views[chosen].values()) if status == "ok:64" else None
+        if (row["early_bytes"], row["final_bytes"]) != (size, end_size):
+            raise ValueError("native staging pool byte accounting differs")
+        savings[policy].add(size)
+        if status == "ok:64" and policy in ("keep-both", "hold-all"):
+            final[chosen] = end_size
         counts[policy] += status != "ok:64"
+    if any(len(s) != 1 for s in savings.values()):
+        raise ValueError("pre-resolution decisions depend on selected checkpoint")
     return {"trials": len(rows), "failures": counts,
-            "exact_reopens": len(rows) - sum(counts.values()), "keys_per_reopen": 64}
+            "exact_reopens": len(rows) - sum(counts.values()), "keys_per_reopen": 64,
+            "early_bytes_per_trial": {policy: next(iter(values)) for policy, values in savings.items()},
+            "final_bytes_by_view": final}
 
 
 def reference() -> dict:
@@ -100,7 +140,8 @@ def capture() -> dict:
                             "-Wextra", str(source), "-lrocksdb", "-o", str(binary)],
                            check=True, timeout=120)
         captured = json.loads(subprocess.check_output(
-            [str(native), str(snapshots), *map(str, CORPUS[:2])], text=True, timeout=120))
+            [str(native), str(snapshots), *map(str, CORPUS[:2]), "--retain-staging-copy"],
+            text=True, timeout=120))
         # File identities and the logical sequence must match. File sizes
         # and the reported library version belong to the separate native receipt.
         if (captured["sequence"], captured["verified_keys"]) != (expected["sequence"], expected["verified_keys"]) or any(

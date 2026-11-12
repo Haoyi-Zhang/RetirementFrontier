@@ -26,7 +26,7 @@
     "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
     "scripts/check_native_checkpoints.py": "01554ffbd6c3490c1d53c13e24a855329f89330bbf3d460e064641fcc15cd832",
     "scripts/check_native_epochs.py": "d616cc9b1b42811904f257a3ca5cdff9a1903aada1fa3e7b36a28dc33b9ef09a",
-    "scripts/rocksdb_checkpoint_probe.cc": "e335967a7d22dd59add293521eb4624acd7a64489b52f6cb90392a82414c2ae1",
+    "scripts/rocksdb_checkpoint_probe.cc": "fd12ac2ce5410a968328aec0abce3b9550a56a90c2ab6032ca3d30f7df0d9a4b",
     "scripts/rocksdb_lifecycle.py": "bf7da7d1f0dc2c4ba0e83352aec7d1394a0e31ccd1cb522e308f14fdac360a60"
   },
   "summary": {

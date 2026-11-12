@@ -112,7 +112,8 @@ void emit(const char* label, const Files& files) {
 }
 
 int main(int argc, char** argv) try {
-  require(argc == 4, "expected a fresh staging directory and two public inputs");
+  require(argc == 4 || (argc == 5 && std::string(argv[4]) == "--retain-staging-copy"),
+          "expected a fresh staging directory, two public inputs and optional copy flag");
   const fs::path root(argv[1]);
   require(fs::is_directory(root) && fs::is_empty(root), "expected an empty staging directory");
   const auto live = root / "database", archived = root / "archived";
@@ -162,6 +163,11 @@ int main(int argc, char** argv) try {
     if (!b.count(name) && !c.count(name)) {
       require(!fs::exists(live / name) && fs::hard_link_count(archived / name) == 1,
               "archived-only SST has another filesystem link");
+      if (argc == 5) {
+        const auto copy = root / "expired-tables";
+        fs::create_directory(copy);
+        require(fs::copy_file(archived / name, copy / name), "staging copy failed");
+      }
       ++unique;
     }
   }

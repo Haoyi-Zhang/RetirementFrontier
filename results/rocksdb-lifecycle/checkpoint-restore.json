@@ -2,15 +2,21 @@
   "rows": [
     {
       "chosen": "before",
+      "early_bytes": 305623,
+      "final_bytes": 270678,
       "missing": [],
       "native_status": "ok:64",
       "policy": "keep-before",
       "reclaimed": [
+        "000009.sst",
+        "000011.sst",
         "000017.sst"
       ]
     },
     {
       "chosen": "before",
+      "early_bytes": 384206,
+      "final_bytes": null,
       "missing": [
         "000013.sst",
         "000015.sst"
@@ -18,65 +24,114 @@
       "native_status": "open-failed",
       "policy": "keep-after",
       "reclaimed": [
+        "000009.sst",
+        "000011.sst",
         "000013.sst",
         "000015.sst"
       ]
     },
     {
       "chosen": "before",
+      "early_bytes": 192103,
+      "final_bytes": 270678,
       "missing": [],
       "native_status": "ok:64",
       "policy": "keep-both",
+      "reclaimed": [
+        "000009.sst",
+        "000011.sst"
+      ]
+    },
+    {
+      "chosen": "before",
+      "early_bytes": 0,
+      "final_bytes": 270678,
+      "missing": [],
+      "native_status": "ok:64",
+      "policy": "hold-all",
       "reclaimed": []
     },
     {
       "chosen": "after",
+      "early_bytes": 305623,
+      "final_bytes": null,
       "missing": [
         "000017.sst"
       ],
       "native_status": "open-failed",
       "policy": "keep-before",
       "reclaimed": [
+        "000009.sst",
+        "000011.sst",
         "000017.sst"
       ]
     },
     {
       "chosen": "after",
+      "early_bytes": 384206,
+      "final_bytes": 192095,
       "missing": [],
       "native_status": "ok:64",
       "policy": "keep-after",
       "reclaimed": [
+        "000009.sst",
+        "000011.sst",
         "000013.sst",
         "000015.sst"
       ]
     },
     {
       "chosen": "after",
+      "early_bytes": 192103,
+      "final_bytes": 192095,
       "missing": [],
       "native_status": "ok:64",
       "policy": "keep-both",
+      "reclaimed": [
+        "000009.sst",
+        "000011.sst"
+      ]
+    },
+    {
+      "chosen": "after",
+      "early_bytes": 0,
+      "final_bytes": 192095,
+      "missing": [],
+      "native_status": "ok:64",
+      "policy": "hold-all",
       "reclaimed": []
     }
   ],
   "sources": {
     "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
     "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
-    "results/rocksdb-lifecycle/checkpoints.json": "43d93b665b1ad4a1b23216d6c0b030e1e98ee1ef4d5e71a79bb2a2b6e2b02d48",
+    "results/rocksdb-lifecycle/checkpoints.json": "8885c3fd303a8832554ff840e77aad4b097e2bc715fbb2c29e401d3e59b33718",
     "scripts/check_native_checkpoints.py": "01554ffbd6c3490c1d53c13e24a855329f89330bbf3d460e064641fcc15cd832",
     "scripts/check_native_epochs.py": "d616cc9b1b42811904f257a3ca5cdff9a1903aada1fa3e7b36a28dc33b9ef09a",
-    "scripts/checkpoint_restore.py": "682b0ea9b75a53e65483c9781803e4ad4473d2615021bd8c6955f13796fa98ac",
-    "scripts/rocksdb_checkpoint_probe.cc": "e335967a7d22dd59add293521eb4624acd7a64489b52f6cb90392a82414c2ae1",
+    "scripts/checkpoint_restore.py": "525638ce213aba2c67f9a83b8f6368e7864ed5a808e50b8339dae5012d8650ec",
+    "scripts/rocksdb_checkpoint_probe.cc": "fd12ac2ce5410a968328aec0abce3b9550a56a90c2ab6032ca3d30f7df0d9a4b",
     "scripts/rocksdb_checkpoint_reader.cc": "544ebe382d2a7795fb2137e6bc4f53365078ec052ed79d85bd134329e5cda2b0",
     "scripts/rocksdb_lifecycle.py": "bf7da7d1f0dc2c4ba0e83352aec7d1394a0e31ccd1cb522e308f14fdac360a60"
   },
   "summary": {
-    "exact_reopens": 4,
+    "early_bytes_per_trial": {
+      "hold-all": 0,
+      "keep-after": 384206,
+      "keep-before": 305623,
+      "keep-both": 192103
+    },
+    "exact_reopens": 6,
     "failures": {
+      "hold-all": 0,
       "keep-after": 1,
       "keep-before": 1,
       "keep-both": 0
     },
+    "final_bytes_by_view": {
+      "after": 192095,
+      "before": 270678
+    },
     "keys_per_reopen": 64,
-    "trials": 6
+    "trials": 8
   }
 }
