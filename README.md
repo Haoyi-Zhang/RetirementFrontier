@@ -49,21 +49,24 @@ Three controlled workloads run unmodified RocksDB with public SQLite
 header bytes as values. For each one, a separate native read-only open
 checks the complete key/value map and live table set on each side of
 ordinary compaction; a separate directory enumeration checks table
-availability. The sequence number stays unchanged. An offline comparison
-then reports which observed SSTs would be absent if just one of two supplied
-views were retained. This is a file-availability comparison, not a trace
-extractor, measured crash outcome, throughput gain, or production workload.
+availability. The sequence number stays unchanged. The adapter independently
+decodes each compaction's MANIFEST edit and projects its table references onto
+two ordered physical publications at one logical prefix. It verifies the
+retirement certificates and checks every declared cut against a direct
+file-availability oracle. The alternative policies are evaluated offline,
+not by changing or fault-injecting the native engine.
 See [evidence and interpretation](docs/native-lifecycle.md).
 
 ```sh
 python -B scripts/rocksdb_lifecycle.py
-python -B scripts/rocksdb_lifecycle.py --run
+python -B scripts/check_native_epochs.py
+python -B scripts/check_native_epochs.py --run
 ```
 
-The first command checks the retained results with only Python. The second
-requires a C++17 compiler and the RocksDB development package and reruns on
-fresh temporary databases. Neither command requires an external account or
-services.
+The first two commands check retained results with only Python. A native
+rerun additionally requires a C++17 compiler, the RocksDB development
+package and stock RocksDB tools. It creates fresh temporary databases
+and needs no external account or services.
 
 The companion restic experiment records snapshot blob references and
 physical pack locations before snapshot removal, after removal, and after

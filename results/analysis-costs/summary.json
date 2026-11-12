@@ -2,103 +2,103 @@
   "affinity_cpu_count": 1,
   "aggregates": [
     {
-      "admission_ms": 5.999657625,
-      "consumer_ms": 5.999995875,
+      "admission_ms": 6.0003785,
+      "consumer_ms": 8.72809,
       "family": "shared",
-      "frontier_ms": 0.0624753076171875,
+      "frontier_ms": 0.06816998046875,
       "operations": 32,
-      "pair_ms": 0.02537579638671875,
-      "paired_ratio_max": 0.43754486419274985,
-      "paired_ratio_median": 0.42857023851932435,
-      "paired_ratio_min": 0.3751579979684161
+      "pair_ms": 0.02556813916015625,
+      "paired_ratio_max": 0.5000681889222798,
+      "paired_ratio_median": 0.4285315583836067,
+      "paired_ratio_min": 0.1875214439518334
     },
     {
-      "admission_ms": 29.0752095,
-      "consumer_ms": 29.830665,
+      "admission_ms": 26.1524025,
+      "consumer_ms": 30.5452275,
       "family": "shared",
-      "frontier_ms": 0.26350840234375,
+      "frontier_ms": 0.272720265625,
       "operations": 128,
-      "pair_ms": 0.127867900390625,
-      "paired_ratio_max": 0.5034117250237433,
-      "paired_ratio_median": 0.48525170071738255,
-      "paired_ratio_min": 0.4753559564421726
+      "pair_ms": 0.1363387890625,
+      "paired_ratio_max": 0.6667262404908832,
+      "paired_ratio_median": 0.49975174582713605,
+      "paired_ratio_min": 0.46191128626706907
     },
     {
-      "admission_ms": 118.8012405,
-      "consumer_ms": 127.481807,
+      "admission_ms": 196.3495155,
+      "consumer_ms": 331.5693795,
       "family": "shared",
-      "frontier_ms": 1.05591875,
+      "frontier_ms": 1.091305125,
       "operations": 512,
-      "pair_ms": 0.74677590625,
-      "paired_ratio_max": 0.716166127734893,
-      "paired_ratio_median": 0.7112343220063096,
-      "paired_ratio_min": 0.685667426383851
+      "pair_ms": 1.090558,
+      "paired_ratio_max": 1.1434461593827008,
+      "paired_ratio_median": 0.9991510416374395,
+      "paired_ratio_min": 0.4995904723280228
     },
     {
-      "admission_ms": 8.75993825,
-      "consumer_ms": 9.43607175,
+      "admission_ms": 8.182356125,
+      "consumer_ms": 8.7274595,
       "family": "unique",
-      "frontier_ms": 0.399391578125,
+      "frontier_ms": 0.34095046875,
       "operations": 32,
-      "pair_ms": 0.16005549609375,
-      "paired_ratio_max": 0.4147636769576461,
-      "paired_ratio_median": 0.40728091966306024,
-      "paired_ratio_min": 0.3905065208365177
+      "pair_ms": 0.136369828125,
+      "paired_ratio_max": 0.8000494825201371,
+      "paired_ratio_median": 0.3749454305816965,
+      "paired_ratio_min": 0.178606056802134
     },
     {
-      "admission_ms": 40.1393875,
-      "consumer_ms": 47.788285,
+      "admission_ms": 37.0923975,
+      "consumer_ms": 87.2708585,
       "family": "unique",
-      "frontier_ms": 2.10870484375,
+      "frontier_ms": 2.3274555,
       "operations": 128,
-      "pair_ms": 1.146312921875,
-      "paired_ratio_max": 0.5574542945985431,
-      "paired_ratio_median": 0.5563484378804301,
-      "paired_ratio_min": 0.5328573864894258
+      "pair_ms": 1.63661075,
+      "paired_ratio_max": 2.811778571061831,
+      "paired_ratio_median": 0.7498929246903464,
+      "paired_ratio_min": 0.39997784372155626
     },
     {
-      "admission_ms": 162.3176875,
-      "consumer_ms": 259.633171,
+      "admission_ms": 209.453264,
+      "consumer_ms": 1110.0460575,
       "family": "unique",
-      "frontier_ms": 9.65695025,
+      "frontier_ms": 8.72716575,
       "operations": 512,
-      "pair_ms": 10.487078,
-      "paired_ratio_max": 1.1603417337324071,
-      "paired_ratio_median": 1.0952929230766812,
-      "paired_ratio_min": 1.0852235673472586
+      "pair_ms": 8.7280215,
+      "paired_ratio_max": 1.0675711621286512,
+      "paired_ratio_median": 1.0000606215137615,
+      "paired_ratio_min": 0.7144888285210235
     },
     {
-      "admission_ms": 5.6573455,
-      "consumer_ms": 5.940771375,
+      "admission_ms": 4.3642014375,
+      "consumer_ms": 6.5484535,
       "family": "churn",
-      "frontier_ms": 0.204139109375,
+      "frontier_ms": 0.17045244921875,
       "operations": 32,
-      "pair_ms": 0.086316484375,
-      "paired_ratio_max": 0.42651048536376074,
-      "paired_ratio_median": 0.42154919550365894,
-      "paired_ratio_min": 0.41520261971212563
+      "pair_ms": 0.0681775703125,
+      "paired_ratio_max": 0.40001140576526717,
+      "paired_ratio_median": 0.39485629541417055,
+      "paired_ratio_min": 0.25008967944477206
     },
     {
-      "admission_ms": 25.40895,
-      "consumer_ms": 28.436066,
+      "admission_ms": 21.8182945,
+      "consumer_ms": 30.546108,
       "family": "churn",
-      "frontier_ms": 0.95698815625,
+      "frontier_ms": 0.8207189375,
       "operations": 128,
-      "pair_ms": 0.5045553203125,
-      "paired_ratio_max": 0.5350227526709912,
-      "paired_ratio_median": 0.5313236631379689,
-      "paired_ratio_min": 0.5253451977795138
+      "pair_ms": 0.545305875,
+      "paired_ratio_max": 0.9934401386468544,
+      "paired_ratio_median": 0.5384486543732943,
+      "paired_ratio_min": 0.4808508433023828
     },
     {
-      "admission_ms": 91.6377505,
-      "consumer_ms": 126.5340235,
+      "admission_ms": 132.526459,
+      "consumer_ms": 346.902699,
       "family": "churn",
-      "frontier_ms": 3.8181508125,
+      "frontier_ms": 3.978510125,
       "operations": 512,
-      "pair_ms": 3.817990375,
-      "paired_ratio_max": 0.9999834503369411,
-      "paired_ratio_median": 0.9998685193613874,
-      "paired_ratio_min": 0.8572623032879337
+      "pair_ms": 4.18661,
+      "paired_ratio_max": 1.0802472037192565,
+      "paired_ratio_median": 0.9984839952402065,
+      "paired_ratio_min": 0.8570834439005736
     }
   ],
   "cases": 45,
@@ -137,15 +137,16 @@
     "release": "6.18.33.2-microsoft-standard-WSL2",
     "system": "Linux"
   },
+  "invalid_clock_batches": 43,
   "scope": "Controlled retained scaling inputs, not production traces. Admission is separate. Frontier includes certificate construction and JSON serialization; pair returns a decision and diagnostics. Consumer reparses the original trace. No disk, recovery, minimum search, or all-workload speedup claim.",
   "sources": {
-    "scripts/analysis_costs.py": "82c80863861257e30c531cac7f77a2e7b039a06d10a047d436ca4f86e38e06b2",
+    "scripts/analysis_costs.py": "ade5cbe015827d2ce7d99c2046b05c26fd82810d1746b4eae5d0ab958ad32839",
     "src/checker.py": "760feee752308e776fce1beae4786a9612effa2a6893a4c2a115efccc4ab1195",
     "src/engine.py": "cca21f3431879c06ef86657097b5044c5ea3b3ab0347565d0bad5c143c1da723",
-    "src/model.py": "3d76fbf7a0192e104ad8ad5867be24605f294b4c8612ef068cfc1eb07ebd705d",
+    "src/model.py": "eb0b56dda9675a60f0f6cb5682f2b6b442df1feb4bb76ad69eab0f3e31ec0dca",
     "src/strictjson.py": "6c009be97c2beaa8e54446aea059cca05576460e5000b3ba86c23e46f450350a",
-    "src/verifier.py": "06bf01d8c3b5f69e59a5be804f8816e980836b740d728a75b4ed48b56d0af269"
+    "src/verifier.py": "b254e27fb55275ac24e3639ea77da6c7c48b4669e5c4866993ead458f2b176d1"
   },
   "timed_blocks": 1440,
-  "timed_calls": 115760
+  "timed_calls": 76998
 }

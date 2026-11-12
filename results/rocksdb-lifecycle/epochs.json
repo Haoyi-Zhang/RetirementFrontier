@@ -1,0 +1,377 @@
+{
+  "cases": [
+    {
+      "after": {
+        "bytes": 576,
+        "files": {
+          "000022.sst": 84316
+        },
+        "sequence": 32
+      },
+      "batch_size": 8,
+      "before": {
+        "bytes": 464,
+        "files": {
+          "000009.sst": 32733,
+          "000011.sst": 36162,
+          "000013.sst": 37287,
+          "000015.sst": 32733
+        },
+        "sequence": 32
+      },
+      "edits": [
+        {
+          "add": {
+            "000022.sst": 84316
+          },
+          "remove": [
+            "000009.sst",
+            "000011.sst",
+            "000013.sst",
+            "000015.sst"
+          ],
+          "sequence": [
+            32
+          ]
+        }
+      ],
+      "outcomes": {
+        "both-unguarded": {
+          "bad_cuts": 76,
+          "certificate_guards": [],
+          "legal_cuts": 224,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        },
+        "ordered": {
+          "bad_cuts": 0,
+          "certificate_guards": [
+            [
+              "retire:000009.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000011.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000013.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000015.sst",
+              "epoch:after"
+            ]
+          ],
+          "legal_cuts": 148,
+          "minimum": null
+        },
+        "unguarded-publication": {
+          "bad_cuts": 16,
+          "certificate_guards": [],
+          "legal_cuts": 164,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "descriptor:epoch:after",
+              "epoch:after"
+            ],
+            "missing": [
+              "000022.sst"
+            ],
+            "view": "epoch:after"
+          }
+        },
+        "unguarded-retirement": {
+          "bad_cuts": 60,
+          "certificate_guards": [],
+          "legal_cuts": 208,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        }
+      }
+    },
+    {
+      "after": {
+        "bytes": 576,
+        "files": {
+          "000022.sst": 258888
+        },
+        "sequence": 96
+      },
+      "batch_size": 24,
+      "before": {
+        "bytes": 464,
+        "files": {
+          "000009.sst": 104174,
+          "000011.sst": 104174,
+          "000013.sst": 104172,
+          "000015.sst": 104174
+        },
+        "sequence": 96
+      },
+      "edits": [
+        {
+          "add": {
+            "000022.sst": 258888
+          },
+          "remove": [
+            "000009.sst",
+            "000011.sst",
+            "000013.sst",
+            "000015.sst"
+          ],
+          "sequence": [
+            96
+          ]
+        }
+      ],
+      "outcomes": {
+        "both-unguarded": {
+          "bad_cuts": 76,
+          "certificate_guards": [],
+          "legal_cuts": 224,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        },
+        "ordered": {
+          "bad_cuts": 0,
+          "certificate_guards": [
+            [
+              "retire:000009.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000011.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000013.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000015.sst",
+              "epoch:after"
+            ]
+          ],
+          "legal_cuts": 148,
+          "minimum": null
+        },
+        "unguarded-publication": {
+          "bad_cuts": 16,
+          "certificate_guards": [],
+          "legal_cuts": 164,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "descriptor:epoch:after",
+              "epoch:after"
+            ],
+            "missing": [
+              "000022.sst"
+            ],
+            "view": "epoch:after"
+          }
+        },
+        "unguarded-retirement": {
+          "bad_cuts": 60,
+          "certificate_guards": [],
+          "legal_cuts": 208,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        }
+      }
+    },
+    {
+      "after": {
+        "bytes": 586,
+        "files": {
+          "000022.sst": 687985
+        },
+        "sequence": 256
+      },
+      "batch_size": 64,
+      "before": {
+        "bytes": 473,
+        "files": {
+          "000009.sst": 275351,
+          "000011.sst": 274226,
+          "000013.sst": 278778,
+          "000015.sst": 275352
+        },
+        "sequence": 256
+      },
+      "edits": [
+        {
+          "add": {
+            "000022.sst": 687985
+          },
+          "remove": [
+            "000009.sst",
+            "000011.sst",
+            "000013.sst",
+            "000015.sst"
+          ],
+          "sequence": [
+            256
+          ]
+        }
+      ],
+      "outcomes": {
+        "both-unguarded": {
+          "bad_cuts": 76,
+          "certificate_guards": [],
+          "legal_cuts": 224,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        },
+        "ordered": {
+          "bad_cuts": 0,
+          "certificate_guards": [
+            [
+              "retire:000009.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000011.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000013.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000015.sst",
+              "epoch:after"
+            ]
+          ],
+          "legal_cuts": 148,
+          "minimum": null
+        },
+        "unguarded-publication": {
+          "bad_cuts": 16,
+          "certificate_guards": [],
+          "legal_cuts": 164,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "descriptor:epoch:after",
+              "epoch:after"
+            ],
+            "missing": [
+              "000022.sst"
+            ],
+            "view": "epoch:after"
+          }
+        },
+        "unguarded-retirement": {
+          "bad_cuts": 60,
+          "certificate_guards": [],
+          "legal_cuts": 208,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        }
+      }
+    }
+  ],
+  "sources": {
+    "scripts/check_native_epochs.py": "a7244d62d5f8f29d68f0d954c1be5378d052198810cd48129508dfda848d92b0",
+    "src/checker.py": "760feee752308e776fce1beae4786a9612effa2a6893a4c2a115efccc4ab1195",
+    "src/medium.py": "bf6b06377a03cd8d040e3c747b9e2d623384613b0d20304e44d6b7143d0fbe48",
+    "src/model.py": "eb0b56dda9675a60f0f6cb5682f2b6b442df1feb4bb76ad69eab0f3e31ec0dca",
+    "src/verifier.py": "b254e27fb55275ac24e3639ea77da6c7c48b4669e5c4866993ead458f2b176d1"
+  }
+}

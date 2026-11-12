@@ -121,9 +121,9 @@ def _maximum_root_ancestor(events: tuple[dict[str, Any], ...], deps: list[tuple[
     """Compute the greatest root in each event's closure in one topological pass.
 
     Event identifiers are issue positions and every dependency names an earlier
-    event. Root prefixes are strictly increasing, so the greatest root identifier
-    in a closure is also the strongest root witness needed by retirement and
-    acknowledgement checks. The table uses O(n) auxiliary memory.
+    event. Prefixes are nondecreasing, so the greatest root identifier in a
+    closure is newest for retirement and reaches a maximal prefix for
+    acknowledgement. Equal prefixes do not merge distinct publications.
     """
     greatest: list[int] = []
     for event_id, parents in enumerate(deps):
@@ -274,8 +274,8 @@ def _parse(trace: dict[str, Any]) -> dict[str, Any]:
                 prefix = _require_int(event["prefix"], f"event {i} prefix", maximum=len(operations))
             except (KeyError, VerificationError) as exc:
                 raise VerificationError(f"event {i}: invalid root prefix: {exc}") from exc
-            if prefix <= previous_prefix:
-                raise VerificationError(f"event {i}: root prefixes must increase and name a client prefix")
+            if prefix < previous_prefix:
+                raise VerificationError(f"event {i}: root prefixes must not decrease")
             previous_prefix = prefix
 
             manifest_ref = _check_ref(event.get("manifest_ref"), f"event {i} manifest")

@@ -418,7 +418,7 @@ class ArtifactTests(unittest.TestCase):
         if len(image["roots"]) < 2:
             self.skipTest("fixture has fewer than two roots")
         roots = sorted(image["roots"], key=lambda root: root["event"])
-        roots[-1]["prefix"] = roots[0]["prefix"]
+        roots[0]["prefix"] = roots[-1]["prefix"] + 1
         result = recover(image)
         self.assertFalse(result["ok"])
         self.assertIn("root prefixes", result["reason"])

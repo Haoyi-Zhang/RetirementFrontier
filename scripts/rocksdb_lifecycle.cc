@@ -5,6 +5,7 @@
 #include <rocksdb/write_batch.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -90,6 +91,11 @@ void observe(const char* stage, rocksdb::DB& db, const fs::path& dir,
               manifest.rfind("MANIFEST-", 0) == 0 && manifest.size() > 9 &&
               manifest.find_first_not_of("0123456789", 9) == std::string::npos,
           "unexpected CURRENT contents");
+  if (const char* capture = std::getenv("RETIREMENT_MANIFEST_CAPTURE")) {
+    const auto target = fs::path(capture) / dir.filename();
+    fs::create_directories(target);
+    fs::copy_file(dir / manifest, target / (std::string(stage) + ".manifest"));
+  }
   std::cout << "{\"stage\":\"" << stage << "\",\"sequence\":"
             << db.GetLatestSequenceNumber() << ",\"verified_keys\":"
             << expected.size() << ",\"manifest\":\"" << manifest

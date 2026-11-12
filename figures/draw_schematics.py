@@ -199,44 +199,49 @@ class Figure:
 
 
 def motivation(out):
-    d=Figure(out,'reuse-cut',139)
-    d.art('storage-symbols','root',28,7,48,43)
-    d.art('storage-symbols','root',28,78,48,43)
-    d.label(52,60,'Older root',11.5)
-    d.label(52,130,'Retiring root',11.5)
-    d.line((84,38),(255,38),colour=RUST,dashed=True,arrow=True,weight=1.12)
-    d.label(166,24,'Reference to a',11.5,colour=RUST)
-    d.cross(263,38)
-    d.node('missing-a',309,38,44,24,'a',RUST,PAPER,dashed=True)
-    d.label(309,15,'Missing allocation',11.5)
-    d.art('storage-symbols','slot',258.5,71,101,44)
-    d.label(309,124,'New allocation',11.5)
-    # An address bracket, not an arrow between different allocation identities.
-    d.line((364,38),(373,38),(373,93),(364,93),colour=MUTED,weight=.8)
-    d.label(398,65.5,'Same\nslot',11.5)
-    d.label(96,100,'No reference to a',11.5,'left',MUTED)
+    source = Path(__file__).resolve().parents[1] / 'results/rocksdb-lifecycle/epochs.json'
+    case = json.loads(source.read_text(encoding='utf-8'))['cases'][0]
+    before, after = case['before'], case['after']
+    old = sorted(int(Path(name).stem) for name in before['files'])
+    new, = (int(Path(name).stem) for name in after['files'])
+    if len(old) != 4 or before['sequence'] != after['sequence']:
+        raise ValueError('Native overview no longer matches its decoded edit')
+    d=Figure(out,'reuse-cut',125)
+    d.label(91,17,'Before compaction',12)
+    d.label(331,17,'After compaction',12,colour=BLUE)
+    d.label(91,38,f'Client sequence {before["sequence"]}',11)
+    d.label(331,38,f'Client sequence {after["sequence"]}',11)
+    for x, number in zip((37,73,109,145),old):
+        d.node(f'sst-{number}',x,65,31,23,str(number),MUTED,GREY)
+    d.node(f'sst-{new}',331,65,44,23,str(new),BLUE,PALE_BLUE)
+    d.label(231,49,'One MANIFEST edit',11.5,colour=BLUE)
+    d.line((174,65),(299,65),arrow=True,colour=BLUE,weight=1.15)
+    d.label(91,94,'Required by old epoch',11.5)
+    d.line((331,80),(331,98),arrow=True,colour=BLUE,weight=1.15)
+    d.label(331,113,'Then retire old SSTs',11.5,colour=BLUE)
     d.save()
 
 
 def frontier(out):
-    d=Figure(out,'retirement-frontier',151)
+    d=Figure(out,'retirement-frontier',170)
     xs=(49,157,273,381)
     d.frame('allocation',49,58,33,22,lambda c: None,BLUE,PALE_BLUE)
-    d.art('storage-symbols','root',135,35,44,47)
-    d.art('storage-symbols','root',251,35,44,47)
-    d.art('publication-symbols','rail',346,38,70,40)
+    d.node('root-r',157,58,38,25,'r',MUTED,GREY)
+    d.node('root-q',273,58,38,25,'q',BLUE,PALE_BLUE)
+    d.node('writer-w',381,58,40,25,'w',MUTED,GREY)
     for x,caption in zip(xs,('Allocation a','Root r','Root q','Writer w')):
         d.label(x,103,caption,11.5,colour=BLUE if x==273 else INK)
     d.line((15,89),(414,89),colour=RULE,weight=.75)
     for x in xs:
         d.dot(x,89,BLUE if x==273 else INK,2.35)
-    d.line((157,34),(157,18),(49,18),(49,41),dashed=True,arrow=True)
-    d.line((273,34),(273,18),(381,18),(381,35),arrow=True,colour=BLUE,weight=1.1)
-    d.label(214,122,'T(w) = r  <  F(w) = q',12)
-    d.line((87,142),(110,142),dashed=True,arrow=True)
-    d.label(118,142,'Allocation reference',11.5,'left')
-    d.line((243,142),(266,142),arrow=True,colour=BLUE,weight=1.1)
-    d.label(274,142,'Persistence order',11.5,'left')
+    d.line((157,42),(157,18),(49,18),(49,41),dashed=True,arrow=True)
+    d.line((273,42),(273,18),(381,18),(381,42),arrow=True,colour=BLUE,weight=1.1)
+    d.label(215,121,'T(w) = r  <  F(w) = q',12)
+    d.label(215,138,'Publication order is strict even if client prefixes tie',11.5)
+    d.line((87,160),(110,160),dashed=True,arrow=True)
+    d.label(118,160,'Allocation reference',11.5,'left')
+    d.line((243,160),(266,160),arrow=True,colour=BLUE,weight=1.1)
+    d.label(274,160,'Persistence order',11.5,'left')
     d.save()
 
 

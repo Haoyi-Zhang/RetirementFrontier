@@ -78,6 +78,7 @@ def experiment():
     started = time.monotonic()
     source = bindings()
     rows = []
+    invalid_clock_batches = 0
     for family in CONFIG['families']:
         for size in CONFIG['sizes']:
             for seed in CONFIG['seeds']:
@@ -126,8 +127,16 @@ def experiment():
                     order = METHODS[offset:] + METHODS[:offset]
                     orders.append(list(order))
                     for name in order:
-                        elapsed = timed_batch(name, batches[name])
-                        samples[name].append({'cpu_ns': elapsed, 'calls': batches[name]})
+                        count = batches[name]
+                        elapsed = timed_batch(name, count)
+                        while elapsed <= 0:
+                            invalid_clock_batches += 1
+                            count *= 2
+                            if count > CONFIG['maximum_batch_calls']:
+                                raise RuntimeError('CPU clock cannot resolve a measured batch')
+                            elapsed = timed_batch(name, count)
+                        batches[name] = count
+                        samples[name].append({'cpu_ns': elapsed, 'calls': count})
                     if time.monotonic() - started > CONFIG['deadline_seconds']:
                         raise TimeoutError('Analysis-cost deadline exceeded')
                 if trace_bytes != json.dumps(trace, sort_keys=True, separators=(',', ':')).encode():
@@ -147,6 +156,7 @@ def experiment():
                'timed_blocks': len(rows) * CONFIG['repetitions'] * len(METHODS),
                'timed_calls': sum(v['calls'] for r in rows for values in r['samples_cpu_ns'].values() for v in values),
                'clock': 'process_time_ns', 'affinity_cpu_count': 1,
+               'invalid_clock_batches': invalid_clock_batches,
                'host': {'system': platform.system(), 'release': platform.release(),
                         'machine': platform.machine(), 'python': platform.python_version(), 'cpu_model': cpu_model},
                'aggregates': aggregates(rows),

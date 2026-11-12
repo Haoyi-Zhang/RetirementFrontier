@@ -46,11 +46,18 @@ def mark(c, x, y, kind, color):
 
 def draw(width, cells):
     c=v.new_pdf('analysis-cpu.pdf',width,184)
-    left,right,gap=43.,width-6.,13.
+    left,right,gap=47.,width-6.,13.
     panel=(right-left-2*gap)/3
     if panel<107:
         raise ValueError('Plot needs three legible facets')
-    lo,hi=.015,410.
+    values = [row[key+'_ms'] for row in cells.values() for key, *_ in METHODS]
+    if any(not math.isfinite(y) or y <= 0 for y in values):
+        raise ValueError('Log axis requires positive finite observations')
+    first = math.floor(math.log10(min(values)))
+    last = math.floor(math.log10(max(values)))
+    lo = min(10.**first * .85, min(values) * .77)
+    hi = max(10.**last * 1.18, max(values) * 1.30)
+    ticks = [10.**i for i in range(first, last + 1)]
     bottom,top=33.,136.
     def ypos(y):
         if not lo<y<hi:
@@ -70,7 +77,7 @@ def draw(width, cells):
     for i,family in enumerate(('shared','unique','churn')):
         l=left+i*(panel+gap)
         v.text(c,l+panel/2,148,family.capitalize(),v.LABEL)
-        for tick in (.03,.1,1,10,100):
+        for tick in ticks:
             y=ypos(tick)
             c.setLineWidth(.49)
             c.setStrokeColorRGB(.83,.87,.89)

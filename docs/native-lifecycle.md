@@ -31,13 +31,35 @@
    files over retaining that entire catalog. The runs do not prove the two
    snapshots are exhaustive or even simultaneous crash candidates.
 
-The model's strict recovery orders immutable, byte-bearing publications
-and assumes increasing client-operation prefixes. RocksDB can publish a
-different table set at the same client sequence number; the experiment
-does not insert an invented client write to make its evidence fit that
-assumption. Deriving admissible crash views from native MANIFEST persistence
-and mapping file reachability to model allocations would be separate
-requirements for applying the full theorem.
+## From native edits to a checkable obligation
+
+The same writer captures the complete manifest at two successful I/O
+boundaries. The second capture must extend the first byte for byte. Stock
+RocksDB tooling independently decodes both, and each final table membership,
+table size and sequence is checked against the separate library observation.
+The suffix must contain exactly one table-membership edit. That edit must
+account for every added or removed table. The artifact retains normalized
+decoded fields rather than timestamps and random native identifiers.
+
+The bounded projection represents each table as a distinct immutable
+presence token. Each decoded publication references exactly its required
+tokens. Table removal maps to a free. The abstract namespace contains one
+opaque object for this obligation, not the native keys or payload. Both
+publications share that single fixed abstract prefix, so the projection
+introduces no client update for the compaction.
+
+The ordered profile requires publication to depend on the new table and
+removal to depend on the new publication. Other profiles weaken one or both
+edges in the abstract graph only. For each legal cut, an independent oracle
+selects the corresponding native table set and checks projected file
+availability directly. The main checker compares every cut against it, and
+the separate certificate consumer verifies the ordered case.
+
+This bridge covers a bounded, whole-edit, one-writer replacement profile.
+It is not an assertion that all tested cuts occur on a particular filesystem,
+a test of torn metadata or manifest rotation, or a reconstruction of native
+table contents. Native reopen and full client-byte equality are separately
+checked on the real engine.
 
 The SQLite adapter is a different kind of evidence. Its own object-store
 records cross multiple successful SQLite transactions; it tests the full

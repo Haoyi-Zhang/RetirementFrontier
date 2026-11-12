@@ -10,7 +10,7 @@ Every dependency names an earlier event.
   `length`, `data_hex`, `role` (`chunk` or `manifest`), and `deps`.
 - A `free` event contains `slot`, descriptive `generation`, and `deps`. It is an
   unconditional tombstone, not a generation-checked conditional deletion.
-- A `root` event contains an increasing client `prefix`, a `manifest_ref`, a
+- A `root` event contains a nondecreasing client `prefix`, a `manifest_ref`, a
   ghost `namespace`, ghost `objects_hex`, and `deps`. The ghost fields are
   admission evidence and are not copied into a crash image.
 - An acknowledgement contains an issue boundary `issued`, promised operation

@@ -102,8 +102,8 @@ def _normalize_roots(image: dict[str, Any]) -> list[dict[str, Any]]:
         })
     ascending = sorted(roots, key=lambda root: root["event"])
     for previous, current in zip(ascending, ascending[1:]):
-        if current["prefix"] <= previous["prefix"]:
-            raise RecoveryError("root prefixes do not increase with root event order")
+        if current["prefix"] < previous["prefix"]:
+            raise RecoveryError("root prefixes decrease in root event order")
     return list(reversed(ascending))
 
 

@@ -45,10 +45,10 @@
     "src/sqlite_store.py": "5a98173fc9b433b39c64a6ca7b3fbcd664ef078193fcfbae1654b41c3899150b",
     "scripts/run_sqlite_adapter.py": "ae47d4fa582e6d3a4d53a8e10ec9f18ffe9727fcf5e1ebcc160b203dd20eea6f",
     "scripts/sqlite_experiment.json": "0f60b2f06a273a41134ca5e55857f332c37599737c48be0d6ae15e2b63edba5a",
-    "src/model.py": "3d76fbf7a0192e104ad8ad5867be24605f294b4c8612ef068cfc1eb07ebd705d",
+    "src/model.py": "eb0b56dda9675a60f0f6cb5682f2b6b442df1feb4bb76ad69eab0f3e31ec0dca",
     "src/checker.py": "760feee752308e776fce1beae4786a9612effa2a6893a4c2a115efccc4ab1195",
-    "src/medium.py": "eeb328408d873d2fda1bd114ec0613b4b21fe59b2e1ef640c74418806ab4ce2d",
-    "src/verifier.py": "06bf01d8c3b5f69e59a5be804f8816e980836b740d728a75b4ed48b56d0af269",
+    "src/medium.py": "bf6b06377a03cd8d040e3c747b9e2d623384613b0d20304e44d6b7143d0fbe48",
+    "src/verifier.py": "b254e27fb55275ac24e3639ea77da6c7c48b4669e5c4866993ead458f2b176d1",
     "src/strictjson.py": "6c009be97c2beaa8e54446aea059cca05576460e5000b3ba86c23e46f450350a"
   },
   "crash_cases": 376,
@@ -67,17 +67,17 @@
       "frontier-reuse": {
         "slots": 5,
         "slot_payload_bytes": 1722,
-        "write_and_read_ns": 339414994,
-        "checking_ns": 9183485,
-        "reopen_ns": 207242,
+        "write_and_read_ns": 934093930,
+        "checking_ns": 48697461,
+        "reopen_ns": 307991,
         "bytes_after_checkpoint": 262144
       },
       "no-reuse": {
         "slots": 64,
         "slot_payload_bytes": 23198,
-        "write_and_read_ns": 360905872,
-        "checking_ns": 9331341,
-        "reopen_ns": 221756,
+        "write_and_read_ns": 766231317,
+        "checking_ns": 110523245,
+        "reopen_ns": 2463072,
         "bytes_after_checkpoint": 290816
       }
     },
@@ -87,17 +87,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4454,
-        "write_and_read_ns": 454510102,
-        "checking_ns": 14902184,
-        "reopen_ns": 253656,
+        "write_and_read_ns": 1197236953,
+        "checking_ns": 17013061,
+        "reopen_ns": 306884,
         "bytes_after_checkpoint": 376832
       },
       "no-reuse": {
         "slots": 96,
         "slot_payload_bytes": 45424,
-        "write_and_read_ns": 469122860,
-        "checking_ns": 15794114,
-        "reopen_ns": 258043,
+        "write_and_read_ns": 1198397753,
+        "checking_ns": 15972841,
+        "reopen_ns": 315191,
         "bytes_after_checkpoint": 421888
       }
     },
@@ -107,17 +107,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4214,
-        "write_and_read_ns": 423381612,
-        "checking_ns": 13528182,
-        "reopen_ns": 242897,
+        "write_and_read_ns": 1156704447,
+        "checking_ns": 157190089,
+        "reopen_ns": 2582239,
         "bytes_after_checkpoint": 352256
       },
       "no-reuse": {
         "slots": 84,
         "slot_payload_bytes": 39492,
-        "write_and_read_ns": 425859008,
-        "checking_ns": 13040569,
-        "reopen_ns": 241079,
+        "write_and_read_ns": 1071801807,
+        "checking_ns": 162556677,
+        "reopen_ns": 2935015,
         "bytes_after_checkpoint": 389120
       }
     },
@@ -127,17 +127,17 @@
       "frontier-reuse": {
         "slots": 9,
         "slot_payload_bytes": 9184,
-        "write_and_read_ns": 450528262,
-        "checking_ns": 63116797,
-        "reopen_ns": 347391,
+        "write_and_read_ns": 1213798550,
+        "checking_ns": 75748424,
+        "reopen_ns": 527189,
         "bytes_after_checkpoint": 1626112
       },
       "no-reuse": {
         "slots": 80,
         "slot_payload_bytes": 130572,
-        "write_and_read_ns": 465544371,
-        "checking_ns": 63668230,
-        "reopen_ns": 386167,
+        "write_and_read_ns": 1233041918,
+        "checking_ns": 420447683,
+        "reopen_ns": 339957,
         "bytes_after_checkpoint": 1773568
       }
     },
@@ -147,17 +147,17 @@
       "frontier-reuse": {
         "slots": 5,
         "slot_payload_bytes": 1722,
-        "write_and_read_ns": 166862976,
-        "checking_ns": 9008402,
-        "reopen_ns": 363707,
+        "write_and_read_ns": 564992668,
+        "checking_ns": 11937949,
+        "reopen_ns": 435841,
         "bytes_after_checkpoint": 294912
       },
       "no-reuse": {
         "slots": 64,
         "slot_payload_bytes": 23198,
-        "write_and_read_ns": 169058157,
-        "checking_ns": 8957380,
-        "reopen_ns": 298497,
+        "write_and_read_ns": 350236404,
+        "checking_ns": 109219181,
+        "reopen_ns": 3857006,
         "bytes_after_checkpoint": 323584
       }
     },
@@ -167,17 +167,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4454,
-        "write_and_read_ns": 231273899,
-        "checking_ns": 14380227,
-        "reopen_ns": 328114,
+        "write_and_read_ns": 378869757,
+        "checking_ns": 24225494,
+        "reopen_ns": 563344,
         "bytes_after_checkpoint": 409600
       },
       "no-reuse": {
         "slots": 96,
         "slot_payload_bytes": 45424,
-        "write_and_read_ns": 225327598,
-        "checking_ns": 16217991,
-        "reopen_ns": 336387,
+        "write_and_read_ns": 719935849,
+        "checking_ns": 152642806,
+        "reopen_ns": 558649,
         "bytes_after_checkpoint": 454656
       }
     },
@@ -187,17 +187,17 @@
       "frontier-reuse": {
         "slots": 12,
         "slot_payload_bytes": 4214,
-        "write_and_read_ns": 197649777,
-        "checking_ns": 13955911,
-        "reopen_ns": 430573,
+        "write_and_read_ns": 760784677,
+        "checking_ns": 21207713,
+        "reopen_ns": 543513,
         "bytes_after_checkpoint": 385024
       },
       "no-reuse": {
         "slots": 84,
         "slot_payload_bytes": 39492,
-        "write_and_read_ns": 199309512,
-        "checking_ns": 13402021,
-        "reopen_ns": 363927,
+        "write_and_read_ns": 492376601,
+        "checking_ns": 18919032,
+        "reopen_ns": 564366,
         "bytes_after_checkpoint": 421888
       }
     },
@@ -207,17 +207,17 @@
       "frontier-reuse": {
         "slots": 9,
         "slot_payload_bytes": 9184,
-        "write_and_read_ns": 195332852,
-        "checking_ns": 63657000,
-        "reopen_ns": 462039,
+        "write_and_read_ns": 409465118,
+        "checking_ns": 349934017,
+        "reopen_ns": 566538,
         "bytes_after_checkpoint": 1658880
       },
       "no-reuse": {
         "slots": 80,
         "slot_payload_bytes": 130572,
-        "write_and_read_ns": 200659258,
-        "checking_ns": 61666550,
-        "reopen_ns": 465158,
+        "write_and_read_ns": 937330129,
+        "checking_ns": 72755773,
+        "reopen_ns": 832665,
         "bytes_after_checkpoint": 1806336
       }
     }

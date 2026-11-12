@@ -342,7 +342,7 @@
     "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
     "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
     "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
-    "scripts/rocksdb_lifecycle.cc": "bb0758483a4649597f4ca0d0bc3c378699704b36a667569a9a1300da5cd48c55",
+    "scripts/rocksdb_lifecycle.cc": "6bf90309df024df93b3202b3ad6f9a9f4399712b49e4a93892a980da3aae1f55",
     "scripts/rocksdb_lifecycle.py": "a3a30ae6b0dc25ad8512df25cc045623677d4b5caecce0f43706f043824c6f60"
   }
 }

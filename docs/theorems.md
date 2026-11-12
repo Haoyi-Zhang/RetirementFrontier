@@ -8,7 +8,7 @@ A trace has n atomic events, numbered in issue order 0,...,n-1. Each persistence
 
 A DATA event atomically replaces one mutable physical slot with a generation, a finite byte string, its digest, and its length. Every (slot,generation) pair occurs in at most one DATA event. Generations need not be contiguous; they cannot wrap or repeat. A FREE event destructively empties its slot; its generation field does not make it a conditional compare-and-delete. All present writers to a slot are interpreted in issue order, so its value is determined by the last present writer. A later incarnation with identical bytes is still a different allocation. This model is stronger than content equality alone. Digest collisions among actual and expected consumed bytes are detected on trace admission, rather than excluded by an unproved assertion about SHA-256.
 
-A ROOT is an immutable, append-only commit marker containing an increasing operation-prefix number and a manifest reference. The referenced manifest is itself a DATA allocation. It serializes a flat mapping from object names to ordered chunk references. A reference consists of (slot,generation,digest,length). Each ROOT also has a ghost namespace statement in the trace, checked against the prefix of client put/delete operations and the digest of the canonical manifest. This statement is **not** part of the materialized storage image. Recovery obtains the namespace by reading actual manifest bytes, not from the ghost statement. Distinct references to the same allocation give one physical safety obligation but retain their multiplicity for object reconstruction and derived reference counts.
+A ROOT is an immutable, append-only publication marker containing a nondecreasing operation-prefix number and a manifest reference. Equal prefixes encode maintenance of the same logical state and can name different physical incarnations. The issue identifier still orders those publications. The referenced manifest is itself a DATA allocation. It serializes a flat mapping from object names to ordered chunk references. A reference consists of (slot,generation,digest,length). Each ROOT also has a ghost namespace statement in the trace, checked against the prefix of client put/delete operations and the digest of the canonical manifest. This statement is **not** part of the materialized storage image. Recovery obtains the namespace by reading actual manifest bytes, not from the ghost statement. Distinct references to the same allocation give one physical safety obligation but retain their multiplicity for object reconstruction and derived reference counts.
 
 Strict recovery chooses the greatest present ROOT by issue order. It either reconstructs all of that root's references, including the manifest, or reports failure; it does not skip an invalid root. With no root it returns the initial empty namespace. Metadata-record atomicity includes the complete flat manifest, independent of its size: this is a declared model assumption, not an implementation of hardware atomicity for large writes.
 
@@ -31,7 +31,7 @@ For a reference in root r, let a be its matching unique DATA event, or undefined
     T(w) = max { L(a) : a < w, a is DATA, slot(a)=slot(w), U(a) nonempty },
     F(w) = max { q : q is ROOT and q belongs to D(w) }.
 
-Both maxima use issue IDs, not operation-prefix values. They coincide in ordering because ROOT prefixes strictly increase. A writer's own allocation does not contribute to T(w). T(w) can exceed w in an arbitrary invalid trace: a future root may incorrectly refer to a destroyed earlier generation. Such a trace must be rejected.
+Both maxima use issue IDs, not operation-prefix values. Equal client prefixes must not collapse distinct roots: the later publication can retire an allocation that the earlier publication still uses. Nondecreasing prefixes imply only that the newest root reaches a maximal client prefix, which is sufficient for acknowledgement checking. A writer's own allocation does not contribute to T(w). T(w) can exceed w in an arbitrary invalid trace: a future root may incorrectly refer to a destroyed earlier generation. Such a trace must be rejected.
 
 **Theorem 2 (exact safety).** An admitted trace is all-cut safe under strict recovery if and only if all three conditions hold:
 
@@ -49,7 +49,7 @@ A. For every acknowledgement (issued,p,A), D(A) contains a root with operation p
 
 **Sufficiency of P and D.** Let I be a legal cut and r its greatest ROOT. If no ROOT is present, empty recovery succeeds. Otherwise take any reference of r. P gives its unique DATA event a in D(r), so a is in I. If the slot did not hold a, some present writer w>a would be the last writer to that slot. Then T(w)>=L(a)>=r. D implies a ROOT q=F(w)>T(w)>=r in D(w), hence in I. This contradicts r being greatest. Thus every reference is intact. Manifest binding, admission's exact-byte comparison, and reference identity imply that parsing and concatenation recover the declared legal namespace. Repetition of chunks affects multiplicity, not this argument.
 
-**Sufficiency of A.** Every compatible I contains D(A). Therefore it contains a qualifying ROOT q. Its greatest ROOT has prefix at least q's prefix, since prefixes increase with issue order; the preceding reconstruction argument makes that prefix valid. QED.
+**Sufficiency of A.** Every compatible I contains D(A). Therefore it contains a qualifying ROOT q. Its greatest ROOT has prefix at least q's prefix, since prefixes do not decrease with issue order; the preceding reconstruction argument makes that prefix valid. The other two obligations depend on issue order and references, not prefix values. QED.
 
 The general theorem is independent of n. Executable implementations use finite machine inputs and checked 63-bit bounds; they are not proof assistants. A bitset implementation stores n closures and takes quadratic bits in the worst case. Computing the scalar frontier is not the same as reducing all analysis to linear memory.
 
@@ -172,7 +172,7 @@ ancestor of such a predecessor. Induction in admitted issue order therefore
 gives exactly the greatest ROOT in that closure. For a writer w, G(w)=F(w).
 The pass takes O(n+m) time and O(n) additional entries, independently of the
 producer's existing closure-bit storage. Greatest roots of acknowledgement
-anchor closures are maxima of G over their anchors; increasing ROOT prefixes
+anchor closures are maxima of G over their anchors; nondecreasing ROOT prefixes
 make this sufficient for the promised-prefix test. Frontier and pair routines
 use the same preprocessing. The code-separated consumer computes its own table.
 

@@ -304,8 +304,8 @@ def admit_trace(trace: dict[str, Any]) -> Model:
                 prefix = _require_int(event["prefix"], f"event {i} prefix", maximum=len(operations))
             except (KeyError, AdmissionError) as exc:
                 raise AdmissionError(f"event {i}: invalid root prefix: {exc}") from exc
-            if prefix <= previous_root_prefix:
-                raise AdmissionError(f"event {i}: root prefixes must increase and name a client prefix")
+            if prefix < previous_root_prefix:
+                raise AdmissionError(f"event {i}: root prefixes must not decrease")
             previous_root_prefix = prefix
             manifest_ref = _check_ref(event.get("manifest_ref"), f"event {i} manifest")
             namespace_raw = event.get("namespace")
