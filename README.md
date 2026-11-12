@@ -37,6 +37,46 @@ immutable root events without a marker-replacement model. The current helpers
 illustrate parts of this adapter contract; no production trace extractor is
 included.
 
+## Native storage maintenance
+
+RocksDB supplies an upstream case in which logical state and physical file
+lifetimes have different publication boundaries. The upstream
+[MANIFEST I/O error change](https://github.com/facebook/rocksdb/pull/6949)
+describes deferring deletion when a pending metadata edit may have reached
+disk. The experiment here does not reproduce that historical error.
+
+Three controlled workloads run unmodified RocksDB with public SQLite
+header bytes as values. For each one, a separate native read-only open
+checks the complete key/value map and live table set on each side of
+ordinary compaction; a separate directory enumeration checks table
+availability. The sequence number stays unchanged. An offline comparison
+then reports which observed SSTs would be absent if just one of two supplied
+views were retained. This is a file-availability comparison, not a trace
+extractor, measured crash outcome, throughput gain, or production workload.
+See [evidence and interpretation](docs/native-lifecycle.md).
+
+```sh
+python -B scripts/rocksdb_lifecycle.py
+python -B scripts/rocksdb_lifecycle.py --run
+```
+
+The first command checks the retained results with only Python. The second
+requires a C++17 compiler and the RocksDB development package and reruns on
+fresh temporary databases. Neither command requires an external account or
+services.
+
+The companion restic experiment records snapshot blob references and
+physical pack locations before snapshot removal, after removal, and after
+pruning. It uses a fresh local repository and verifies every restore against
+the exact input bytes. It observes migration of a still-referenced blob,
+not failure of native recovery. Use the first command for offline verification;
+the second additionally requires the restic executable:
+
+```sh
+python -B scripts/restic_lifecycle.py
+python -B scripts/restic_lifecycle.py --run
+```
+
 ## SQLite engine adapter
 
 `src/sqlite_store.py` implements an owned, one-writer deduplicating object store

@@ -1,0 +1,348 @@
+{
+  "cases": [
+    {
+      "batch_size": 8,
+      "observations": [
+        {
+          "disk": {
+            "000009.sst": 32733,
+            "000011.sst": 36162,
+            "000013.sst": 37287,
+            "000015.sst": 32733
+          },
+          "live": {
+            "000009.sst": 32733,
+            "000011.sst": 36162,
+            "000013.sst": 37287,
+            "000015.sst": 32733
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 538,
+          "sequence": 32,
+          "stage": "before-live",
+          "verified_keys": 20
+        },
+        {
+          "disk": {
+            "000009.sst": 32733,
+            "000011.sst": 36162,
+            "000013.sst": 37287,
+            "000015.sst": 32733
+          },
+          "live": {
+            "000009.sst": 32733,
+            "000011.sst": 36162,
+            "000013.sst": 37287,
+            "000015.sst": 32733
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 538,
+          "sequence": 32,
+          "stage": "before-reopen",
+          "verified_keys": 20
+        },
+        {
+          "disk": {
+            "000009.sst": 32733,
+            "000011.sst": 36162,
+            "000013.sst": 37287,
+            "000015.sst": 32733
+          },
+          "live": {
+            "000009.sst": 32733,
+            "000011.sst": 36162,
+            "000013.sst": 37287,
+            "000015.sst": 32733
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 464,
+          "sequence": 32,
+          "stage": "before-compaction",
+          "verified_keys": 20
+        },
+        {
+          "disk": {
+            "000022.sst": 84316
+          },
+          "live": {
+            "000022.sst": 84316
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 576,
+          "sequence": 32,
+          "stage": "after-live",
+          "verified_keys": 20
+        },
+        {
+          "disk": {
+            "000022.sst": 84316
+          },
+          "live": {
+            "000022.sst": 84316
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 576,
+          "sequence": 32,
+          "stage": "after-reopen",
+          "verified_keys": 20
+        }
+      ],
+      "two_view_projection": {
+        "missing_if_keep_after_only": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst"
+        ],
+        "missing_if_keep_before_only": [
+          "000022.sst"
+        ],
+        "old_only_removed_by_native_engine": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst"
+        ],
+        "required": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst",
+          "000022.sst"
+        ]
+      }
+    },
+    {
+      "batch_size": 24,
+      "observations": [
+        {
+          "disk": {
+            "000009.sst": 104174,
+            "000011.sst": 104174,
+            "000013.sst": 104172,
+            "000015.sst": 104174
+          },
+          "live": {
+            "000009.sst": 104174,
+            "000011.sst": 104174,
+            "000013.sst": 104172,
+            "000015.sst": 104174
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 538,
+          "sequence": 96,
+          "stage": "before-live",
+          "verified_keys": 60
+        },
+        {
+          "disk": {
+            "000009.sst": 104174,
+            "000011.sst": 104174,
+            "000013.sst": 104172,
+            "000015.sst": 104174
+          },
+          "live": {
+            "000009.sst": 104174,
+            "000011.sst": 104174,
+            "000013.sst": 104172,
+            "000015.sst": 104174
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 538,
+          "sequence": 96,
+          "stage": "before-reopen",
+          "verified_keys": 60
+        },
+        {
+          "disk": {
+            "000009.sst": 104174,
+            "000011.sst": 104174,
+            "000013.sst": 104172,
+            "000015.sst": 104174
+          },
+          "live": {
+            "000009.sst": 104174,
+            "000011.sst": 104174,
+            "000013.sst": 104172,
+            "000015.sst": 104174
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 464,
+          "sequence": 96,
+          "stage": "before-compaction",
+          "verified_keys": 60
+        },
+        {
+          "disk": {
+            "000022.sst": 258888
+          },
+          "live": {
+            "000022.sst": 258888
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 576,
+          "sequence": 96,
+          "stage": "after-live",
+          "verified_keys": 60
+        },
+        {
+          "disk": {
+            "000022.sst": 258888
+          },
+          "live": {
+            "000022.sst": 258888
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 576,
+          "sequence": 96,
+          "stage": "after-reopen",
+          "verified_keys": 60
+        }
+      ],
+      "two_view_projection": {
+        "missing_if_keep_after_only": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst"
+        ],
+        "missing_if_keep_before_only": [
+          "000022.sst"
+        ],
+        "old_only_removed_by_native_engine": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst"
+        ],
+        "required": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst",
+          "000022.sst"
+        ]
+      }
+    },
+    {
+      "batch_size": 64,
+      "observations": [
+        {
+          "disk": {
+            "000009.sst": 275351,
+            "000011.sst": 274226,
+            "000013.sst": 278778,
+            "000015.sst": 275352
+          },
+          "live": {
+            "000009.sst": 275351,
+            "000011.sst": 274226,
+            "000013.sst": 278778,
+            "000015.sst": 275352
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 549,
+          "sequence": 256,
+          "stage": "before-live",
+          "verified_keys": 160
+        },
+        {
+          "disk": {
+            "000009.sst": 275351,
+            "000011.sst": 274226,
+            "000013.sst": 278778,
+            "000015.sst": 275352
+          },
+          "live": {
+            "000009.sst": 275351,
+            "000011.sst": 274226,
+            "000013.sst": 278778,
+            "000015.sst": 275352
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 549,
+          "sequence": 256,
+          "stage": "before-reopen",
+          "verified_keys": 160
+        },
+        {
+          "disk": {
+            "000009.sst": 275351,
+            "000011.sst": 274226,
+            "000013.sst": 278778,
+            "000015.sst": 275352
+          },
+          "live": {
+            "000009.sst": 275351,
+            "000011.sst": 274226,
+            "000013.sst": 278778,
+            "000015.sst": 275352
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 473,
+          "sequence": 256,
+          "stage": "before-compaction",
+          "verified_keys": 160
+        },
+        {
+          "disk": {
+            "000022.sst": 687985
+          },
+          "live": {
+            "000022.sst": 687985
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 586,
+          "sequence": 256,
+          "stage": "after-live",
+          "verified_keys": 160
+        },
+        {
+          "disk": {
+            "000022.sst": 687985
+          },
+          "live": {
+            "000022.sst": 687985
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 586,
+          "sequence": 256,
+          "stage": "after-reopen",
+          "verified_keys": 160
+        }
+      ],
+      "two_view_projection": {
+        "missing_if_keep_after_only": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst"
+        ],
+        "missing_if_keep_before_only": [
+          "000022.sst"
+        ],
+        "old_only_removed_by_native_engine": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst"
+        ],
+        "required": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst",
+          "000022.sst"
+        ]
+      }
+    }
+  ],
+  "rocksdb": "8.9.1",
+  "sources": {
+    "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
+    "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
+    "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
+    "scripts/rocksdb_lifecycle.cc": "bb0758483a4649597f4ca0d0bc3c378699704b36a667569a9a1300da5cd48c55",
+    "scripts/rocksdb_lifecycle.py": "a3a30ae6b0dc25ad8512df25cc045623677d4b5caecce0f43706f043824c6f60"
+  }
+}

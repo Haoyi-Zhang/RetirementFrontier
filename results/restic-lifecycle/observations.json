@@ -1,0 +1,106 @@
+{
+  "observations": [
+    {
+      "packs": [
+        "03716b738d874491c92c7f082ff0ca50087b7e3db3e427e9dd61de1e6711c273",
+        "1825da837d56f9b3f530e338bd260538f07bc80951c20afd2ab0bb349d4128a8",
+        "87079cf2a427575385186c8c72b6f0fa2d10f2d535837f5e3918b907a4c4cea5",
+        "88533af492c0b82c8001959374cf092de10b552086912870636103ac647e89b2"
+      ],
+      "restores": {
+        "first": [
+          "hash.h",
+          "mutex.h"
+        ],
+        "second": [
+          "hash.h",
+          "pcache.h"
+        ]
+      },
+      "snapshots": {
+        "first": {
+          "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369": [
+            "87079cf2a427575385186c8c72b6f0fa2d10f2d535837f5e3918b907a4c4cea5"
+          ],
+          "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993": [
+            "87079cf2a427575385186c8c72b6f0fa2d10f2d535837f5e3918b907a4c4cea5"
+          ]
+        },
+        "second": {
+          "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369": [
+            "87079cf2a427575385186c8c72b6f0fa2d10f2d535837f5e3918b907a4c4cea5"
+          ],
+          "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9": [
+            "88533af492c0b82c8001959374cf092de10b552086912870636103ac647e89b2"
+          ]
+        }
+      },
+      "stage": "both-snapshots"
+    },
+    {
+      "packs": [
+        "03716b738d874491c92c7f082ff0ca50087b7e3db3e427e9dd61de1e6711c273",
+        "1825da837d56f9b3f530e338bd260538f07bc80951c20afd2ab0bb349d4128a8",
+        "87079cf2a427575385186c8c72b6f0fa2d10f2d535837f5e3918b907a4c4cea5",
+        "88533af492c0b82c8001959374cf092de10b552086912870636103ac647e89b2"
+      ],
+      "restores": {
+        "second": [
+          "hash.h",
+          "pcache.h"
+        ]
+      },
+      "snapshots": {
+        "second": {
+          "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369": [
+            "87079cf2a427575385186c8c72b6f0fa2d10f2d535837f5e3918b907a4c4cea5"
+          ],
+          "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9": [
+            "88533af492c0b82c8001959374cf092de10b552086912870636103ac647e89b2"
+          ]
+        }
+      },
+      "stage": "after-forget"
+    },
+    {
+      "packs": [
+        "03716b738d874491c92c7f082ff0ca50087b7e3db3e427e9dd61de1e6711c273",
+        "38da9e7c56598e0e95db6adfa05a22fe23bf29d8f77851b6b524775a2de7b40a",
+        "88533af492c0b82c8001959374cf092de10b552086912870636103ac647e89b2"
+      ],
+      "restores": {
+        "second": [
+          "hash.h",
+          "pcache.h"
+        ]
+      },
+      "snapshots": {
+        "second": {
+          "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369": [
+            "38da9e7c56598e0e95db6adfa05a22fe23bf29d8f77851b6b524775a2de7b40a"
+          ],
+          "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9": [
+            "88533af492c0b82c8001959374cf092de10b552086912870636103ac647e89b2"
+          ]
+        }
+      },
+      "stage": "after-prune"
+    }
+  ],
+  "restic": "0.16.4",
+  "sources": {
+    "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
+    "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
+    "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
+    "scripts/restic_lifecycle.py": "c8b48ce1f63d106c2ab9d1c9a501807aa7f4fb6bfc4f9759ab31b6171ab06876",
+    "scripts/rocksdb_lifecycle.py": "a3a30ae6b0dc25ad8512df25cc045623677d4b5caecce0f43706f043824c6f60"
+  },
+  "summary": {
+    "packs_after": 3,
+    "packs_before": 4,
+    "packs_removed": 2,
+    "shared_data_blobs": 1,
+    "snapshots_restored": 4,
+    "surviving_data_blobs_relocated": 1
+  }
+}

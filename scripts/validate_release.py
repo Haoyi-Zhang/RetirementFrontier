@@ -21,6 +21,8 @@ sys.path.insert(0,str(ROOT/'scripts'))
 sys.path.insert(0,str(ROOT/'src'))
 from strictjson import loads
 from check_scientific_invariants import check
+from rocksdb_lifecycle import checked_receipt, RECEIPT
+from restic_lifecycle import check as check_restic, RECEIPT as RESTIC_RECEIPT
 
 HOST_FIELDS=frozenset({
     'wall_seconds','cpu_seconds','max_rss_kib','producer_cpu_seconds',
@@ -78,6 +80,11 @@ def package_hygiene(root:Path):
 def validate(compare:Path|None=None):
     report=check(ROOT);errors=list(report['errors'])
     errors.extend(package_hygiene(ROOT))
+    try:
+        checked_receipt(loads(RECEIPT.read_text(encoding='utf-8')))
+        check_restic(loads(RESTIC_RECEIPT.read_text(encoding='utf-8')))
+    except (KeyError, OSError, ValueError) as error:
+        errors.append(f'Native lifecycle evidence: {error}')
     comparisons=[]
     if compare is not None:
         other=check(compare)
