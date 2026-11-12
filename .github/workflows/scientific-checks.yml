@@ -37,9 +37,36 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          replay="$RUNNER_TEMP/retirementfrontier-scientific/native-replay"
+          mkdir -p "$replay"
           timeout --signal=TERM --kill-after=15s 300s \
-            python -B scripts/check_native_epochs.py --run 2>&1 \
+            python -B scripts/check_native_epochs.py --record "$replay" 2>&1 \
             | tee "$RUNNER_TEMP/retirementfrontier-scientific/rocksdb-native.log"
+          python -B - "$replay" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          def differences(expected, actual, at):
+              if isinstance(expected, dict) and isinstance(actual, dict) and expected.keys() == actual.keys():
+                  for key in sorted(expected):
+                      yield from differences(expected[key], actual[key], f"{at}.{key}")
+              elif isinstance(expected, list) and isinstance(actual, list) and len(expected) == len(actual):
+                  for index, (first, second) in enumerate(zip(expected, actual, strict=True)):
+                      yield from differences(first, second, f"{at}[{index}]")
+              elif expected != actual:
+                  yield f"{at}: retained={expected!r} fresh={actual!r}"
+
+          recorded = Path("results/rocksdb-lifecycle")
+          replay = Path(sys.argv[1])
+          mismatches = []
+          for name in ("observations.json", "epochs.json"):
+              mismatches.extend(differences(json.loads((recorded / name).read_bytes()),
+                                           json.loads((replay / name).read_bytes()), name))
+          if mismatches:
+              print("\n".join(mismatches[:80]))
+              raise SystemExit(f"{len(mismatches)} fields differed from retained native evidence")
+          PY
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |
