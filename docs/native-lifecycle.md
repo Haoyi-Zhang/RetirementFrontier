@@ -78,6 +78,25 @@ records cross multiple successful SQLite transactions; it tests the full
 model bridge in that controlled setting and does not claim that SQLite's
 atomic transactions fail.
 
+## Paired native checkpoints
+
+A separate fixture makes two disjoint range compactions with no intervening
+client writes and retains a native checkpoint at all three boundaries. It
+uses two of the same public SQLite headers as values. The first checkpoint
+is an expired backup; the other two are declared recovery obligations. The
+observer independently reopens all three, verifies every key and value,
+and tests that shared SSTs are hard links to the same physical file.
+
+The observer disposes of the expired checkpoint in its own temporary
+directory, only after checking that its exclusive SSTs have one link and
+are not in the live database. It then reopens both surviving checkpoints
+and verifies their data and live SST sets again. The removed SST lengths
+are logical file lengths, not measurements of free filesystem blocks.
+Offline controls consider every removal subset of the observed SST catalog
+against both surviving views. The result establishes a benefit of
+selective retention over holding the entire observed catalog; it does
+not identify candidate states of a failed native MANIFEST publication.
+
 ## Native deduplicating repository
 
 The [restic design](https://restic.readthedocs.io/en/v0.16.4/design.html)

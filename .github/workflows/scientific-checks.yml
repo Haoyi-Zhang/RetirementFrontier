@@ -42,6 +42,9 @@ jobs:
           timeout --signal=TERM --kill-after=15s 300s \
             python -B scripts/check_native_epochs.py --record "$replay" 2>&1 \
             | tee "$RUNNER_TEMP/retirementfrontier-scientific/rocksdb-native.log"
+          timeout --signal=TERM --kill-after=15s 300s \
+            python -B scripts/check_native_checkpoints.py --record "$replay/checkpoints.json" 2>&1 \
+            | tee "$RUNNER_TEMP/retirementfrontier-scientific/rocksdb-checkpoints.log"
           python -B - "$replay" <<'PY'
           import json
           from pathlib import Path
@@ -60,7 +63,7 @@ jobs:
           recorded = Path("results/rocksdb-lifecycle")
           replay = Path(sys.argv[1])
           mismatches = []
-          for name in ("observations.json", "epochs.json"):
+          for name in ("observations.json", "epochs.json", "checkpoints.json"):
               mismatches.extend(differences(json.loads((recorded / name).read_bytes()),
                                            json.loads((replay / name).read_bytes()), name))
           if mismatches:

@@ -65,6 +65,7 @@ See [evidence and interpretation](docs/native-lifecycle.md).
 python -B scripts/rocksdb_lifecycle.py
 python -B scripts/check_native_epochs.py
 python -B scripts/check_native_epochs.py --run
+python -B scripts/check_native_checkpoints.py --run
 ```
 
 The first two commands check retained results with only Python. A native
@@ -73,6 +74,14 @@ package and stock RocksDB tools matching the recorded build. It creates
 fresh temporary databases and needs no external account or services.
 The scientific workflow includes the native rerun separately from receipt
 verification.
+
+The paired-checkpoint experiment uses two disjoint compactions at one
+client sequence. It disposes of an expired checkpoint, verifies the last
+filesystem links of its archive-only SSTs were removed, and reopens both
+surviving checkpoints to compare every key and value. A separate offline
+comparison contrasts candidate-union retention with holding all files or
+assuming a single view. The experiment uses fresh temporary databases
+and ordinary RocksDB operations, not injected publication errors.
 
 The companion restic experiment records snapshot blob references and
 physical pack locations before snapshot removal, after removal, and after

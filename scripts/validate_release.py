@@ -24,6 +24,7 @@ from check_scientific_invariants import check
 from rocksdb_lifecycle import checked_receipt, RECEIPT
 from restic_lifecycle import check as check_restic, RECEIPT as RESTIC_RECEIPT
 from check_native_epochs import checked as check_epochs, RESULT as EPOCH_RECEIPT
+from check_native_checkpoints import checked as check_checkpoints, RECEIPT as CHECKPOINT_RECEIPT
 
 HOST_FIELDS=frozenset({
     'wall_seconds','cpu_seconds','max_rss_kib','producer_cpu_seconds',
@@ -86,6 +87,7 @@ def validate(compare:Path|None=None):
         checked_receipt(native)
         check_restic(loads(RESTIC_RECEIPT.read_text(encoding='utf-8')))
         check_epochs(loads(EPOCH_RECEIPT.read_text(encoding='utf-8')), native)
+        check_checkpoints(loads(CHECKPOINT_RECEIPT.read_text(encoding='utf-8')))
     except (KeyError, OSError, ValueError) as error:
         errors.append(f'Native lifecycle evidence: {error}')
     comparisons=[]

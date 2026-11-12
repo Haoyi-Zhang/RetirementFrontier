@@ -1,0 +1,67 @@
+{
+  "native": {
+    "after": {
+      "000016.sst": 78575,
+      "000017.sst": 113520
+    },
+    "archive": {
+      "000009.sst": 113524,
+      "000011.sst": 78579,
+      "000013.sst": 78579,
+      "000015.sst": 113524
+    },
+    "archived_unlinked": 2,
+    "before": {
+      "000013.sst": 78579,
+      "000015.sst": 113524,
+      "000016.sst": 78575
+    },
+    "post_disposal_reopens": 2,
+    "rocksdb": "8.9.1",
+    "sequence": 128,
+    "verified_keys": 64
+  },
+  "sources": {
+    "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
+    "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
+    "scripts/check_native_checkpoints.py": "01554ffbd6c3490c1d53c13e24a855329f89330bbf3d460e064641fcc15cd832",
+    "scripts/check_native_epochs.py": "d616cc9b1b42811904f257a3ca5cdff9a1903aada1fa3e7b36a28dc33b9ef09a",
+    "scripts/rocksdb_checkpoint_probe.cc": "e335967a7d22dd59add293521eb4624acd7a64489b52f6cb90392a82414c2ae1",
+    "scripts/rocksdb_lifecycle.py": "bf7da7d1f0dc2c4ba0e83352aec7d1394a0e31ccd1cb522e308f14fdac360a60"
+  },
+  "summary": {
+    "archived_only": [
+      "000009.sst",
+      "000011.sst"
+    ],
+    "catalog_files": 6,
+    "held_files": 4,
+    "policies": {
+      "assume-after": {
+        "allowed": 16,
+        "safe_blocked": 0,
+        "unsafe_allowed": 12
+      },
+      "assume-before": {
+        "allowed": 8,
+        "safe_blocked": 0,
+        "unsafe_allowed": 4
+      },
+      "hold-all": {
+        "allowed": 1,
+        "safe_blocked": 3,
+        "unsafe_allowed": 0
+      },
+      "hold-candidate-union": {
+        "allowed": 4,
+        "safe_blocked": 0,
+        "unsafe_allowed": 0
+      }
+    },
+    "retired_sst_bytes": 192103,
+    "shared_files": [
+      "000016.sst"
+    ],
+    "subsets": 64
+  }
+}
