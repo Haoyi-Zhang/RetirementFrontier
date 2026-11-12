@@ -1,0 +1,935 @@
+{
+  "runs": [
+    {
+      "after_resolution": [
+        "archive.bin",
+        "whole.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 10398,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 0,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "whole.bin"
+      ],
+      "before_resolution": [
+        "archive.bin"
+      ],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 6913,
+      "bytes_total": 10398,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 0,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 10398,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 1,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [
+        "archive.bin"
+      ],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 6913,
+      "bytes_total": 10398,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 1,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 11195,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 0,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 7710,
+      "bytes_total": 11195,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 0,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "archive-extra.bin",
+        "archive.bin",
+        "whole.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 11195,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 1,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "whole.bin"
+      ],
+      "before_resolution": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 7710,
+      "bytes_total": 11195,
+      "mode": "DELETE",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 1,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "archive.bin",
+        "whole.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 10398,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 0,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "whole.bin"
+      ],
+      "before_resolution": [
+        "archive.bin"
+      ],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 6913,
+      "bytes_total": 10398,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 0,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 10398,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 1,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [
+        "archive.bin"
+      ],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 6913,
+      "bytes_total": 10398,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 1,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "merge",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 11195,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 0,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "left.bin",
+        "right.bin"
+      ],
+      "before_resolution": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "boundary": "before-commit",
+      "bytes_before_resolution": 7710,
+      "bytes_total": 11195,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 0,
+      "selected_files": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "archive-extra.bin",
+        "archive.bin",
+        "whole.bin"
+      ],
+      "before_resolution": [],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 0,
+      "bytes_total": 11195,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "resolve-first",
+      "selected_epoch": 1,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    },
+    {
+      "after_resolution": [
+        "whole.bin"
+      ],
+      "before_resolution": [
+        "archive-extra.bin",
+        "archive.bin"
+      ],
+      "boundary": "after-commit",
+      "bytes_before_resolution": 7710,
+      "bytes_total": 11195,
+      "mode": "WAL",
+      "native_reopens": 2,
+      "policy": "candidate-guard",
+      "selected_epoch": 1,
+      "selected_files": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "shape": "split",
+      "verified_objects": 2,
+      "visible": {
+        "exit_code": 73,
+        "inventory": {
+          "archive-extra.bin": 797,
+          "archive.bin": 6913,
+          "left.bin": 1742,
+          "right.bin": 1743,
+          "shared.bin": 2393,
+          "whole.bin": 3485
+        },
+        "pending": {
+          "attempt": "maintenance",
+          "client_prefix": 1,
+          "views": {
+            "0": {
+              "alpha": [
+                "whole.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            },
+            "1": {
+              "alpha": [
+                "left.bin",
+                "right.bin"
+              ],
+              "beta": [
+                "shared.bin"
+              ]
+            }
+          }
+        },
+        "reply_received": false
+      }
+    }
+  ],
+  "sources": {
+    "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
+    "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
+    "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
+    "scripts/check_native_epochs.py": "d616cc9b1b42811904f257a3ca5cdff9a1903aada1fa3e7b36a28dc33b9ef09a",
+    "scripts/publication_handoff.py": "14e9d7d0e277bd72c7c20e3e29f478a7091fcdff3583b42a76375ffe44dc4bd5",
+    "scripts/rocksdb_lifecycle.py": "bf7da7d1f0dc2c4ba0e83352aec7d1394a0e31ccd1cb522e308f14fdac360a60"
+  },
+  "summary": {
+    "assume_after_unsafe": 4,
+    "assume_before_unsafe": 4,
+    "guard_early_bytes": 58492,
+    "guard_early_files": 12,
+    "matched_pairs": 4,
+    "native_reopens": 32,
+    "per_shape": {
+      "merge": {
+        "bytes": 6913,
+        "files": 1
+      },
+      "split": {
+        "bytes": 7710,
+        "files": 2
+      }
+    },
+    "runs": 16
+  }
+}

@@ -83,6 +83,16 @@ comparison contrasts candidate-union retention with holding all files or
 assuming a single view. The experiment uses fresh temporary databases
 and ordinary RocksDB operations, not injected publication errors.
 
+For a direct test of the transaction boundary, run
+`python -B scripts/publication_handoff.py --run`.
+The owned POSIX fixture publishes a physical layout in one real SQLite
+transaction. It stops the publisher before commit or after commit but
+before reply. A cleaner that has not reopened SQLite sees the same
+handoff in both cases. The guarded cleaner and a resolve-first baseline
+both recover the exact object bytes; the guard moves eligible unlinks
+earlier but does not increase eventual reclamation. This experiment
+does not inject a fault into SQLite or RocksDB.
+
 The companion restic experiment records snapshot blob references and
 physical pack locations before snapshot removal, after removal, and after
 pruning. It uses a fresh local repository and verifies every restore against

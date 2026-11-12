@@ -70,6 +70,13 @@ jobs:
               print("\n".join(mismatches[:80]))
               raise SystemExit(f"{len(mismatches)} fields differed from retained native evidence")
           PY
+      - name: Replay the publication handoff on SQLite and real files
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=15s 180s \
+            python -B scripts/publication_handoff.py --run 2>&1 \
+            | tee "$RUNNER_TEMP/retirementfrontier-scientific/publication-handoff.log"
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |

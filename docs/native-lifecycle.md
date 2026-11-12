@@ -97,6 +97,36 @@ against both surviving views. The result establishes a benefit of
 selective retention over holding the entire observed catalog; it does
 not identify candidate states of a failed native MANIFEST publication.
 
+## Publication handoff with real transactions
+
+The owned fixture separates the SQLite metadata transaction from the
+lifetime of files outside that transaction. It synchronizes payloads and
+a pending record containing both complete layouts before publication.
+A single publisher inserts the new layout and advances the selector in
+one SQLite transaction. The controlled boundaries are before commit
+and after commit but before the completion reply. The cleaner cannot
+distinguish them from its restricted handoff inputs: the same worker
+exit, no output, the same pending record, and the same file inventory.
+
+Two shapes (segment merge and split), two journal modes and the two
+boundaries are crossed with two executable policies. The candidate
+guard unlinks only files outside both layouts before reading SQLite;
+the resolve-first baseline waits to read the selected layout. After
+resolution both policies remove the files outside the selected layout.
+Native recovery checks SQLite integrity, exact metadata and every
+logical object byte before and after final cleanup. Choosing either
+layout without resolving it is evaluated against actual recovered
+references only; no unsafe deletions are executed. File counts and
+logical lengths measure work moved before resolution, not speed,
+filesystem block usage, or extra eventual reclamation.
+
+The controlled process exits are in the application, not SQLite's
+commit implementation. The pending record and exclusive file ownership
+are part of the protocol; a corrupted or incomplete candidate record
+does not justify cleanup. This fixture does not reproduce the historical
+RocksDB defect or claim which recovery view a faulty RocksDB instance
+would choose.
+
 ## Native deduplicating repository
 
 The [restic design](https://restic.readthedocs.io/en/v0.16.4/design.html)
