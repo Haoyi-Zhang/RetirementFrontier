@@ -1,0 +1,40 @@
+{
+  "families": {
+    "retired": {
+      "excess_histogram": {
+        "0": 29696
+      },
+      "graphs": 32768,
+      "larger": 0,
+      "larger_retirement_only": 0,
+      "max_excess": 0,
+      "retirement_only": 3072,
+      "safe": 3072,
+      "unsafe": 29696
+    },
+    "shared": {
+      "excess_histogram": {
+        "0": 29978,
+        "1": 1470,
+        "2": 1320
+      },
+      "graphs": 32768,
+      "larger": 2790,
+      "larger_retirement_only": 2790,
+      "max_excess": 2,
+      "retirement_only": 5952,
+      "safe": 0,
+      "unsafe": 32768
+    }
+  },
+  "inputs": {
+    "results/census/graphs.jsonl": "e42e1d7c12e8a4d33e03b93b57547866dcda9c745499b373182cae9e141659ec",
+    "scripts/diagnostic_census.py": "1278e4016ffbd8ce043ead890f188449bba288cff67d8416767197d418c060cf",
+    "scripts/witness_examples.py": "ed33a6fa8e32bff4befacc1a40f600dc9f623776cf6443468906a185edad6d49",
+    "src/checker.py": "760feee752308e776fce1beae4786a9612effa2a6893a4c2a115efccc4ab1195",
+    "src/engine.py": "cca21f3431879c06ef86657097b5044c5ea3b3ab0347565d0bad5c143c1da723",
+    "src/medium.py": "bf6b06377a03cd8d040e3c747b9e2d623384613b0d20304e44d6b7143d0fbe48",
+    "src/model.py": "eb0b56dda9675a60f0f6cb5682f2b6b442df1feb4bb76ad69eab0f3e31ec0dca",
+    "src/oracle.py": "a0797bfef725840cd12ef3ba70b6e4641775717d07eb7ec9de41bf33ffc5c1f2"
+  }
+}

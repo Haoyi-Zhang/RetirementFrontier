@@ -426,6 +426,13 @@ the two range-compaction model witnesses against pairwise analysis and
 exhaustive materialized recovery. The range check reads the retained decoded
 edit; it does not start RocksDB or reproduce an upstream fault.
 
+Run `python -B scripts/diagnostic_census.py --run` to replay the paired
+comparison over all 32,768 backward-edge masks on each six-event history.
+Both histories use the same event kinds and edges; the second root
+retains the original chunk only in the shared case. Each last-user witness
+is checked against materialized recovery. The receipt records the gap
+from the exact minimum, including graphs with retirement failures only.
+
 The three data plots use retained observations. The write-cost chart uses
 medians of five per-input ratios. The SQLite chart plots ratios of policy
 medians with a common equal-cost reference; it is not the median of paired

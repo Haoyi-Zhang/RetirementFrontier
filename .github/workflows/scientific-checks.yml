@@ -101,6 +101,8 @@ jobs:
           python -B scripts/run_tests.py --pattern test_restart_reclamation.py
       - name: Check manuscript witnesses against materialized recovery
         run: python -B scripts/run_tests.py --pattern test_witness_examples.py
+      - name: Replay the paired minimum-witness census
+        run: timeout --signal=TERM --kill-after=15s 600s python -B scripts/diagnostic_census.py --run
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |
