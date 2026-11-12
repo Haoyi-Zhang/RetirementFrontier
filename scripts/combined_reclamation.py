@@ -112,10 +112,8 @@ def protected_plan(ticket: dict, pin_epochs: list[int], files: dict[str, int]) -
     return plan(required[0], required[1:], files)
 
 
-def collect_locked(root: Path, policy: str) -> dict:
+def assess_locked(root: Path) -> tuple[dict, list[int], dict[str, int], list[str]]:
     """Caller owns the application gate. No access to SQLite or its journal."""
-    if policy not in POLICIES:
-        raise ValueError("unknown cleanup policy")
     ticket = json.loads((root / "handoff.json").read_bytes())
     validate_ticket(ticket)
     pins = []
@@ -130,6 +128,13 @@ def collect_locked(root: Path, policy: str) -> dict:
     pins.sort()
     files = inventory(root)
     safe = protected_plan(ticket, pins, files)
+    return ticket, pins, files, safe
+
+
+def collect_locked(root: Path, policy: str) -> dict:
+    if policy not in POLICIES:
+        raise ValueError("unknown cleanup policy")
+    ticket, pins, files, safe = assess_locked(root)
     remove = [] if policy == "resolve-first" and ticket["state"] == "pending" else safe
     clean(root, remove)
     return {"state": ticket["state"], "candidates": ticket["candidates"],

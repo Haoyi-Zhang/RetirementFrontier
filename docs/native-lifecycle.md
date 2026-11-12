@@ -166,6 +166,18 @@ publication candidates alone are insufficient. No unsafe unlink
 is attempted. This is one serial publisher with cooperating readers
 and two controlled schedules, not an arbitrary concurrency model.
 
+The restart experiment adds two unreferenced spare files so a partial
+cleanup leaves work for the next process. An independent inventory
+oracle checks the initial directory, the files visible after each
+interruption, the newly computed deletion set, and the drained state.
+The restart never consumes a saved plan. It rereads the pending ticket
+and pins under the gate, and a released pin makes its two exclusive
+segments eligible before ticket resolution. Both sides of the first
+directory synchronization are observed with the kernel still running;
+the unsynchronized unlink's visibility is not evidence of persistence
+after a reboot. The uninterrupted controls use the same readers,
+publisher outcomes, and release schedule.
+
 ## Native deduplicating repository
 
 The [restic design](https://restic.readthedocs.io/en/v0.16.4/design.html)

@@ -106,6 +106,13 @@ candidate publications and registered snapshots without reopening
 SQLite. The test compares with resolve-first cleanup and checks both
 registration orders, including actual lock contention.
 
+Run `python -B scripts/restart_reclamation.py --run` to replay cleanup
+process interruption before, during, and after its directory updates.
+The new process takes the same gate and recomputes eligibility from
+present files, pending candidates, and registrations. The test retains or
+releases the oldest reader between passes and compares final inventories
+with uninterrupted controls. It does not simulate storage power loss.
+
 The companion restic experiment records snapshot blob references and
 physical pack locations before snapshot removal, after removal, and after
 pruning. It uses a fresh local repository and verifies every restore against
