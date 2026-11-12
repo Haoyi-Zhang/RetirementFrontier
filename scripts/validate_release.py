@@ -27,6 +27,7 @@ from check_native_epochs import checked as check_epochs, RESULT as EPOCH_RECEIPT
 from check_native_checkpoints import checked as check_checkpoints, RECEIPT as CHECKPOINT_RECEIPT
 from publication_handoff import checked as check_handoff, RECEIPT as HANDOFF_RECEIPT
 from reader_pins import checked as check_pins, RECEIPT as PIN_RECEIPT
+from combined_reclamation import checked as check_combined, RECEIPT as COMBINED_RECEIPT
 
 HOST_FIELDS=frozenset({
     'wall_seconds','cpu_seconds','max_rss_kib','producer_cpu_seconds',
@@ -92,6 +93,7 @@ def validate(compare:Path|None=None):
         check_checkpoints(loads(CHECKPOINT_RECEIPT.read_text(encoding='utf-8')))
         check_handoff(loads(HANDOFF_RECEIPT.read_text(encoding='utf-8')))
         check_pins(loads(PIN_RECEIPT.read_text(encoding='utf-8')))
+        check_combined(loads(COMBINED_RECEIPT.read_text(encoding='utf-8')))
     except (KeyError, OSError, ValueError) as error:
         errors.append(f'Native lifecycle evidence: {error}')
     comparisons=[]

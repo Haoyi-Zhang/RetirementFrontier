@@ -99,6 +99,13 @@ reader processes and crosses two reader release orders with pin-aware
 cleanup and a wait-for-all baseline. It checks the exact file contents
 seen by each surviving reader and does not execute unsafe deletion.
 
+The composition test, `python -B scripts/combined_reclamation.py --run`,
+keeps an old snapshot active while a publisher stops without a reply and
+a second reader attempts to register. The guarded cleaner protects all
+candidate publications and registered snapshots without reopening
+SQLite. The test compares with resolve-first cleanup and checks both
+registration orders, including actual lock contention.
+
 The companion restic experiment records snapshot blob references and
 physical pack locations before snapshot removal, after removal, and after
 pruning. It uses a fresh local repository and verifies every restore against

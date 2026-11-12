@@ -84,6 +84,13 @@ jobs:
           timeout --signal=TERM --kill-after=15s 180s \
             python -B scripts/reader_pins.py --run 2>&1 \
             | tee "$RUNNER_TEMP/retirementfrontier-scientific/reader-pins.log"
+      - name: Replay unresolved publication with concurrent reader registration
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=15s 180s \
+            python -B scripts/combined_reclamation.py --run 2>&1 \
+            | tee "$RUNNER_TEMP/retirementfrontier-scientific/combined-reclamation.log"
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |

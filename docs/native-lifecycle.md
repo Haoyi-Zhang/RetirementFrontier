@@ -146,6 +146,26 @@ controlled exit leaves a stale pin, which is retained rather than
 silently expired. The test does not infer arbitrary reader lifetimes or
 combine reader exits with uncertain writer publication.
 
+## Unresolved publication and concurrent reader registration
+
+The composition fixture pins the first layout, confirms a second
+layout, and durably records a ticket for the possible second and
+third layouts. A publisher stops before commit or after commit but
+before reply. Under the same application lock, the cleaner protects
+all ticket candidates and all registered layouts, including the first
+layout, without opening SQLite or its journal.
+
+We cross both publication outcomes with both registration orders and
+the resolve-first baseline. The newcomer either registers before
+cleanup or observes contention on the actual lock held by the
+cleaner. A subsequent authoritative SQLite read checks the recovered
+selector and layout and resolves the ticket. Both readers independently
+check their snapshot and object bytes before and after that read.
+The two files exclusive to the first layout illustrate why the
+publication candidates alone are insufficient. No unsafe unlink
+is attempted. This is one serial publisher with cooperating readers
+and two controlled schedules, not an arbitrary concurrency model.
+
 ## Native deduplicating repository
 
 The [restic design](https://restic.readthedocs.io/en/v0.16.4/design.html)

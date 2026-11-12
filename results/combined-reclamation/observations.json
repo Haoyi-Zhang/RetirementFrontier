@@ -1,0 +1,587 @@
+{
+  "runs": [
+    {
+      "admission": "blocked",
+      "exit": 73,
+      "new_reader_epoch": 1,
+      "order": "cleanup-first",
+      "outcome": "before-commit",
+      "phases": [
+        {
+          "bytes_removed": 0,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0
+          ],
+          "remaining": [
+            "archive.bin",
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 10398,
+          "candidates": [
+            1
+          ],
+          "pins": [
+            0,
+            1
+          ],
+          "remaining": [
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin",
+            "latest-left.bin",
+            "latest-right.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            1
+          ],
+          "pins": [],
+          "remaining": [
+            "middle.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "resolve-first",
+      "snapshot_reads": 4
+    },
+    {
+      "admission": "blocked",
+      "exit": 73,
+      "new_reader_epoch": 1,
+      "order": "cleanup-first",
+      "outcome": "before-commit",
+      "phases": [
+        {
+          "bytes_removed": 6913,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin"
+          ],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            1
+          ],
+          "pins": [
+            0,
+            1
+          ],
+          "remaining": [
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "latest-left.bin",
+            "latest-right.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            1
+          ],
+          "pins": [],
+          "remaining": [
+            "middle.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "combined",
+      "snapshot_reads": 4
+    },
+    {
+      "admission": "available",
+      "exit": 73,
+      "new_reader_epoch": 1,
+      "order": "reader-first",
+      "outcome": "before-commit",
+      "phases": [
+        {
+          "bytes_removed": 0,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0,
+            1
+          ],
+          "remaining": [
+            "archive.bin",
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 10398,
+          "candidates": [
+            1
+          ],
+          "pins": [
+            0,
+            1
+          ],
+          "remaining": [
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin",
+            "latest-left.bin",
+            "latest-right.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            1
+          ],
+          "pins": [],
+          "remaining": [
+            "middle.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "resolve-first",
+      "snapshot_reads": 4
+    },
+    {
+      "admission": "available",
+      "exit": 73,
+      "new_reader_epoch": 1,
+      "order": "reader-first",
+      "outcome": "before-commit",
+      "phases": [
+        {
+          "bytes_removed": 6913,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0,
+            1
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin"
+          ],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            1
+          ],
+          "pins": [
+            0,
+            1
+          ],
+          "remaining": [
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "latest-left.bin",
+            "latest-right.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            1
+          ],
+          "pins": [],
+          "remaining": [
+            "middle.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "combined",
+      "snapshot_reads": 4
+    },
+    {
+      "admission": "blocked",
+      "exit": 73,
+      "new_reader_epoch": 2,
+      "order": "cleanup-first",
+      "outcome": "after-commit",
+      "phases": [
+        {
+          "bytes_removed": 0,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0
+          ],
+          "remaining": [
+            "archive.bin",
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 10398,
+          "candidates": [
+            2
+          ],
+          "pins": [
+            0,
+            2
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin",
+            "middle.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            2
+          ],
+          "pins": [],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "resolve-first",
+      "snapshot_reads": 4
+    },
+    {
+      "admission": "blocked",
+      "exit": 73,
+      "new_reader_epoch": 2,
+      "order": "cleanup-first",
+      "outcome": "after-commit",
+      "phases": [
+        {
+          "bytes_removed": 6913,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin"
+          ],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            2
+          ],
+          "pins": [
+            0,
+            2
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "middle.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            2
+          ],
+          "pins": [],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "combined",
+      "snapshot_reads": 4
+    },
+    {
+      "admission": "available",
+      "exit": 73,
+      "new_reader_epoch": 2,
+      "order": "reader-first",
+      "outcome": "after-commit",
+      "phases": [
+        {
+          "bytes_removed": 0,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0,
+            2
+          ],
+          "remaining": [
+            "archive.bin",
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 10398,
+          "candidates": [
+            2
+          ],
+          "pins": [
+            0,
+            2
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin",
+            "middle.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            2
+          ],
+          "pins": [],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "resolve-first",
+      "snapshot_reads": 4
+    },
+    {
+      "admission": "available",
+      "exit": 73,
+      "new_reader_epoch": 2,
+      "order": "reader-first",
+      "outcome": "after-commit",
+      "phases": [
+        {
+          "bytes_removed": 6913,
+          "candidates": [
+            1,
+            2
+          ],
+          "pins": [
+            0,
+            2
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "middle.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "archive.bin"
+          ],
+          "state": "pending"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            2
+          ],
+          "pins": [
+            0,
+            2
+          ],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "old-left.bin",
+            "old-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "middle.bin"
+          ],
+          "state": "resolved"
+        },
+        {
+          "bytes_removed": 3485,
+          "candidates": [
+            2
+          ],
+          "pins": [],
+          "remaining": [
+            "latest-left.bin",
+            "latest-right.bin",
+            "shared.bin"
+          ],
+          "removed": [
+            "old-left.bin",
+            "old-right.bin"
+          ],
+          "state": "resolved"
+        }
+      ],
+      "policy": "combined",
+      "snapshot_reads": 4
+    }
+  ],
+  "sources": {
+    "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
+    "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
+    "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
+    "scripts/combined_reclamation.py": "212be4552d9185ace710ca19ffdc5675984622e67d6b4c0f8f79b4d1d4bb15d6",
+    "scripts/publication_handoff.py": "14e9d7d0e277bd72c7c20e3e29f478a7091fcdff3583b42a76375ffe44dc4bd5",
+    "scripts/reader_pins.py": "726f1c5f332b360c25f8cc8c96dddcc0d3f9b164e3ff534277ca5866ade7a07d"
+  },
+  "summary": {
+    "contended_registrations": 4,
+    "early_bytes": 6913,
+    "older_only_files": 2,
+    "snapshot_reads": 32,
+    "trials": 8
+  }
+}
