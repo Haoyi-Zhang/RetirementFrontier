@@ -401,6 +401,7 @@ python -m pip install -r requirements-figures.txt
 # Choose an absent or empty output directory; do not use the shipped figures/ directory.
 python plots/draw_write_ratios.py --font-root /path/to/texmf-dist/fonts --output-dir /absolute/fresh/retirement-write-figures
 python plots/draw_sqlite_costs.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/retirement-write-figures
+python plots/draw_analysis_costs.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/retirement-write-figures
 python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/retirement-write-figures
 python -B -m unittest discover -s tests -p test_plot_sources.py -v
 ```
@@ -412,14 +413,17 @@ not execute experiments or replace the retained observations. Choose an empty
 output directory. `--input` and `--column-width-pt` can select another validated
 input file and the manuscript's actual TeX column width.
 
-The four manuscript figures are all drawn in Python, without a TeX graphics
-engine. The write-cost chart uses medians of five per-input ratios. The SQLite
-chart instead divides matched policy medians and displays paired horizontal
-bars with a common equal-cost reference. Its quotients differ from the table's
-paired median values; both consume the same primary rows. The two symbolic diagrams preserve the
-ordering and recovery interfaces; their renderer checks label clearance,
-minimum node padding and both connector and arrowhead intersections before
-writing the vector PDFs.
+The eight manuscript figures are assembled in Python. The range-compaction
+overview and its companion listing are generated together from the decoded
+native edit. The diagram distinguishes observed file membership from
+projected durability dependencies. Other schematics show the frontier,
+certificate verification, selector ordering, and the recovery comparison.
+The renderer checks label clearance, node padding, and connector geometry.
+
+The three data plots use retained observations. The write-cost chart uses
+medians of five per-input ratios. The SQLite chart plots ratios of policy
+medians with a common equal-cost reference; it is not the median of paired
+per-run ratios. The table and plot use the same primary observations.
 
 ## License
 

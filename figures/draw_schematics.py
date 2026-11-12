@@ -198,30 +198,84 @@ class Figure:
         self.c.save()
 
 
-def motivation(out):
+def native_range_case():
     source = Path(__file__).resolve().parents[1] / 'results/rocksdb-lifecycle/epochs.json'
     case, = (row for row in json.loads(source.read_text(encoding='utf-8'))['cases']
              if row['scope'] == 'range')
     before, after = case['before'], case['after']
     previous, current = set(before['files']), set(after['files'])
-    old = sorted(int(Path(name).stem) for name in previous - current)
-    new, = (int(Path(name).stem) for name in current - previous)
-    shared, = (int(Path(name).stem) for name in previous & current)
-    if len(old) != 3 or before['sequence'] != after['sequence']:
+    edit, = case['edits']
+    if (set(edit['add']) != current - previous or set(edit['remove']) != previous - current
+            or edit['sequence'] != [before['sequence']] or before['sequence'] != after['sequence']
+            or len(previous - current) != 3 or len(current - previous) != 1
+            or len(previous & current) != 1):
         raise ValueError('Native overview no longer matches its decoded edit')
-    d=Figure(out,'reuse-cut',129)
-    d.label(91,17,'Before compaction',12)
-    d.label(331,17,'After compaction',12,colour=BLUE)
-    d.label(211,35,f'Client sequence {before["sequence"]} in both views',11)
-    for x, number in zip((47,91,135),old):
-        d.node(f'sst-{number}',x,65,31,23,str(number),MUTED,GREY)
-    d.node(f'sst-{new}',331,65,44,23,str(new),BLUE,PALE_BLUE)
-    d.label(231,53,'One MANIFEST edit',11.5,colour=BLUE)
-    d.line((163,65),(299,65),arrow=True,colour=BLUE,weight=1.15)
-    d.node(f'sst-{shared}',211,96,35,21,str(shared),MUTED,GREY)
-    d.line((91,87),(91,96),(189,96),colour=MUTED,weight=.85)
-    d.line((331,87),(331,96),(233,96),colour=MUTED,weight=.85)
-    d.label(211,119,'Out-of-range SST retained in both views',11)
+    return case
+
+
+def native_listing(case):
+    def ids(names):
+        return ', '.join(str(int(Path(name).stem)) for name in sorted(names))
+    before, after = case['before'], case['after']
+    edit, = case['edits']
+    return '\n'.join((
+        f'Before   sequence={before["sequence"]}   live={{{ids(before["files"])}}}',
+        f'Edit     remove={{{ids(edit["remove"])}}}   add={{{ids(edit["add"])}}}',
+        f'After    sequence={after["sequence"]}   live={{{ids(after["files"])}}}',
+        '',
+    ))
+
+
+def motivation(out):
+    case = native_range_case()
+    (out / 'native-compaction.txt').write_text(native_listing(case), encoding='ascii', newline='\n')
+    before, after = case['before'], case['after']
+    previous, current = set(before['files']), set(after['files'])
+    old = ', '.join(str(int(Path(n).stem)) for n in sorted(previous - current))
+    new, = (int(Path(n).stem) for n in current - previous)
+    shared, = (int(Path(n).stem) for n in previous & current)
+    ordered = case['outcomes']['ordered']
+    bad = case['outcomes']['unguarded-retirement']['minimum']
+    lost, = (int(Path(n).stem) for n in bad['missing'])
+    if (bad['view'] != 'epoch:before' or ordered['bad_cuts'] != 0
+            or {a for a, b in ordered['certificate_guards'] if b == 'epoch:after'}
+               != {f'retire:{name}' for name in previous - current}):
+        raise ValueError('Native overview does not match the guard or failure evidence')
+
+    # Exact set membership and predecessor arrows; the graphic is not a time measurement.
+    d = Figure(out, 'reuse-cut', 218)
+    d.label(15, 15, '(a) Decoded RocksDB edit', 12.2, 'left')
+    d.label(226, 15, '(b) Projected persistence order', 12.2, 'left')
+    d.label(15, 39, f'Same client sequence: {before["sequence"]}', 10.8, 'left', MUTED)
+    d.label(15, 65, 'SST', 11, 'left')
+    d.label(126, 65, 'Before', 11)
+    d.label(180, 65, 'After', 11)
+    d.line((15, 76), (204, 76), colour=RULE, weight=.7)
+    for y, name, flags in ((94, old, (True, False)),
+                           (117, str(shared), (True, True)),
+                           (140, str(new), (False, True))):
+        d.label(15, y, name, 12, 'left')
+        for x, present in zip((126, 180), flags):
+            if present:
+                d.dot(x, y, BLUE, 3.4)
+            else:
+                d.line((x-3, y), (x+3, y), colour=MUTED, weight=.8)
+    d.dot(20, 166, BLUE, 3.4)
+    d.label(31, 166, 'Required by the view', 10.5, 'left', MUTED)
+    d.line((214, 37), (214, 190), colour=RULE, weight=.6)
+
+    for key, y, label in (('create', 41, f'SST {new} present'),
+                          ('publish', 94, 'New view durable'),
+                          ('retire', 147, f'Unlink {old}')):
+        d.node(key, 313, y, 147, 23, label, BLUE, PALE_BLUE if key == 'publish' else PAPER)
+    for lo, hi, label in ((54, 80, 'P: publish'), (107, 133, 'D: retire')):
+        d.line((313, lo), (313, hi), arrow=True, colour=BLUE, weight=1.15)
+        d.label(327, (lo+hi)/2, label, 10.2, 'left', BLUE)
+    d.label(313, 169, 'Arrows: durability prerequisites', 10.2, colour=MUTED)
+    d.label(313, 188, 'For each unlink: T = before < F = after', 10.8, colour=BLUE)
+    d.line((15, 198), (415, 198), colour=RULE, weight=.7)
+    d.label(15, 210, f'Both edges: {ordered["legal_cuts"]} cuts, no missing SST', 10.2, 'left', BLUE)
+    d.label(230, 210, f'Without D: old view can miss SST {lost}', 10.2, 'left', RUST)
     d.save()
 
 
