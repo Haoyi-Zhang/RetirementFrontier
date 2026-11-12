@@ -108,13 +108,16 @@ void observe(const char* stage, rocksdb::DB& db, const fs::path& dir,
 
 int main(int argc, char** argv) {
   try {
-    require(argc == 6, "expected new database path, batch size, and three input files");
+    require(argc == 7, "expected new database path, batch size, scope, and three input files");
     const fs::path dir(argv[1]);
     require(!fs::exists(dir), "database path must not exist");
     const int batch_size = std::stoi(argv[2]);
     require(batch_size >= 4 && batch_size <= 256 && batch_size % 2 == 0,
             "batch size must be even and between 4 and 256");
-    const std::vector<std::string> corpus{input(argv[3]), input(argv[4]), input(argv[5])};
+    const std::string scope = argv[3];
+    require(scope == "full" || scope == "range", "unknown compaction scope");
+    const bool partial = scope == "range";
+    const std::vector<std::string> corpus{input(argv[4]), input(argv[5]), input(argv[6])};
     std::cout << "{\"rocksdb\":\"" << ROCKSDB_MAJOR << "." << ROCKSDB_MINOR << "."
               << ROCKSDB_PATCH << "\"}\n";
     rocksdb::Options options;
@@ -131,7 +134,8 @@ int main(int argc, char** argv) {
     for (int batch = 0; batch < 4; ++batch) {
       rocksdb::WriteBatch transaction;
       for (int row = 0; row < batch_size; ++row) {
-        const auto key = std::to_string(10000 + batch * (batch_size / 2) + row);
+        const int start = partial && batch == 3 ? 20000 : 10000 + batch * (batch_size / 2);
+        const auto key = std::to_string(start + row);
         const auto& value = corpus[(row + batch) % corpus.size()];
         check(transaction.Put(key, value));
         expected[key] = value;
@@ -149,7 +153,8 @@ int main(int argc, char** argv) {
     db = open(dir, options, false);
     observe("before-compaction", *db, dir, expected);
     rocksdb::CompactRangeOptions compact;
-    check(db->CompactRange(compact, nullptr, nullptr));
+    const rocksdb::Slice begin("10000"), end("15000");
+    check(db->CompactRange(compact, partial ? &begin : nullptr, partial ? &end : nullptr));
     observe("after-live", *db, dir, expected);
     db.reset();
     db = open(dir, options, true);

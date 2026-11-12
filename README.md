@@ -45,15 +45,19 @@ lifetimes have different publication boundaries. The upstream
 describes deferring deletion when a pending metadata edit may have reached
 disk. The experiment here does not reproduce that historical error.
 
-Three controlled workloads run unmodified RocksDB with public SQLite
+Four controlled workloads run unmodified RocksDB with public SQLite
 header bytes as values. For each one, a separate native read-only open
 checks the complete key/value map and live table set on each side of
 ordinary compaction; a separate directory enumeration checks table
-availability. The sequence number stays unchanged. The adapter independently
+availability. The sequence number stays unchanged. Three workloads replace
+all old tables; range compaction leaves one out-of-range table live in both
+views. The adapter independently
 decodes each compaction's MANIFEST edit and projects its table references onto
 two ordered physical publications at one logical prefix. It verifies the
 retirement certificates and checks every declared cut against a direct
-file-availability oracle. The alternative policies are evaluated offline,
+file-availability oracle. A separate offline check starts after output
+creation and compares retaining the references of both unresolved views
+with assuming either view alone. The alternative policies are evaluated offline,
 not by changing or fault-injecting the native engine.
 See [evidence and interpretation](docs/native-lifecycle.md).
 
@@ -65,8 +69,10 @@ python -B scripts/check_native_epochs.py --run
 
 The first two commands check retained results with only Python. A native
 rerun additionally requires a C++17 compiler, the RocksDB development
-package and stock RocksDB tools. It creates fresh temporary databases
-and needs no external account or services.
+package and stock RocksDB tools matching the recorded build. It creates
+fresh temporary databases and needs no external account or services.
+The scientific workflow includes the native rerun separately from receipt
+verification.
 
 The companion restic experiment records snapshot blob references and
 physical pack locations before snapshot removal, after removal, and after

@@ -120,6 +120,20 @@
             "view": "epoch:before"
           }
         }
+      },
+      "scope": "full",
+      "uncertainty": {
+        "safe_subsets": {
+          "after-confirmed": 16,
+          "before-confirmed": 2,
+          "unresolved": 1
+        },
+        "subsets_per_state": 32,
+        "unsafe_subsets_accepted_while_unresolved": {
+          "assume-after": 15,
+          "assume-before": 1,
+          "candidate-union": 0
+        }
       }
     },
     {
@@ -241,6 +255,20 @@
             ],
             "view": "epoch:before"
           }
+        }
+      },
+      "scope": "full",
+      "uncertainty": {
+        "safe_subsets": {
+          "after-confirmed": 16,
+          "before-confirmed": 2,
+          "unresolved": 1
+        },
+        "subsets_per_state": 32,
+        "unsafe_subsets_accepted_while_unresolved": {
+          "assume-after": 15,
+          "assume-before": 1,
+          "candidate-union": 0
         }
       }
     },
@@ -364,11 +392,157 @@
             "view": "epoch:before"
           }
         }
+      },
+      "scope": "full",
+      "uncertainty": {
+        "safe_subsets": {
+          "after-confirmed": 16,
+          "before-confirmed": 2,
+          "unresolved": 1
+        },
+        "subsets_per_state": 32,
+        "unsafe_subsets_accepted_while_unresolved": {
+          "assume-after": 15,
+          "assume-before": 1,
+          "candidate-union": 0
+        }
+      }
+    },
+    {
+      "after": {
+        "bytes": 579,
+        "files": {
+          "000015.sst": 135902,
+          "000022.sst": 275347
+        },
+        "sequence": 128
+      },
+      "batch_size": 32,
+      "before": {
+        "bytes": 469,
+        "files": {
+          "000009.sst": 135902,
+          "000011.sst": 139330,
+          "000013.sst": 140455,
+          "000015.sst": 135902
+        },
+        "sequence": 128
+      },
+      "edits": [
+        {
+          "add": {
+            "000022.sst": 275347
+          },
+          "remove": [
+            "000009.sst",
+            "000011.sst",
+            "000013.sst"
+          ],
+          "sequence": [
+            128
+          ]
+        }
+      ],
+      "outcomes": {
+        "both-unguarded": {
+          "bad_cuts": 36,
+          "certificate_guards": [],
+          "legal_cuts": 176,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        },
+        "ordered": {
+          "bad_cuts": 0,
+          "certificate_guards": [
+            [
+              "retire:000009.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000011.sst",
+              "epoch:after"
+            ],
+            [
+              "retire:000013.sst",
+              "epoch:after"
+            ]
+          ],
+          "legal_cuts": 140,
+          "minimum": null
+        },
+        "unguarded-publication": {
+          "bad_cuts": 8,
+          "certificate_guards": [],
+          "legal_cuts": 148,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "descriptor:epoch:after",
+              "epoch:after"
+            ],
+            "missing": [
+              "000022.sst"
+            ],
+            "view": "epoch:after"
+          }
+        },
+        "unguarded-retirement": {
+          "bad_cuts": 28,
+          "certificate_guards": [],
+          "legal_cuts": 168,
+          "minimum": {
+            "cut": [
+              "available:000009.sst",
+              "available:000011.sst",
+              "available:000013.sst",
+              "available:000015.sst",
+              "descriptor:epoch:before",
+              "epoch:before",
+              "retire:000009.sst"
+            ],
+            "missing": [
+              "000009.sst"
+            ],
+            "view": "epoch:before"
+          }
+        }
+      },
+      "scope": "range",
+      "uncertainty": {
+        "safe_subsets": {
+          "after-confirmed": 8,
+          "before-confirmed": 2,
+          "unresolved": 1
+        },
+        "subsets_per_state": 32,
+        "unsafe_subsets_accepted_while_unresolved": {
+          "assume-after": 7,
+          "assume-before": 1,
+          "candidate-union": 0
+        }
       }
     }
   ],
   "sources": {
-    "scripts/check_native_epochs.py": "a7244d62d5f8f29d68f0d954c1be5378d052198810cd48129508dfda848d92b0",
+    "scripts/check_native_epochs.py": "d616cc9b1b42811904f257a3ca5cdff9a1903aada1fa3e7b36a28dc33b9ef09a",
     "src/checker.py": "760feee752308e776fce1beae4786a9612effa2a6893a4c2a115efccc4ab1195",
     "src/medium.py": "bf6b06377a03cd8d040e3c747b9e2d623384613b0d20304e44d6b7143d0fbe48",
     "src/model.py": "eb0b56dda9675a60f0f6cb5682f2b6b442df1feb4bb76ad69eab0f3e31ec0dca",

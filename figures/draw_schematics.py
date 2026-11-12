@@ -200,25 +200,28 @@ class Figure:
 
 def motivation(out):
     source = Path(__file__).resolve().parents[1] / 'results/rocksdb-lifecycle/epochs.json'
-    case = json.loads(source.read_text(encoding='utf-8'))['cases'][0]
+    case, = (row for row in json.loads(source.read_text(encoding='utf-8'))['cases']
+             if row['scope'] == 'range')
     before, after = case['before'], case['after']
-    old = sorted(int(Path(name).stem) for name in before['files'])
-    new, = (int(Path(name).stem) for name in after['files'])
-    if len(old) != 4 or before['sequence'] != after['sequence']:
+    previous, current = set(before['files']), set(after['files'])
+    old = sorted(int(Path(name).stem) for name in previous - current)
+    new, = (int(Path(name).stem) for name in current - previous)
+    shared, = (int(Path(name).stem) for name in previous & current)
+    if len(old) != 3 or before['sequence'] != after['sequence']:
         raise ValueError('Native overview no longer matches its decoded edit')
-    d=Figure(out,'reuse-cut',125)
+    d=Figure(out,'reuse-cut',129)
     d.label(91,17,'Before compaction',12)
     d.label(331,17,'After compaction',12,colour=BLUE)
-    d.label(91,38,f'Client sequence {before["sequence"]}',11)
-    d.label(331,38,f'Client sequence {after["sequence"]}',11)
-    for x, number in zip((37,73,109,145),old):
+    d.label(211,35,f'Client sequence {before["sequence"]} in both views',11)
+    for x, number in zip((47,91,135),old):
         d.node(f'sst-{number}',x,65,31,23,str(number),MUTED,GREY)
     d.node(f'sst-{new}',331,65,44,23,str(new),BLUE,PALE_BLUE)
-    d.label(231,49,'One MANIFEST edit',11.5,colour=BLUE)
-    d.line((174,65),(299,65),arrow=True,colour=BLUE,weight=1.15)
-    d.label(91,94,'Required by old epoch',11.5)
-    d.line((331,80),(331,98),arrow=True,colour=BLUE,weight=1.15)
-    d.label(331,113,'Then retire old SSTs',11.5,colour=BLUE)
+    d.label(231,53,'One MANIFEST edit',11.5,colour=BLUE)
+    d.line((163,65),(299,65),arrow=True,colour=BLUE,weight=1.15)
+    d.node(f'sst-{shared}',211,96,35,21,str(shared),MUTED,GREY)
+    d.line((91,87),(91,96),(189,96),colour=MUTED,weight=.85)
+    d.line((331,87),(331,96),(233,96),colour=MUTED,weight=.85)
+    d.label(211,119,'Out-of-range SST retained in both views',11)
     d.save()
 
 

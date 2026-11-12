@@ -20,6 +20,8 @@
    observes presence and sizes. The active MANIFEST grows in the same writer
    session during compaction. The unchanged client sequence and changed live
    tables distinguish two physical epochs with one logical state.
+   Three workloads compact all old tables; a fourth has a disjoint key
+   range and leaves its table live on both sides of range compaction.
 3. **Offline comparison.** For a supplied finite set of views with exact
    required-file sets, and no alternate copy within a view, the union is
    the unique inclusion-minimal file set that covers all supplied
@@ -54,6 +56,14 @@ edges in the abstract graph only. For each legal cut, an independent oracle
 selects the corresponding native table set and checks projected file
 availability directly. The main checker compares every cut against it, and
 the separate certificate consumer verifies the ordered case.
+
+The separate unresolved-publication check assumes both candidate file
+sets are already available before cleanup. It enumerates removal subsets
+for three states: only the old view confirmed, both views still possible,
+and only the new view confirmed. It compares the guard with a direct
+file check for each admissible view, including the shared SST in the
+range case. The one-view controls are evaluated only in this abstract
+comparison; no native errors are injected.
 
 This bridge covers a bounded, whole-edit, one-writer replacement profile.
 It is not an assertion that all tested cuts occur on a particular filesystem,

@@ -28,6 +28,18 @@ jobs:
           timeout --signal=TERM --kill-after=15s 180s \
             python -m pip install --disable-pip-version-check 'z3-solver==4.13.3.0' \
             2>&1 | tee "$RUNNER_TEMP/retirementfrontier-scientific/dependencies.log"
+      - name: Install the native compaction replay dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librocksdb-dev=8.9.1-2 rocksdb-tools=8.9.1-2
+      - name: Replay the RocksDB observations in fresh temporary databases
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=15s 300s \
+            python -B scripts/check_native_epochs.py --run 2>&1 \
+            | tee "$RUNNER_TEMP/retirementfrontier-scientific/rocksdb-native.log"
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |

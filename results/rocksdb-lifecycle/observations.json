@@ -87,6 +87,7 @@
           "verified_keys": 20
         }
       ],
+      "scope": "full",
       "two_view_projection": {
         "missing_if_keep_after_only": [
           "000009.sst",
@@ -109,7 +110,8 @@
           "000013.sst",
           "000015.sst",
           "000022.sst"
-        ]
+        ],
+        "shared": []
       }
     },
     {
@@ -199,6 +201,7 @@
           "verified_keys": 60
         }
       ],
+      "scope": "full",
       "two_view_projection": {
         "missing_if_keep_after_only": [
           "000009.sst",
@@ -221,7 +224,8 @@
           "000013.sst",
           "000015.sst",
           "000022.sst"
-        ]
+        ],
+        "shared": []
       }
     },
     {
@@ -311,6 +315,7 @@
           "verified_keys": 160
         }
       ],
+      "scope": "full",
       "two_view_projection": {
         "missing_if_keep_after_only": [
           "000009.sst",
@@ -333,6 +338,125 @@
           "000013.sst",
           "000015.sst",
           "000022.sst"
+        ],
+        "shared": []
+      }
+    },
+    {
+      "batch_size": 32,
+      "observations": [
+        {
+          "disk": {
+            "000009.sst": 135902,
+            "000011.sst": 139330,
+            "000013.sst": 140455,
+            "000015.sst": 135902
+          },
+          "live": {
+            "000009.sst": 135902,
+            "000011.sst": 139330,
+            "000013.sst": 140455,
+            "000015.sst": 135902
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 541,
+          "sequence": 128,
+          "stage": "before-live",
+          "verified_keys": 96
+        },
+        {
+          "disk": {
+            "000009.sst": 135902,
+            "000011.sst": 139330,
+            "000013.sst": 140455,
+            "000015.sst": 135902
+          },
+          "live": {
+            "000009.sst": 135902,
+            "000011.sst": 139330,
+            "000013.sst": 140455,
+            "000015.sst": 135902
+          },
+          "manifest": "MANIFEST-000005",
+          "manifest_bytes": 541,
+          "sequence": 128,
+          "stage": "before-reopen",
+          "verified_keys": 96
+        },
+        {
+          "disk": {
+            "000009.sst": 135902,
+            "000011.sst": 139330,
+            "000013.sst": 140455,
+            "000015.sst": 135902
+          },
+          "live": {
+            "000009.sst": 135902,
+            "000011.sst": 139330,
+            "000013.sst": 140455,
+            "000015.sst": 135902
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 469,
+          "sequence": 128,
+          "stage": "before-compaction",
+          "verified_keys": 96
+        },
+        {
+          "disk": {
+            "000015.sst": 135902,
+            "000022.sst": 275347
+          },
+          "live": {
+            "000015.sst": 135902,
+            "000022.sst": 275347
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 579,
+          "sequence": 128,
+          "stage": "after-live",
+          "verified_keys": 96
+        },
+        {
+          "disk": {
+            "000015.sst": 135902,
+            "000022.sst": 275347
+          },
+          "live": {
+            "000015.sst": 135902,
+            "000022.sst": 275347
+          },
+          "manifest": "MANIFEST-000019",
+          "manifest_bytes": 579,
+          "sequence": 128,
+          "stage": "after-reopen",
+          "verified_keys": 96
+        }
+      ],
+      "scope": "range",
+      "two_view_projection": {
+        "missing_if_keep_after_only": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst"
+        ],
+        "missing_if_keep_before_only": [
+          "000022.sst"
+        ],
+        "old_only_removed_by_native_engine": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst"
+        ],
+        "required": [
+          "000009.sst",
+          "000011.sst",
+          "000013.sst",
+          "000015.sst",
+          "000022.sst"
+        ],
+        "shared": [
+          "000015.sst"
         ]
       }
     }
@@ -342,7 +466,7 @@
     "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
     "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
     "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
-    "scripts/rocksdb_lifecycle.cc": "6bf90309df024df93b3202b3ad6f9a9f4399712b49e4a93892a980da3aae1f55",
-    "scripts/rocksdb_lifecycle.py": "a3a30ae6b0dc25ad8512df25cc045623677d4b5caecce0f43706f043824c6f60"
+    "scripts/rocksdb_lifecycle.cc": "abbe80e59eac05fe35a442f7a78f494ccde599fbf47bccda517d05807f157f6f",
+    "scripts/rocksdb_lifecycle.py": "bf7da7d1f0dc2c4ba0e83352aec7d1394a0e31ccd1cb522e308f14fdac360a60"
   }
 }

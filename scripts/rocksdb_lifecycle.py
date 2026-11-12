@@ -19,7 +19,7 @@ CORPUS = tuple(
     ROOT / "inputs/sqlite" / f"version-3.47.0-{stem}.h"
     for stem in ("hash", "mutex", "pcache")
 )
-BATCH_SIZES = (8, 24, 64)
+WORKLOADS = (("full", 8), ("full", 24), ("full", 64), ("range", 32))
 STAGES = ("before-live", "before-reopen", "before-compaction", "after-live", "after-reopen")
 SST = re.compile(r"[0-9]+\.sst")
 
@@ -31,12 +31,13 @@ def source_binding() -> dict[str, str]:
     }
 
 
-def checked_case(batch_size: int, observations: list[dict]) -> dict:
+def checked_case(scope: str, batch_size: int, observations: list[dict]) -> dict:
     if [row["stage"] for row in observations] != list(STAGES):
         raise ValueError("missing or out-of-order native observations")
     sizes: dict[str, int] = {}
     for row in observations:
-        if row["sequence"] != 4 * batch_size or row["verified_keys"] != 5 * batch_size // 2:
+        keys = 3 * batch_size if scope == "range" else 5 * batch_size // 2
+        if row["sequence"] != 4 * batch_size or row["verified_keys"] != keys:
             raise ValueError("compaction changed the logical workload or coverage")
         if not re.fullmatch(r"MANIFEST-\d+", row["manifest"]) or row["manifest_bytes"] <= 0:
             raise ValueError("missing native manifest observation")
@@ -57,14 +58,17 @@ def checked_case(batch_size: int, observations: list[dict]) -> dict:
         raise ValueError("expected a compaction-time edit in the same manifest")
     old_only = sorted(before.keys() - after.keys())
     new_only = sorted(after.keys() - before.keys())
-    if not old_only or not new_only:
+    shared = sorted(before.keys() & after.keys())
+    if not old_only or not new_only or len(shared) != (1 if scope == "range" else 0):
         raise ValueError("the workload did not replace physical tables")
     return {
+        "scope": scope,
         "batch_size": batch_size,
         "observations": observations,
         # An offline calculation on supplied views, not observed crash outcomes.
         "two_view_projection": {
             "required": sorted(before.keys() | after.keys()),
+            "shared": shared,
             "missing_if_keep_before_only": new_only,
             "missing_if_keep_after_only": old_only,
             "old_only_removed_by_native_engine": [
@@ -79,9 +83,10 @@ def checked_receipt(receipt: dict) -> list[dict]:
         raise ValueError("missing RocksDB build version")
     if receipt["sources"] != source_binding():
         raise ValueError("native observation source or public input changed")
-    if [case["batch_size"] for case in receipt["cases"]] != list(BATCH_SIZES):
+    if [(case["scope"], case["batch_size"]) for case in receipt["cases"]] != list(WORKLOADS):
         raise ValueError("incomplete prescribed workload set")
-    cases = [checked_case(case["batch_size"], case["observations"]) for case in receipt["cases"]]
+    cases = [checked_case(case["scope"], case["batch_size"], case["observations"])
+             for case in receipt["cases"]]
     if cases != receipt["cases"]:
         raise ValueError("stored projection differs from native rows")
     return cases
@@ -98,8 +103,9 @@ def paper_table(receipt: dict) -> str:
         before, after = case["observations"][1], case["observations"][4]
         projection = case["two_view_projection"]
         numbers = (
-            before["verified_keys"], before["sequence"], len(before["live"]),
-            len(after["live"]), len(projection["missing_if_keep_before_only"]),
+            case["scope"].title(), before["verified_keys"], before["sequence"],
+            len(before["live"]), len(after["live"]), len(projection["shared"]),
+            len(projection["missing_if_keep_before_only"]),
             len(projection["missing_if_keep_after_only"]),
             len(projection["old_only_removed_by_native_engine"]),
         )
@@ -119,9 +125,10 @@ def execute() -> dict:
         )
         version = None
         cases = []
-        for count in BATCH_SIZES:
+        for scope, count in WORKLOADS:
             run = subprocess.run(
-                [str(binary), str(workspace / f"database-{count}"), str(count), *map(str, CORPUS)],
+                [str(binary), str(workspace / f"database-{count}"), str(count), scope,
+                 *map(str, CORPUS)],
                 capture_output=True, text=True, timeout=120,
             )
             if run.returncode:
@@ -130,7 +137,7 @@ def execute() -> dict:
             if version is not None and metadata["rocksdb"] != version:
                 raise ValueError("RocksDB build changed between cases")
             version = metadata["rocksdb"]
-            cases.append(checked_case(count, rows))
+            cases.append(checked_case(scope, count, rows))
     if sources != source_binding():
         raise ValueError("native observer inputs changed during execution")
     return {"rocksdb": version, "cases": cases, "sources": sources}

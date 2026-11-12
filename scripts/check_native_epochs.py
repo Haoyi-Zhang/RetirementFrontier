@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from itertools import combinations
 import os
 from pathlib import Path
 import re
@@ -12,7 +13,7 @@ import subprocess
 import sys
 import tempfile
 
-from rocksdb_lifecycle import BATCH_SIZES, RECEIPT as NATIVE, ROOT, checked_receipt, execute
+from rocksdb_lifecycle import WORKLOADS, RECEIPT as NATIVE, ROOT, checked_receipt, execute
 
 sys.path.insert(0, str(ROOT / "src"))
 from checker import analyze_model
@@ -134,8 +135,43 @@ def compare(before: set[str], after: set[str], publish: bool, retire: bool) -> d
     }
 
 
+def required_while_unresolved(candidates: tuple[set[str], ...]) -> set[str]:
+    """Conservative hold set when the durable publication is not yet known."""
+    if not candidates:
+        raise ValueError("reclamation requires at least one candidate view")
+    return set().union(*candidates)
+
+
+def check_uncertainty(before: set[str], after: set[str]) -> dict:
+    """Check the separate abstract cleanup decision after output creation."""
+    catalog = sorted(before | after)
+    removed_sets = [set(items) for n in range(len(catalog) + 1)
+                    for items in combinations(catalog, n)]
+    false_accepts = {"candidate-union": 0, "assume-before": 0, "assume-after": 0}
+    known_safe = {}
+    for state, candidates in (("before-confirmed", (before,)),
+                              ("unresolved", (before, after)),
+                              ("after-confirmed", (after,))):
+        required = required_while_unresolved(candidates)
+        accepted = 0
+        for removed in removed_sets:
+            keep = set(catalog) - removed
+            oracle = all(all(name in keep for name in view) for view in candidates)
+            decision = not (removed & required)
+            if decision != oracle:
+                raise ValueError("cleanup guard disagrees with candidate-by-candidate recovery")
+            accepted += decision
+            if state == "unresolved" and not oracle:
+                for name, guard in (("candidate-union", required),
+                                    ("assume-before", before), ("assume-after", after)):
+                    false_accepts[name] += not (removed & guard)
+        known_safe[state] = accepted
+    return {"subsets_per_state": len(removed_sets), "safe_subsets": known_safe,
+            "unsafe_subsets_accepted_while_unresolved": false_accepts}
+
+
 def validate(cases: list[dict], native: dict) -> list[dict]:
-    if [c["batch_size"] for c in cases] != list(BATCH_SIZES):
+    if [(c["scope"], c["batch_size"]) for c in cases] != list(WORKLOADS):
         raise ValueError("incomplete native edit campaign")
     result = []
     for case, observed in zip(cases, checked_receipt(native), strict=True):
@@ -155,11 +191,11 @@ def validate(cases: list[dict], native: dict) -> list[dict]:
         if (set(delta["remove"]) != b["files"].keys() - a["files"].keys()
                 or delta["add"] != {k: a["files"][k] for k in a["files"].keys() - b["files"].keys()}):
             raise ValueError("membership edit does not explain native views")
-        if b["files"].keys() & a["files"].keys():
-            raise ValueError("this workload requires complete physical replacement")
-        outcomes = {key: compare(set(b["files"]), set(a["files"]), *values)
+        before_set, after_set = set(b["files"]), set(a["files"])
+        outcomes = {key: compare(before_set, after_set, *values)
                     for key, values in PROFILES.items()}
-        result.append({**case, "outcomes": outcomes})
+        result.append({**case, "outcomes": outcomes,
+                       "uncertainty": check_uncertainty(before_set, after_set)})
     return result
 
 
@@ -182,7 +218,7 @@ def campaign() -> tuple[dict, dict]:
             else:
                 os.environ["RETIREMENT_MANIFEST_CAPTURE"] = previous
         cases = []
-        for batch in BATCH_SIZES:
+        for scope, batch in WORKLOADS:
             folder = Path(work) / f"database-{batch}"
             before, after = (folder / f"{n}.manifest" for n in ("before-compaction", "after-live"))
             if not after.read_bytes().startswith(before.read_bytes()):
@@ -196,7 +232,8 @@ def campaign() -> tuple[dict, dict]:
             new, a = read(after)
             if new[:len(old)] != old:
                 raise ValueError("native decoded history did not extend its prefix")
-            cases.append({"batch_size": batch, "before": b, "after": a, "edits": new[len(old):]})
+            cases.append({"scope": scope, "batch_size": batch,
+                          "before": b, "after": a, "edits": new[len(old):]})
     if sources != bindings():
         raise ValueError("projection sources changed during execution")
     return native, {"sources": sources, "cases": validate(cases, native)}
@@ -206,9 +243,16 @@ def checked(result: dict, native: dict) -> dict:
     if result["sources"] != bindings() or validate(result["cases"], native) != result["cases"]:
         raise ValueError("stale native epoch evidence")
     cases = result["cases"]
+    ranged = [c for c in cases if c["scope"] == "range"]
+    uncertainty = {name: sum(c["uncertainty"]["unsafe_subsets_accepted_while_unresolved"][name]
+                             for c in cases)
+                   for name in ("candidate-union", "assume-before", "assume-after")}
     return {"cases": len(cases), "profiles": len(PROFILES),
             "cuts": sum(o["legal_cuts"] for c in cases for o in c["outcomes"].values()),
-            "bad": [sum(c["outcomes"][name]["bad_cuts"] for c in cases) for name in PROFILES]}
+            "bad": [sum(c["outcomes"][name]["bad_cuts"] for c in cases) for name in PROFILES],
+            "range_ordered_cuts": sum(c["outcomes"]["ordered"]["legal_cuts"] for c in ranged),
+            "uncertainty_subsets": sum(c["uncertainty"]["subsets_per_state"] for c in cases),
+            "uncertainty_false_accepts": uncertainty}
 
 
 if __name__ == "__main__":
