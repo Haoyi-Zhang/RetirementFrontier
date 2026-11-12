@@ -77,6 +77,13 @@ jobs:
           timeout --signal=TERM --kill-after=15s 180s \
             python -B scripts/publication_handoff.py --run 2>&1 \
             | tee "$RUNNER_TEMP/retirementfrontier-scientific/publication-handoff.log"
+      - name: Replay overlapping WAL snapshots and reader release
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=15s 180s \
+            python -B scripts/reader_pins.py --run 2>&1 \
+            | tee "$RUNNER_TEMP/retirementfrontier-scientific/reader-pins.log"
       - name: Run finite scientific checks from the flat artifact root
         shell: bash
         run: |

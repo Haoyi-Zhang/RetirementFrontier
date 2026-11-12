@@ -93,6 +93,12 @@ both recover the exact object bytes; the guard moves eligible unlinks
 earlier but does not increase eventual reclamation. This experiment
 does not inject a fault into SQLite or RocksDB.
 
+To replay confirmed publications while WAL readers retain older snapshots,
+run `python -B scripts/reader_pins.py --run`. The test uses separate
+reader processes and crosses two reader release orders with pin-aware
+cleanup and a wait-for-all baseline. It checks the exact file contents
+seen by each surviving reader and does not execute unsafe deletion.
+
 The companion restic experiment records snapshot blob references and
 physical pack locations before snapshot removal, after removal, and after
 pruning. It uses a fresh local repository and verifies every restore against

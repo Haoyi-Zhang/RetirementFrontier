@@ -127,6 +127,25 @@ does not justify cleanup. This fixture does not reproduce the historical
 RocksDB defect or claim which recovery view a faulty RocksDB instance
 would choose.
 
+## Reader lifetimes after confirmed publication
+
+A separate WAL fixture holds read transactions on two earlier layouts
+while a writer advances the selector to a third layout of the same
+logical objects. A lock serializes snapshot acquisition and pin
+registration with publication and deletion; releasing a pin occurs only
+after the reader closes its transaction. Readers then use SQLite's
+normal WAL snapshots and read their real external segment files.
+
+The cleaner checks the current layout and all registered layouts before
+unlinking. The wait-for-all baseline defers unlinks until both readers
+release. The guarded strategy instead unlinks an archive file while both
+are active and reclaims each layout's exclusive segments as its last
+reader releases. Both release orders are tested, including a native byte
+check by the remaining reader after the other one releases. An additional
+controlled exit leaves a stale pin, which is retained rather than
+silently expired. The test does not infer arbitrary reader lifetimes or
+combine reader exits with uncertain writer publication.
+
 ## Native deduplicating repository
 
 The [restic design](https://restic.readthedocs.io/en/v0.16.4/design.html)
