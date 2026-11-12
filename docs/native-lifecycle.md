@@ -2,15 +2,23 @@
 
 ## Evidence classes
 
-1. **Upstream historical record.** The RocksDB maintainers document that an
+1. **Reported production incident.** In [RocksDB issue #9419](https://github.com/meta/rocksdb/issues/9419),
+   the shutdown log records deletion of table 48510, and the subsequent
+   reopen error names the same table number under its legacy extension.
+   The reporter says that restoring the deleted tables from a snapshot
+   allowed reopen. The public report does not provide the active MANIFEST
+   and its selection record at the failed reopen, so it does not identify
+   the edit history or deletion path responsible for the missing table.
+2. **Documented engine mechanism.** The RocksDB maintainers document that an
    unsuccessful return from MANIFEST write or sync did not identify which
    version edit would replay. Deleting new SSTs while that edit could still
    be selected threatened native reopen. The change defers file deletion
-   while the state is unresolved. This is evidence of the historical
-   maintenance issue, not a local reproduction or a claim about a current
-   release. See [upstream change](https://github.com/facebook/rocksdb/pull/6949)
-   and [MANIFEST recovery](https://github.com/facebook/rocksdb/wiki/MANIFEST).
-2. **Native observations.** The observer uses only ordinary operations on
+   while the state is unresolved. The
+   [merged change](https://github.com/meta/rocksdb/commit/e66199d848cd484b816d07359f1dc0f0b99e5351)
+   is [already in the upstream release named by the reporter](https://github.com/meta/rocksdb/compare/e66199d848cd484b816d07359f1dc0f0b99e5351...v6.15.5).
+   It establishes a maintenance failure mode, not the root cause of #9419
+   or a defect in a current release.
+3. **Native observations.** The observer uses only ordinary operations on
    fresh temporary databases. Four synchronized atomic batches over partially
    overlapping key ranges create the pre-compaction table set. The complete
    expected map is computed from
@@ -24,7 +32,7 @@
    range and leaves its table live on both sides of range compaction.
    The observer uses a fixed experimental host label in SST properties so
    another machine can reproduce the byte counts without sharing its hostname.
-3. **Offline comparison.** For a supplied finite set of views with exact
+4. **Offline comparison.** For a supplied finite set of views with exact
    required-file sets, and no alternate copy within a view, the union is
    the unique inclusion-minimal file set that covers all supplied
    references: omitting any union member leaves its corresponding view
