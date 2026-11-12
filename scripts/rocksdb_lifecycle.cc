@@ -125,6 +125,9 @@ int main(int argc, char** argv) {
     options.error_if_exists = true;
     options.disable_auto_compactions = true;
     options.compression = rocksdb::kNoCompression;
+    // SST properties otherwise embed the machine's hostname, changing file
+    // sizes and the size fields in the decoded MANIFEST across hosts.
+    options.db_host_id = "retirementfrontier";
     auto db = open(dir, options, false);
     rocksdb::WriteOptions write;
     write.sync = true;

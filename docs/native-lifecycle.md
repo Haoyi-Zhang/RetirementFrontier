@@ -22,6 +22,8 @@
    tables distinguish two physical epochs with one logical state.
    Three workloads compact all old tables; a fourth has a disjoint key
    range and leaves its table live on both sides of range compaction.
+   The observer uses a fixed experimental host label in SST properties so
+   another machine can reproduce the byte counts without sharing its hostname.
 3. **Offline comparison.** For a supplied finite set of views with exact
    required-file sets, and no alternate copy within a view, the union is
    the unique inclusion-minimal file set that covers all supplied
