@@ -285,7 +285,7 @@ def motivation(out):
         active = sorted(positions[name] for name in names_in_root)
         d.line((120,y-7),(129,y-7),(129,y-19),(active[-1],y-19),
                colour=colour,weight=.8)
-        for name in names_in_root:
+        for name in sorted(names_in_root, key=positions.__getitem__):
             x=positions[name]
             lost=name==missing and colour==RUST
             d.line((x,y-19),(x,y-12),colour=colour,weight=.85,dashed=lost)
@@ -321,28 +321,30 @@ def frontier(out):
 
 def certificate(out):
     d=Figure(out,'certificate-check',148)
-    d.label(51,58,'Admitted history',11.8)
-    d.line((102,58),(115,58))
-    d.dot(115,58,INK,2.2)
-    d.line((115,58),(115,28),(148,28),arrow=True,colour=BLUE)
-    d.dot(152,28,BLUE,2.3)
-    d.label(182,13,'Compute frontier',11.1,colour=BLUE)
-    d.line((156,28),(243,28),arrow=True,colour=BLUE)
-    d.art('metadata-symbols','records',247,10,33,35)
-    d.label(263,56,'Witnesses',10.7)
-    d.line((286,28),(328,28),(328,48),arrow=True,colour=BLUE)
-    d.line((115,58),(115,90),(294,90),(294,67),(309,67),arrow=True)
-    d.label(206,105,'Original history',10.9,colour=MUTED)
-    d.ring(328,67,BLUE,12)
-    d.label(328,67,'?',12)
-    d.label(328,114,'Independent verifier',11.3)
-    d.line((343,67),(357,67),(357,51),(371,51),arrow=True,colour=BLUE)
-    d.line((357,67),(357,88),(371,88),arrow=True,colour=RUST,dashed=True)
-    d.dot(357,67,INK,1.9)
-    d.ring(380,51,BLUE,4)
-    d.cross(380,88)
-    d.label(390,51,'Accept',10.1,'left',BLUE)
-    d.label(390,88,'Reject',10.1,'left',RUST)
+    d.label(15,70,'Admitted history',11.8,'left')
+    d.line((102,70),(115,70))
+    d.dot(115,70,INK,2.2)
+    d.line((115,70),(115,34),(138,34),colour=BLUE,arrow=True)
+    d.label(145,34,'Compute frontier',11.2,'left',BLUE)
+    d.line((233,34),(243,34),colour=BLUE,arrow=True)
+    d.art('metadata-symbols','records',247,20,26,28)
+    d.label(260,59,'Certificate rows',10.6)
+    d.line((278,34),(304,34),colour=BLUE,arrow=True)
+    d.line((115,70),(115,103),(138,103),arrow=True)
+    d.label(145,103,'Original history',10.9,'left',MUTED)
+    d.line((221,103),(232,103),arrow=True)
+    d.label(239,103,'Derive rows',10.9,'left',MUTED)
+    d.line((301,103),(311,103),arrow=True)
+    d.line((309,34),(315,34),(315,103),(309,103),colour=BLUE)
+    d.label(283,130,'Independent verifier',11.4)
+    d.label(339,69,'Match\nrows',10.8,colour=BLUE)
+    d.line((358,69),(369,69),(369,50),(380,50),colour=BLUE)
+    d.line((369,69),(369,89),(380,89),colour=RUST,dashed=True)
+    d.dot(369,69,INK,1.9)
+    d.ring(387,50,BLUE,3.8)
+    d.cross(387,89)
+    d.label(397,50,'Accept',10.1,'left',BLUE)
+    d.label(397,89,'Reject',10.1,'left',RUST)
     d.save()
 
 
@@ -460,24 +462,23 @@ def selector(out):
 
 def sqlite(out):
     d=Figure(out,'evidence-paths',138)
-    d.art('metadata-symbols','database',17,46,37,43)
-    d.label(36,110,'Committed\nSQLite state',11.1)
-    d.line((58,67),(86,67))
-    d.dot(86,67,INK,2.3)
-    d.line((86,67),(86,35),(110,35),colour=BLUE,arrow=True)
-    d.line((86,67),(86,99),(110,99),arrow=True)
-    d.label(155,35,'Audit projection',11.2,colour=BLUE)
-    d.label(155,99,'Retained records',11.2)
-    d.line((199,35),(223,35),colour=BLUE,arrow=True)
-    d.line((199,99),(223,99),arrow=True)
-    d.label(268,35,'Model recovery',11.2,colour=BLUE)
-    d.label(268,99,'Native recovery',11.2)
-    d.line((313,35),(357,35),(357,52),colour=BLUE,arrow=True)
-    d.line((313,99),(357,99),(357,82),arrow=True)
-    d.ring(357,67,BLUE,11)
-    d.label(357,67,'?',12)
-    d.label(415,53,'Compare',10.5,'right')
-    d.label(418,124,'Outcome; if successful: root, prefix, bytes',10.2,'right',MUTED)
+    d.art('metadata-symbols','database',15,40,35,43)
+    d.label(33,106,'Committed\nSQLite state',11.4)
+    d.line((54,61),(75,61))
+    d.dot(75,61,INK,2.3)
+    for y,source,reader,colour in (
+            (34,'Audit projection','Model recovery',BLUE),
+            (88,'Stored roots / slots','Native recovery',INK)):
+        d.line((75,61),(75,y),(99,y),colour=colour,arrow=True)
+        d.label(154,y,source,11.3,colour=colour)
+        d.line((202,y),(221,y),colour=colour,arrow=True)
+        d.label(263,y,reader,11.3,colour=colour)
+        d.line((303,y),(323,y),colour=colour,arrow=True)
+    # The bracket receives both results. Neither arm reads the other's data.
+    d.line((327,34),(333,34),(333,88),(327,88),colour=BLUE)
+    d.label(381,49,'Compare outcomes',11.1,colour=BLUE)
+    d.label(381,71,'If both recover:',10.5,colour=MUTED)
+    d.label(381,87,'root, prefix, bytes',10.5,colour=MUTED)
     d.save()
 
 
