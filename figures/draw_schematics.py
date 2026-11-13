@@ -372,33 +372,44 @@ def minimum_witness(out):
 
 
 def selector(out):
-    d=Figure(out,'selector-order',163)
-    d.art('publication-symbols','rail',25,16,52,33)
-    d.art('evidence-symbols','manifest',146,13,28,42)
-    d.label(269,35,'B',13,colour=BLUE)
-    d.ring(269,35,BLUE,13)
-    d.node('reused',378,35,31,22,'C',BLUE,PALE_BLUE,radius=0)
-    for x, label in ((50,'Write B, fresh slot'),(159,'Prepare manifest B'),
-                     (269,'Select B'),(378,'Reuse A\'s slot')):
-        d.label(x,71,label,10.5)
-    for start, end in ((94,133),(185,236)):
-        d.line((start,35),(end,35),arrow=True)
-    d.label(324,19,'Only then',10.5,colour=BLUE)
-    d.line((302,35),(346,35),arrow=True,colour=BLUE,weight=1.42)
-    # An alternate cut: the selector still resolves its manifest; the
-    # reference inside that manifest, not the selector link, is broken.
-    d.label(50,116,'A',13,colour=RUST)
-    d.ring(50,116,RUST,13)
-    d.art('evidence-symbols','manifest',136,90,42,50)
-    d.label(50,150,'Still selects A',10.5,colour=RUST)
-    d.label(157,150,'Manifest A',10.5)
-    d.line((84,116),(131,116),arrow=True)
-    d.label(224,100,'Reference to A',10.5,colour=RUST)
-    d.line((184,116),(267,116),arrow=True,dashed=True,colour=RUST,weight=1.15)
-    d.cross(274,116)
-    d.label(274,135,'A missing',10.5,colour=RUST)
-    d.art('storage-symbols','slot',308,95,101,42)
-    d.label(358.5,150,'B in A\'s slot',10.5,colour=RUST)
+    d=Figure(out,'selector-order',173)
+    d.label(43,33,'Initial state',11.3)
+    d.art('evidence-symbols','manifest',32,47,22,27)
+    d.label(43,90,'Manifest A\nselected',10.7)
+    d.line((43,107),(43,119),arrow=True)
+    d.node('initial-slot',43,131,30,22,'A',MUTED,GREY,radius=0)
+    d.label(43,153,"A's slot",10.6)
+
+    # Each path starts after initialization; the rail reads in helper order.
+    d.line((82,91),(94,91),colour=INK)
+    d.dot(94,91,INK,2)
+    d.line((94,91),(94,48),(126,48),colour=BLUE,arrow=True)
+    d.line((94,91),(94,128),(130,128),colour=RUST,arrow=True)
+    d.label(109,19,'Ordered',11.3,'left',BLUE)
+    d.label(109,106,'Overwrite first',11.3,'left',RUST)
+
+    for x, key, letter in ((143,'fresh','B'),(294,'reused','C')):
+        d.node(key,x,48,29,22,letter,BLUE,PALE_BLUE,radius=0)
+    d.art('evidence-symbols','manifest',183,34,22,28)
+    d.ring(246,48,BLUE,10)
+    d.label(246,48,'B',11.5,colour=BLUE)
+    for start,end in ((160,181),(208,234),(258,277),(311,335)):
+        d.line((start,48),(end,48),arrow=True,colour=BLUE)
+    for x,label in ((143,'Write B in\na fresh slot'),(194,'Prepare\nmanifest B'),
+                    (246,'Select B'),(294,"Reuse\nA's slot")):
+        d.label(x,78,label,10.4)
+    d.label(345,48,'Recover B',11.6,'left',BLUE)
+
+    d.node('overwritten',147,128,29,22,'B',RUST,PAPER,radius=0)
+    d.label(147,153,"In A's slot",10.6)
+    d.line((165,128),(185,128),arrow=True,colour=RUST)
+    d.art('evidence-symbols','manifest',190,114,22,28)
+    d.label(201,157,'Manifest A\nstill selected',10.4)
+    # The selector still reaches the manifest; only its A reference fails.
+    d.label(273,113,'Reference to A',10.5,colour=RUST)
+    d.line((215,128),(322,128),colour=RUST,dashed=True,weight=1.15)
+    d.cross(328,128)
+    d.label(345,128,'A unavailable',11.6,'left',RUST)
     d.save()
 
 
