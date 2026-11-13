@@ -202,10 +202,9 @@ python -B -O -m unittest discover -s tests -p test_posix_event_cuts.py -v
 
 The optional paper figures use Python ReportLab and `requirements-figures.txt`.
 They embed the installed Type 1 counterpart of the manuscript's Libertine face.
-The figure builders use the retained pictograms under `figures/artwork/`,
-which also documents their origin. Labels, arrows, notation and data marks
-are native PDF vectors. Rebuilding the figures reads these local assets and
-measurements offline.
+Labels, arrows, object outlines, notation and data marks are native PDF
+vectors drawn by the Python sources. Rebuilding reads the retained
+measurements offline; no bitmap artwork is used in the current figures.
 
 ```sh
 python figures/draw_schematics.py --font-root /path/to/texmf-dist/fonts --out /absolute/fresh/diagrams

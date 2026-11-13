@@ -7,7 +7,6 @@ import sys
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen.canvas import Canvas
-from reportlab.lib.utils import ImageReader
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'plots'))
 import draw_write_ratios as v
@@ -21,7 +20,6 @@ RUST = (.53, .26, .19)
 PAPER = (1, 1, 1)
 GREY = (.95, .96, .965)
 PALE_BLUE = (.89, .93, .958)
-ART = Path(__file__).with_name('artwork')
 
 
 def grow(box, amount):
@@ -57,7 +55,6 @@ class Figure:
                         invariant=1, initialFontName=v.FONT, initialFontSize=11)
         self.c.setCreator('Python ReportLab')
         self.words, self.nodes, self.lines = [], {}, []
-        self.illustrations = []
 
     def label(self, x, y, text, size=11, align='center', colour=INK, owner=None):
         if not all(32 <= ord(ch) <= 126 for ch in text.replace('\n','')):
@@ -103,6 +100,32 @@ class Figure:
         paint(self.c)
         self.c.restoreState()
 
+    def document(self, key, x, y, width, height, text, edge=MUTED, fill=PAPER):
+        """A record with a folded corner, one label, and explicit ports."""
+        l,t,r,b = x-width/2,y-height/2,x+width/2,y+height/2
+        if key in self.nodes:
+            raise ValueError(f'Duplicate node {key}')
+        self.nodes[key] = l,t,r,b
+        fold = 6
+        path = self.c.beginPath()
+        path.moveTo(l,self.height-t)
+        for px,py in ((r-fold,t),(r,t+fold),(r,b),(l,b),(l,t)):
+            path.lineTo(px,self.height-py)
+        self.c.setStrokeColorRGB(*edge)
+        self.c.setFillColorRGB(*fill)
+        self.c.setLineWidth(.85)
+        self.c.drawPath(path,fill=1,stroke=1)
+        self.c.lines(((r-fold,self.height-t,r-fold,self.height-t-fold),
+                      (r-fold,self.height-t-fold,r,self.height-t-fold)))
+        self.label(x,y,text,11.5,owner=key)
+
+    def port(self, key, side, fraction=.5):
+        l,t,r,b = self.nodes[key]
+        if not 0 < fraction < 1:
+            raise ValueError('Port must lie strictly inside its edge')
+        return {'left': (l,t+(b-t)*fraction), 'right': (r,t+(b-t)*fraction),
+                'top': (l+(r-l)*fraction,t), 'bottom': (l+(r-l)*fraction,b)}[side]
+
     def line(self, *points, colour=MUTED, weight=.9, dashed=False, arrow=False):
         if len(points)<2:
             raise ValueError('Line requires two points')
@@ -139,27 +162,6 @@ class Figure:
         self.c.setLineWidth(1.15)
         self.c.circle(x,self.height-y,radius,fill=0,stroke=1)
 
-    def art(self,plate,key,x,y,w,h):
-        image=ImageReader(str(ART/f'{plate}.png'))
-        iw,ih=image.getSize()
-        l,t,r,b=ASSETS[plate][key]
-        if not (0<=l<r<=iw and 0<=t<b<=ih):
-            raise ValueError(f'Illustration crop outside image: {plate}/{key}')
-        factor=min(w/(r-l),h/(b-t))
-        if 72/factor<430:
-            raise ValueError(f'Insufficient effective resolution: {plate}/{key}')
-        bw,bh=(r-l)*factor,(b-t)*factor
-        left,upper=x+(w-bw)/2,y+(h-bh)/2
-        self.illustrations.append((key,(left,upper,left+bw,upper+bh)))
-        self.c.saveState()
-        lower=self.height-upper-bh
-        clip=self.c.beginPath()
-        clip.rect(left,lower,bw,bh)
-        self.c.clipPath(clip,stroke=0,fill=0)
-        self.c.drawImage(image,left-l*factor,lower-(ih-b)*factor,
-                         iw*factor,ih*factor,mask='auto')
-        self.c.restoreState()
-
     def cross(self,x,y):
         self.line((x-3.8,y-3.8),(x+3.8,y+3.8),colour=RUST,weight=1.25)
         self.line((x+3.8,y-3.8),(x-3.8,y+3.8),colour=RUST,weight=1.25)
@@ -193,12 +195,6 @@ class Figure:
                 raise ValueError(f'{self.name}: label overlaps an unrelated node: {word}')
         obstacles=[(w,grow(b,1.8)) for w,b,_ in self.words]
         obstacles += [(k,grow(b,-.38)) for k,b in self.nodes.items()]
-        for i,(key,box) in enumerate(self.illustrations):
-            if not contains(inside,box) or any(overlap(box,b) for _,b in self.illustrations[i+1:]):
-                raise ValueError(f'{self.name}: overlapping or clipped artwork: {key}')
-            if any(overlap(grow(box,1),b) for _,b,_ in self.words):
-                raise ValueError(f'{self.name}: label overlaps artwork: {key}')
-            obstacles.append((key,grow(box,-.25)))
         for p,q in self.lines:
             for label,box in obstacles:
                 if intersects_segment(p,q,box):
@@ -286,7 +282,7 @@ def motivation(out):
                BLUE if name==shared else MUTED,PALE_BLUE if name==shared else PAPER,radius=0)
     d.label(225,115,'Shared',10.4,colour=BLUE)
 
-    d.label(18,136,'(b) Which checkpoint can reopen?',11.8,'left')
+    d.label(18,136,'(b) Restore with the retained tables',11.8,'left')
     d.label(18,155,'Retain',10.6,'left',MUTED)
     d.label(340,155,'Before',10.6,colour=MUTED)
     d.label(395,155,'After',10.6,colour=MUTED)
@@ -299,10 +295,9 @@ def motivation(out):
                 d.dot(x,y,BLUE,3.4)
             else:
                 d.ring(x,y,MUTED,3.4)
-        d.line((298,y),(317,y),arrow=True,colour=MUTED)
         for x,view in ((340,'before'),(395,'after')):
             exact = rows[view,policy]['native_status'] == f'ok:{keys}'
-            d.label(x,y,'Exact' if exact else 'No open',10.6,colour=BLUE if exact else RUST)
+            d.label(x,y,'Exact' if exact else 'Fails',10.8,colour=BLUE if exact else RUST)
     d.dot(123,227,BLUE,3.4)
     d.label(133,227,'Kept',10.6,'left',MUTED)
     d.ring(174,227,MUTED,3.4)
@@ -311,46 +306,46 @@ def motivation(out):
 
 
 def frontier(out):
-    d=Figure(out,'retirement-frontier',137)
-    xs=(51,153,272,380)
-    for i,(x,caption) in enumerate(zip(xs,('Allocate a','Publish r','Publish q','Write w'))):
-        d.dot(x,74,BLUE if x==272 else INK,3)
-        d.label(x,91,caption,11.8,colour=BLUE if x==272 else INK)
-        if i:
-            d.line((xs[i-1]+8,74),(x-8,74),colour=MUTED,weight=.74,arrow=True)
-    d.line((153,67),(153,43),(51,43),(51,67),dashed=True,arrow=True)
-    d.label(102,30,'r references a',11,colour=MUTED)
-    d.line((272,67),(272,43),(380,43),(380,67),arrow=True,colour=BLUE,weight=1.15)
-    d.label(326,30,'q must persist before w',11,colour=BLUE)
-    d.label(153,117,'T(w) = r',12)
-    d.label(272,117,'F(w) = q',12,colour=BLUE)
-    d.label(212,117,'<',13)
-    d.label(212,59,'Issue order',10.5,colour=MUTED)
+    d=Figure(out,'retirement-frontier',119)
+    d.node('alloc',52,62,72,26,'Allocate a',MUTED,GREY)
+    d.document('old',156,62,70,26,'Publish r')
+    d.document('new',269,62,70,26,'Publish q',BLUE,PALE_BLUE)
+    d.node('write',374,62,72,26,'Write w',MUTED,GREY)
+    for first,second in (('alloc','old'),('old','new'),('new','write')):
+        d.line(d.port(first,'right'),d.port(second,'left'),weight=.76,arrow=True)
+    d.line(d.port('old','top'),(156,28),(52,28),d.port('alloc','top'),
+           dashed=True,arrow=True)
+    d.label(104,15,'References',10.8,colour=MUTED)
+    d.line(d.port('new','top'),(269,28),(374,28),d.port('write','top'),
+           arrow=True,colour=BLUE,weight=1.15)
+    d.label(321.5,15,'Durability dependency',10.8,colour=BLUE)
+    d.label(212,89,'Issue order',10.5,colour=MUTED)
+    d.label(212,107,'T(w) = r  <  q = F(w)',12.1)
     d.save()
 
 
 def certificate(out):
-    d=Figure(out,'certificate-check',148)
-    d.label(48,72,'Admitted\nhistory',11.7)
-    d.line((75,66),(96,42),arrow=True,colour=BLUE)
-    d.line((75,79),(103,112),arrow=True)
-    d.label(143,23,'Producer',10.7,colour=MUTED)
-    d.label(143,42,'Compute frontier',11.1,colour=BLUE)
-    d.line((190,42),(209,42),arrow=True,colour=BLUE)
-    d.art('certificate-glyph','packet',216,29,29,26)
-    d.label(230,63,'Certificate rows',10.6,colour=BLUE)
-    d.line((250,43),(279,66),arrow=True,colour=BLUE)
-
-    d.label(169,93,'Independent verification',10.7,colour=MUTED)
-    d.label(169,113,'Derive canonical rows',11.1)
-    d.line((226,113),(257,113),(279,82),arrow=True)
-    d.label(311,73,'Row-by-row\ncheck',11.3)
-    d.line((343,68),(365,54),arrow=True,colour=BLUE)
-    d.line((343,82),(365,99),arrow=True,colour=RUST,dashed=True)
-    d.ring(372,51,BLUE,3.5)
-    d.cross(372,102)
-    d.label(382,51,'Accept',10.7,'left',BLUE)
-    d.label(382,102,'Reject',10.7,'left',RUST)
+    d=Figure(out,'certificate-check',143)
+    d.document('history',49,73,76,38,'Admitted\nhistory')
+    d.node('produce',143,39,74,32,'Compute\nfrontier',BLUE,PALE_BLUE)
+    d.document('supplied',238,39,86,32,'Supplied rows',BLUE)
+    d.document('expected',238,108,86,32,'Expected rows')
+    d.node('compare',322,73,52,31,'Compare',MUTED,GREY)
+    d.node('accept',394,46,56,23,'Accept',BLUE)
+    d.node('reject',394,100,56,23,'Reject',RUST,dashed=True)
+    d.label(144,13,'Producer',10.5,colour=BLUE)
+    d.line(d.port('history','right',.25),d.port('produce','left'),
+           arrow=True,colour=BLUE)
+    d.line(d.port('produce','right'),d.port('supplied','left'),arrow=True,colour=BLUE)
+    d.line(d.port('history','right',.75),(103,108),d.port('expected','left'),
+           arrow=True)
+    d.label(138,128,'Independent derivation',10.6,colour=MUTED)
+    for key,fraction,colour in (('supplied',.27,BLUE),('expected',.73,MUTED)):
+        x,y = d.port('compare','left',fraction)
+        d.line(d.port(key,'right'),(x-10,y),(x,y),arrow=True,colour=colour)
+    d.line(d.port('compare','right',.25),d.port('accept','left'),arrow=True,colour=BLUE)
+    d.line(d.port('compare','right',.75),d.port('reject','left'),
+           arrow=True,colour=RUST,dashed=True)
     d.save()
 
 
@@ -407,9 +402,10 @@ def minimum_witness(out):
     for (_,_,y),root in zip(rows,evidence['selected_roots'],strict=True):
         manifest_event = next(i for i in model.events[root]['deps']
                               if model.events[i].get('role') == 'manifest')
-        d.label(296,y,f'Root {root}',10.7,colour=BLUE)
-        d.line((315,y),(329,y),arrow=True,colour=BLUE)
+        d.document(f'root-{root}',299,y,42,21,f'Root {root}',BLUE)
         d.node(f'read-{root}',345,y,23,21,str(manifest_event),BLUE,PALE_BLUE,radius=0)
+        d.line(d.port(f'root-{root}','right'),d.port(f'read-{root}','left'),
+               arrow=True,colour=BLUE)
         d.line((359,y),(375,y),(375,74.5),colour=RUST,dashed=True)
     d.line((375,74.5),(389,74.5),colour=RUST,dashed=True)
     d.cross(396,74.5)
@@ -424,67 +420,50 @@ def minimum_witness(out):
 
 
 def selector(out):
-    d=Figure(out,'selector-order',173)
-    d.label(54,35,'Initial state',11.2)
-    d.art('manifest-glyph','manifest',42,48,24,24)
-    d.label(54,83,'A selected',10.6)
-    d.line((54,93),(54,111),arrow=True)
-    d.node('initial-a',54,126,28,20,'A',MUTED,GREY,radius=0)
-    d.label(54,145,"A's slot",10.6)
-    d.line((83,86),(106,86),colour=MUTED)
-    d.dot(106,86,INK,1.65)
-    d.line((106,86),(145,55),colour=BLUE,arrow=True)
-    d.line((106,86),(145,133),colour=RUST,arrow=True)
-
-    d.label(157,20,"Write B elsewhere, publish B, then reuse A's slot",10.8,'left',BLUE)
-    d.art('manifest-glyph','manifest',158,43,24,24)
-    d.label(170,78,'B selected',10.6)
-    d.line((188,55),(249,55),arrow=True,colour=BLUE)
-    d.label(218,43,'Refers to B',10.2,colour=BLUE)
-    d.node('fresh-b',268,55,27,20,'B',BLUE,PALE_BLUE,radius=0)
-    d.label(268,78,'Fresh slot',10.6)
-    d.node('reused-c',333,55,27,20,'C',MUTED,GREY,radius=0)
-    d.label(333,78,"A's slot",10.6)
-    d.label(365,55,'Recover B',11,'left',BLUE)
-
-    d.label(157,100,"Overwrite A's slot before publishing B",10.8,'left',RUST)
-    d.art('manifest-glyph','manifest',158,121,24,24)
-    d.label(170,156,'A selected',10.6)
-    d.line((188,133),(301,133),colour=RUST,dashed=True)
-    d.label(247,121,'Refers to A',10.2,colour=RUST)
-    d.cross(309,133)
-    d.node('overwritten-b',333,133,27,20,'B',RUST,PAPER,radius=0)
-    d.label(333,156,"A's slot",10.6)
-    d.label(365,129,'A missing',11,'left',RUST)
-    d.label(365,143,'Recovery fails',9.7,'left',MUTED)
+    d=Figure(out,'selector-order',143)
+    d.document('initial',51,71,73,27,'Root A')
+    d.node('initial-a',51,116,70,25,'Old slot: A',MUTED,GREY,radius=1)
+    d.line(d.port('initial','bottom'),d.port('initial-a','top'),arrow=True)
+    d.label(51,46,'Initial state',10.8,colour=MUTED)
+    d.line(d.port('initial','right'),(106,71))
+    d.dot(106,71,INK,1.6)
+    d.document('current-b',175,39,72,26,'Root B',BLUE)
+    d.document('current-a',175,104,72,26,'Root A')
+    d.line((106,71),d.port('current-b','left'),colour=BLUE,arrow=True)
+    d.line((106,71),d.port('current-a','left'),colour=RUST,arrow=True)
+    d.label(139,15,'Publish before reuse',10.6,colour=BLUE)
+    d.label(139,128,'Reuse before publish',10.6,colour=RUST)
+    d.node('fresh',270,39,81,25,'Fresh slot: B',BLUE,PALE_BLUE,radius=1)
+    d.node('reused',369,39,81,25,'Old slot: C',MUTED,GREY,radius=1)
+    d.node('overwritten',369,104,81,25,'Old slot: B',RUST,PAPER,radius=1)
+    d.line(d.port('current-b','right'),d.port('fresh','left'),colour=BLUE,arrow=True)
+    d.line(d.port('current-a','right'),(309,104),colour=RUST,dashed=True)
+    d.cross(319,104)
+    d.label(261,92,'A missing',10.8,colour=RUST)
+    d.label(270,65,'Recovers B',10.6,colour=BLUE)
     d.save()
 
 
 def sqlite(out):
-    d=Figure(out,'evidence-paths',138)
-    d.art('sqlite-glyph','database',19,43,29,30)
-    d.label(34,95,'Committed\nSQLite state',11)
-    d.line((51,61),(66,61),colour=MUTED)
-    d.dot(66,61,INK,1.65)
-    for y,source,reader,colour in (
-            (37,'Audit projection','Model recovery',BLUE),
-            (95,'Stored roots / slots','Native recovery',INK)):
-        d.line((66,61),(87,y),colour=colour,arrow=True)
-        d.label(132,y,source,10.7,colour=colour)
-        d.line((181,y),(201,y),colour=colour,arrow=True)
-        d.label(243,y,reader,11.1,colour=colour)
-        d.line((286,y),(303,y),(321,59 if y==37 else 73),
-               colour=colour,arrow=True)
-    d.label(365,66,'Compare success\nor failure',11)
-    d.line((365,81),(365,101),arrow=True)
-    d.label(373,91,'Both succeed',9.5,'left',MUTED)
-    d.label(365,118,'Compare root, prefix\nand object bytes',10.7)
+    d=Figure(out,'evidence-paths',142)
+    d.node('db',55,69,90,35,'Committed\nSQLite state',MUTED,GREY)
+    for y,key,text,relation,colour in (
+            (32,'model','Model\nrecovery','Audit events',BLUE),
+            (107,'native','Native\nrecovery','Roots and slots',INK)):
+        d.node(key,234,y,74,34,text,colour,PALE_BLUE if key=='model' else PAPER)
+        d.line(d.port('db','right',.25 if key=='model' else .75),(123,y),
+               d.port(key,'left'),colour=colour,arrow=True)
+        d.label(155,y-11,relation,10.7,colour=colour)
+    d.node('compare',359,69,114,37,'Compare\nrecovery outcomes',MUTED,GREY)
+    for key,fraction,colour in (('model',.29,BLUE),('native',.71,INK)):
+        d.line(d.port(key,'right'),d.port('compare','left',fraction),colour=colour,arrow=True)
+    d.document('bytes',359,123,114,30,'Root, prefix, bytes')
+    d.line(d.port('compare','bottom'),d.port('bytes','top'),arrow=True)
+    d.label(368,98,'Both succeed',10.4,'left',MUTED)
     d.save()
 
 
 def main():
-    global ASSETS
-    ASSETS=json.loads((ART/'regions.json').read_text(encoding='utf-8'))
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--font-root',type=Path,required=True)
