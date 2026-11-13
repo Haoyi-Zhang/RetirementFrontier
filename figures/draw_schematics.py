@@ -239,8 +239,8 @@ def motivation(out):
     (out / 'native-compaction.txt').write_text(native_listing(case), encoding='ascii', newline='\n')
     before, after = case['before'], case['after']
     previous, current = set(before['files']), set(after['files'])
-    old = ', '.join(str(int(Path(n).stem)) for n in sorted(previous - current))
-    new, = (int(Path(n).stem) for n in current - previous)
+    def number(name):
+        return str(int(Path(name).stem))
     ordered = case['outcomes']['ordered']
     bad = case['outcomes']['unguarded-retirement']['minimum']
     if (bad['view'] != 'epoch:before' or ordered['bad_cuts'] != 0
@@ -248,73 +248,44 @@ def motivation(out):
                != {f'retire:{name}' for name in previous - current}):
         raise ValueError('Native overview does not match the guard or failure evidence')
 
-    evidence = Path(__file__).resolve().parents[1] / 'results/publication-handoff/transaction-boundary.json'
-    observed = [r for r in json.loads(evidence.read_bytes())['observations']
-                if r['mode'] == 'WAL' and r['shape'] == 'merge']
-    cells = {(r['policy'], r['boundary']): r for r in observed}
-    if len(observed) != 6 or len(cells) != 6 or any(r['sqlite_integrity'] != 'ok' for r in observed):
-        raise ValueError('Overview requires six intact catalogs in the WAL merge')
-    # A shared column denotes physical identity, not equal contents.
-    # The third row is the retention rule on two supplied candidates, not an observation.
-    d = Figure(out, 'reuse-cut', 336)
-    d.label(15, 13, '(a) RocksDB: physical references across compaction', 11.9, 'left')
-    d.label(414, 33, f'Client sequence {before["sequence"]} in both views', 10.1, 'right', MUTED)
-    d.art('metadata-symbols','manifest',15,40,16,19)
-    d.label(37, 51, 'MANIFEST view', 10.0, 'left', MUTED)
-    d.label(416, 51, 'SST', 10.0, 'right', MUTED)
+    missing, = bad['missing']
+    if missing not in previous - current or f'retire:{missing}' not in bad['cut']:
+        raise ValueError('The projected bad cut must retire an old-only table')
+    d = Figure(out, 'reuse-cut', 278)
+    d.label(15, 15, '(a) Observed MANIFEST references', 12, 'left')
+    d.label(414, 15, f'Client sequence: {before["sequence"]} in both views', 10.2, 'right', MUTED)
+    d.art('metadata-symbols','manifest',16,45,18,22)
+    d.label(44, 55, 'Before edit', 11.3, 'left')
+    d.art('metadata-symbols','manifest',16,119,18,22)
+    d.label(44, 130, 'After edit', 11.3, 'left', BLUE)
+    d.label(104, 92, 'SST files', 10.3, 'right', MUTED)
     names = sorted(previous - current) + sorted(previous & current) + sorted(current - previous)
-    columns = (174, 226, 278, 330, 382)
+    columns = (151, 210, 269, 328, 387)
+    positions = dict(zip(names, columns, strict=True))
+    for files, y, port, color in ((previous,55,82,INK), (current,130,102,BLUE)):
+        targets = sorted(positions[name] for name in files)
+        d.line((112,y),(targets[-1],y),colour=color,weight=.84)
+        for x in targets:
+            d.line((x,y),(x,port),colour=color,weight=.84)
+            if x != targets[-1]:
+                d.dot(x,y,color,1.9)
     for x, name in zip(columns, names, strict=True):
-        d.label(x, 51, str(int(Path(name).stem)), 11)
-    for y, title, members in ((70, 'Before edit', previous),
-                               (93, 'After edit', current),
-                               (116, 'Required while unresolved', previous | current)):
-        d.label(14, y, title, 11, 'left', BLUE if y == 116 else INK)
-        for x, name in zip(columns, names, strict=True):
-            if name in members:
-                if name in previous & current:
-                    d.ring(x, y, BLUE, 4.3)
-                    d.dot(x, y, BLUE, 1.65)
-                else:
-                    d.dot(x, y, BLUE if y == 116 else INK, 3.6)
-            else:
-                d.line((x-3,y),(x+3,y),colour=RULE,weight=.72)
-    d.line((158,128),(158,132),(294,132),(294,128),colour=MUTED,weight=.75)
-    d.label(226,143,'Old-only: retire after publication',10.35,colour=MUTED)
-    d.label(15, 162, 'Projected order:', 10.7, 'left', MUTED)
-    d.label(139, 162, f'Persist SST {new}', 11, colour=BLUE)
-    d.line((183,162),(204,162),arrow=True,colour=BLUE)
-    d.label(236, 162, 'Publish', 11, colour=BLUE)
-    d.line((265,162),(292,162),arrow=True,colour=BLUE)
-    d.label(354, 162, f'Unlink {old}', 11, colour=BLUE)
-
-    d.label(15, 187, '(b) SQLite WAL: atomic catalog, external cleanup', 11.9, 'left')
-    d.label(15, 207, 'Files retained', 10.6, 'left', MUTED)
-    d.label(222, 207, 'Exit before commit', 10.6, colour=MUTED)
-    d.label(355, 207, 'Exit after commit', 10.6, colour=MUTED)
-    for y, policy, title in ((225, 'keep-before', 'Before layout'),
-                             (243, 'keep-after', 'After layout'),
-                             (261, 'keep-both', 'Both layouts')):
-        d.label(15, y, title, 10.9, 'left', BLUE if policy == 'keep-both' else INK)
-        for x, boundary in ((222, 'before-commit'), (355, 'after-commit')):
-            row = cells[policy, boundary]
-            count = len(row['missing_segments'])
-            if count:
-                label = f'{count} segment{"s" if count != 1 else ""} missing'
-                d.cross(x-51,y)
-            elif len(row['exact_objects']) == 2:
-                label = 'Exact recovery'
-                d.ring(x-51,y,BLUE,3.8)
-            else:
-                raise ValueError('Missing byte recovery outcome in WAL merge')
-            d.label(x-40, y, label, 10.7, 'left', RUST if count else INK)
-    d.label(15, 288, '(c) Frontier check on the projected RocksDB edit', 11.9, 'left')
-    d.label(15, 309, 'Last user of an old SST', 10.7, 'left')
-    d.label(237, 309, 'Root forced by unlink', 10.7, 'left')
-    d.label(15, 326, 'Before-edit root', 11.1, 'left')
-    d.label(188, 326, '<', 13, colour=BLUE)
-    d.label(237, 326, 'After-edit root', 11.1, 'left', BLUE)
-    d.label(415, 326, 'Retirement certified', 10.6, 'right', BLUE)
+        edge=BLUE if name in current else INK
+        fill=PALE_BLUE if name in previous & current else PAPER
+        d.node(name,x,92,34,20,number(name),edge,fill,radius=0)
+    d.label(328,147,'Shared SST',10.1,colour=BLUE)
+    d.label(15, 170, f'(b) Projected recovery if SST {number(missing)} is retired', 12, 'left')
+    d.label(15, 199, 'No retirement edge', 10.6, 'left', RUST)
+    d.label(184, 199, 'Old root still selectable', 11)
+    d.line((243,199),(268,199),colour=RUST,dashed=True,arrow=True)
+    d.cross(277,199)
+    d.label(292, 199, f'SST {number(missing)} missing', 11, 'left', RUST)
+    d.label(15, 233, 'Guarded retirement', 10.6, 'left', BLUE)
+    d.label(184, 233, 'Unlink forces new root', 11, colour=BLUE)
+    d.line((243,233),(268,233),colour=BLUE,arrow=True)
+    d.ring(277,233,BLUE,4.2)
+    d.label(292, 233, f'SSTs {" and ".join(map(number, sorted(current)))} present', 11, 'left', BLUE)
+    d.label(184, 256, 'Last user < forced root', 10.6, colour=MUTED)
     d.save()
 
 
@@ -336,7 +307,7 @@ def frontier(out):
 
 
 def certificate(out):
-    d=Figure(out,'certificate-check',139)
+    d=Figure(out,'certificate-check',148)
     d.label(51,58,'Admitted history',11.8)
     d.line((102,58),(115,58))
     d.dot(115,58,INK,2.2)
@@ -346,14 +317,19 @@ def certificate(out):
     d.line((156,28),(243,28),arrow=True,colour=BLUE)
     d.art('metadata-symbols','records',247,10,33,35)
     d.label(263,56,'Witnesses',10.7)
-    d.line((286,28),(352,28),(352,48),arrow=True,colour=BLUE)
-    d.line((115,58),(115,90),(310,90),(310,67),(332,67),arrow=True)
+    d.line((286,28),(328,28),(328,48),arrow=True,colour=BLUE)
+    d.line((115,58),(115,90),(294,90),(294,67),(309,67),arrow=True)
     d.label(206,105,'Original history',10.9,colour=MUTED)
-    d.ring(352,67,BLUE,12)
-    d.label(352,67,'?',12)
-    d.label(352,103,'Independent check',11.6)
-    d.label(352,121,'Accept / reject',10.5,colour=MUTED)
-    d.line((352,81),(352,93),colour=BLUE)
+    d.ring(328,67,BLUE,12)
+    d.label(328,67,'?',12)
+    d.label(328,114,'Independent verifier',11.3)
+    d.line((343,67),(357,67),(357,51),(371,51),arrow=True,colour=BLUE)
+    d.line((357,67),(357,88),(371,88),arrow=True,colour=RUST,dashed=True)
+    d.dot(357,67,INK,1.9)
+    d.ring(380,51,BLUE,4)
+    d.cross(380,88)
+    d.label(390,51,'Accept',10.1,'left',BLUE)
+    d.label(390,88,'Reject',10.1,'left',RUST)
     d.save()
 
 
@@ -445,7 +421,7 @@ def sqlite(out):
     d.ring(357,67,BLUE,11)
     d.label(357,67,'?',12)
     d.label(415,53,'Compare',10.5,'right')
-    d.label(418,121,'Root, prefix, bytes',10.2,'right',MUTED)
+    d.label(418,124,'Outcome; if successful: root, prefix, bytes',10.2,'right',MUTED)
     d.save()
 
 
