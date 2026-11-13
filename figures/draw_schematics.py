@@ -254,51 +254,43 @@ def motivation(out):
             or any(f'retire:{name}' in bad['cut'] for name in previous - {missing})):
         raise ValueError('The projected bad cut must retire an old-only table')
     d = Figure(out, 'reuse-cut', 278)
-    d.label(15, 15, '(a) Observed MANIFEST references', 12, 'left')
-    d.label(414, 15, f'Client sequence: {before["sequence"]} in both views', 10.4, 'right', MUTED)
-    d.art('metadata-symbols','manifest',16,36,19,23)
-    d.label(43, 47, 'Before edit', 11.5, 'left')
-    d.art('metadata-symbols','manifest',16,104,19,23)
-    d.label(43, 115, 'After edit', 11.5, 'left', BLUE)
-    d.label(102, 81, 'SST files', 10.4, 'right', MUTED)
-    names = sorted(previous - current) + sorted(previous & current) + sorted(current - previous)
-    columns = (157, 214, 271, 328, 385)
-    positions = dict(zip(names, columns, strict=True))
-    for files, y, port, color in ((previous,47,70,INK), (current,115,92,BLUE)):
-        targets = sorted(positions[name] for name in files)
-        d.line((112,y),(targets[-1],y),colour=color,weight=.84)
-        for x in targets:
-            d.line((x,y),(x,port),colour=color,weight=.84)
-            if x != targets[-1]:
-                d.dot(x,y,color,1.9)
-    for x, name in zip(columns, names, strict=True):
-        edge=BLUE if name in current else INK
-        fill=PALE_BLUE if name in previous & current else PAPER
-        d.node(name,x,81,34,22,number(name),edge,fill,radius=0)
-    d.label(328,132,'Shared SST',10.5,colour=BLUE)
-    d.label(15, 155, f'(b) Projected recovery when SST {number(missing)} is unlinked', 12, 'left')
-    for names_in_root, tag, subtitle, y, colour in (
-            (previous, 'No retirement edge', 'Old root selectable', 201, RUST),
-            (current, 'Retirement edge', 'New root forced', 246, BLUE)):
-        d.label(15,y-7,tag,11.4,'left',colour)
-        d.label(15,y+8,subtitle,10.5,'left',MUTED)
-        active = sorted(positions[name] for name in names_in_root)
-        d.line((120,y-7),(129,y-7),(129,y-19),(active[-1],y-19),
-               colour=colour,weight=.8)
-        for name in sorted(names_in_root, key=positions.__getitem__):
-            x=positions[name]
-            lost=name==missing and colour==RUST
-            d.line((x,y-19),(x,y-12),colour=colour,weight=.85,dashed=lost)
-            if x != active[-1]:
-                d.dot(x,y-19,colour,1.6)
-            d.node(f'{tag}:{name}',x,y,34,22,number(name),
-                   RUST if lost else INK if colour==RUST else BLUE,
-                   PALE_BLUE if name in previous & current else PAPER,
-                   dashed=lost,radius=0)
-            if lost:
-                d.cross(x+26,y-10)
-                d.label(x,y+19,'Missing',10.4,colour=RUST)
-    d.label(356,268,'Referenced SSTs present',10.6,colour=BLUE)
+    shared = previous & current
+    names = sorted(previous - current) + sorted(shared) + sorted(current - previous)
+    positions = dict(zip(names, (145,193,241,289,337), strict=True))
+
+    def file_marks(files, y, unavailable=None):
+        # A repeated number denotes the same SST, not another copy.
+        for name in sorted(files, key=positions.__getitem__):
+            x = positions[name]
+            if name == unavailable:
+                d.cross(x-12,y)
+                d.label(x,y,number(name),12,colour=RUST)
+            elif name in shared:
+                d.node(f'shared-{y}',x,y,29,21,number(name),BLUE,PALE_BLUE,radius=0)
+            else:
+                d.label(x,y,number(name),12)
+
+    d.label(16,25,'(a) Observed MANIFEST references',12,'left')
+    d.label(412,25,f'Client sequence {before["sequence"]} in both views',10.8,'right',MUTED)
+    d.label(16,75,'Before edit',11.6,'left')
+    d.label(16,111,'After edit',11.6,'left')
+    file_marks(previous,75)
+    file_marks(current,111)
+    d.label(289,132,'Shared SST',10.7,colour=BLUE)
+
+    d.label(16,164,f'(b) Projected recovery after unlinking SST {number(missing)}',12,'left')
+    d.label(16,201,'No retirement edge',11.6,'left')
+    d.label(16,216,'Old root selectable',10.7,'left',MUTED)
+    d.label(16,244,'Retirement edge',11.6,'left')
+    d.label(16,259,'New root forced',10.7,'left',MUTED)
+    file_marks(previous,203,unavailable=missing)
+    file_marks(current,246)
+    d.label(145,223,'Missing',10.7,colour=RUST)
+    d.label(410,203,'Recovery fails',10.8,'right',RUST)
+    d.label(410,246,'Recoverable',10.8,'right',BLUE)
+    # Grouping in this overview is by alignment and whitespace alone.
+    if any(math.dist(a,b) > 12 for a,b in d.lines):
+        raise ValueError('Overview must not contain a long rule or connector')
     d.save()
 
 
@@ -380,7 +372,6 @@ def minimum_witness(out):
     for i, x, name in zip(event_ids,columns,names,strict=True):
         d.label(x, 15, str(i), 11.7)
         d.label(x, 31, name, 9.6, colour=RUST if i == 5 else MUTED)
-    d.line((98, 43), (280, 43), colour=RULE, weight=.75)
 
     rows = ((f'Frontier cut ({len(evidence["frontier_cut"])})', evidence['frontier_cut'], 61),
             (f'Minimum cut ({len(evidence["minimum_cut"])})', evidence['minimum_cut'], 88))
