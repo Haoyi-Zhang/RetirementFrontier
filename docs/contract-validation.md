@@ -119,7 +119,7 @@ new solver experiments or actual unavailable-library campaign runs.
 
 ## Executed evidence and manuscript consumers
 
-The current unit-suite receipt records 177 passing methods. The finite
+The current unit-suite receipt records 178 passing methods. The finite
 campaign exercises all seven scientific stages. The retained campaign log and host measurements preserve the original
 execution. The POSIX illustration is validated separately. The
 SQLite transaction campaign and recovery-subclass checks have their own primary

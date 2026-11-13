@@ -6,7 +6,7 @@ execution, including its 132 passing unit methods. The current full rerun
 reproduced the scientific rows after excluding the documented host-dependent
 measurements. The distributed census, retained variants, fallback, scaling,
 and public-byte rows retain the original timings. The current unit-test receipt
-and the test-count section of the derived summary record 177 passing methods
+and the test-count section of the derived summary record 178 passing methods
 with no skips.
 
 Recovery uses deterministic full-history stratification. The scaling portion

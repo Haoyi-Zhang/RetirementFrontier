@@ -221,6 +221,15 @@ would choose.
 
 ## Reader lifetimes after confirmed publication
 
+The WAL snapshot-scope control compares two layouts and three policies:
+transaction-owned rows, external files retained for the current view
+only, and external files retained for both the current and live old
+views. The reader fixes its snapshot before the writer commits and
+first reads the payload after retirement. Both old reads succeed with
+rows or with reader-aware cleanup; neither succeeds with current-only
+external cleanup. All six fresh reads succeed. After release the guarded
+arm removes the old exclusive segments and checks the new view again.
+
 A separate WAL fixture holds read transactions on two earlier layouts
 while a writer advances the selector to a third layout of the same
 logical objects. A lock serializes snapshot acquisition and pin

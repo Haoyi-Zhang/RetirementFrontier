@@ -1,0 +1,298 @@
+{
+  "sources": {
+    "inputs/sqlite/version-3.47.0-hash.h": "8e881b85d46a460fee37740feb452db1aa5f4e858d11c7050bacee44aa5c6369",
+    "inputs/sqlite/version-3.47.0-mutex.h": "d53a5dd29e00bb10a2ffd05eef0a2f74b7d656176e08bfb27e83e50ab47aa993",
+    "inputs/sqlite/version-3.47.0-pcache.h": "b9a446dc6ee8a3b399af681d3fcae605a34c302246473daaa33828faa5fd81e9",
+    "scripts/atomic_reclamation_control.py": "243030da7ede0f69e48312761b38d30f726655aafe69622f6ab403a76c7cc2e6",
+    "scripts/check_native_epochs.py": "d616cc9b1b42811904f257a3ca5cdff9a1903aada1fa3e7b36a28dc33b9ef09a",
+    "scripts/publication_handoff.py": "14e9d7d0e277bd72c7c20e3e29f478a7091fcdff3583b42a76375ffe44dc4bd5",
+    "scripts/rocksdb_lifecycle.py": "bf7da7d1f0dc2c4ba0e83352aec7d1394a0e31ccd1cb522e308f14fdac360a60",
+    "scripts/snapshot_scope_control.py": "743beba92901d5a22070f58d8961635bc021c7610f26e345492b7a06c431c6b7"
+  },
+  "summary": {
+    "current-only": {
+      "new_exact": 2,
+      "old_exact": 0,
+      "release_exact": 2,
+      "trials": 2
+    },
+    "retain-reader": {
+      "new_exact": 2,
+      "old_exact": 2,
+      "release_exact": 2,
+      "trials": 2
+    },
+    "sqlite-rows": {
+      "new_exact": 2,
+      "old_exact": 2,
+      "release_exact": 2,
+      "trials": 2
+    }
+  },
+  "trials": [
+    {
+      "after": [
+        "archive.bin",
+        "shared.bin",
+        "whole.bin"
+      ],
+      "after_release": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "during": [
+        "archive.bin",
+        "shared.bin",
+        "whole.bin"
+      ],
+      "fresh": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "old": {
+        "epoch": 0,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "pinned": 0,
+      "policy": "sqlite-rows",
+      "shape": "merge"
+    },
+    {
+      "after": [
+        "archive.bin",
+        "shared.bin",
+        "whole.bin"
+      ],
+      "after_release": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "during": [
+        "archive.bin",
+        "shared.bin",
+        "whole.bin"
+      ],
+      "fresh": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "old": {
+        "epoch": 0,
+        "exact": [
+          "beta"
+        ],
+        "missing": [
+          "left.bin",
+          "right.bin"
+        ],
+        "prefix": 1
+      },
+      "pinned": 0,
+      "policy": "current-only",
+      "shape": "merge"
+    },
+    {
+      "after": [
+        "shared.bin",
+        "whole.bin"
+      ],
+      "after_release": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "during": [
+        "left.bin",
+        "right.bin",
+        "shared.bin",
+        "whole.bin"
+      ],
+      "fresh": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "old": {
+        "epoch": 0,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "pinned": 0,
+      "policy": "retain-reader",
+      "shape": "merge"
+    },
+    {
+      "after": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "after_release": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "during": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "fresh": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "old": {
+        "epoch": 0,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "pinned": 0,
+      "policy": "sqlite-rows",
+      "shape": "split"
+    },
+    {
+      "after": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "after_release": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "during": [
+        "archive-extra.bin",
+        "archive.bin",
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "fresh": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "old": {
+        "epoch": 0,
+        "exact": [
+          "beta"
+        ],
+        "missing": [
+          "whole.bin"
+        ],
+        "prefix": 1
+      },
+      "pinned": 0,
+      "policy": "current-only",
+      "shape": "split"
+    },
+    {
+      "after": [
+        "left.bin",
+        "right.bin",
+        "shared.bin"
+      ],
+      "after_release": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "during": [
+        "left.bin",
+        "right.bin",
+        "shared.bin",
+        "whole.bin"
+      ],
+      "fresh": {
+        "epoch": 1,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "old": {
+        "epoch": 0,
+        "exact": [
+          "alpha",
+          "beta"
+        ],
+        "missing": [],
+        "prefix": 1
+      },
+      "pinned": 0,
+      "policy": "retain-reader",
+      "shape": "split"
+    }
+  ]
+}

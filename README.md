@@ -122,6 +122,12 @@ reader processes and crosses two reader release orders with pin-aware
 cleanup and a wait-for-all baseline. It checks the exact file contents
 seen by each surviving reader and does not execute unsafe deletion.
 
+`python -B scripts/snapshot_scope_control.py --run` tests a separate
+disposable negative control: current-only external cleanup breaks
+the old WAL reader even though the new transaction has committed and
+the new reader succeeds. Transaction-owned rows and reader-aware file
+cleanup both preserve old readers across the same merge and split.
+
 The composition test, `python -B scripts/combined_reclamation.py --run`,
 keeps an old snapshot active while a publisher stops without a reply and
 a second reader attempts to register. The guarded cleaner protects all
@@ -308,7 +314,7 @@ the retained measurements without replacing them with runner-host timings.
 
 ## What to check
 
-The supplied full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. All 720 recovery images pass selected-root, prefix, and specification-byte comparisons and account for 5,382 unreachable occupied-slot observations. The campaign executes 65 evaluation SMT queries plus two pilot queries, with zero unknowns. The current suite passes all 177 unit methods with no skips. The POSIX fixture has eleven agreeing selector projections, zero ordered failures, and two expected unsafe failures.
+The supplied full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. All 720 recovery images pass selected-root, prefix, and specification-byte comparisons and account for 5,382 unreachable occupied-slot observations. The campaign executes 65 evaluation SMT queries plus two pilot queries, with zero unknowns. The current suite passes all 178 unit methods with no skips. The POSIX fixture has eleven agreeing selector projections, zero ordered failures, and two expected unsafe failures.
 
 `check_scientific_invariants.py` checks exact JSON paths and cross-checks primary row counts, decisions, minimum-witness flags, certificate acceptance and byte arithmetic. It does not accept a matching number found elsewhere in a JSON tree. Assertions are ordinary executable checks, not proof-assistant verification.
 
@@ -319,7 +325,7 @@ local image-file roundtrips from the same Linux host; these serialization checks
 do not exercise filesystem crash persistence.
 
 The test count must agree between the primary runner output and its summary.
-The aggregate and supplied unit-test receipt use the 177-method rerun.
+The aggregate and supplied unit-test receipt use the 178-method rerun.
 The historical campaign log retains its own 132-method result; the
 publication's host measurements remain tied to that campaign.
 `run_all.py` shares one 45-minute wall-time

@@ -91,6 +91,8 @@ jobs:
         run: timeout --signal=TERM --kill-after=15s 120s python -B scripts/transaction_boundary.py --run
       - name: Compare transactional and external segment retirement
         run: timeout --signal=TERM --kill-after=15s 120s python -B scripts/atomic_reclamation_control.py --run
+      - name: Compare WAL snapshot protection for rows and external files
+        run: timeout --signal=TERM --kill-after=15s 120s python -B scripts/snapshot_scope_control.py --run
       - name: Replay overlapping WAL snapshots and reader release
         shell: bash
         run: |

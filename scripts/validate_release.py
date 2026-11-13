@@ -30,6 +30,7 @@ from reader_pins import checked as check_pins, RECEIPT as PIN_RECEIPT
 from combined_reclamation import checked as check_combined, RECEIPT as COMBINED_RECEIPT
 from restart_reclamation import checked as check_restart, RECEIPT as RESTART_RECEIPT
 from atomic_reclamation_control import checked as check_atomic, RECEIPT as ATOMIC_RECEIPT
+from snapshot_scope_control import checked as check_snapshot, RECEIPT as SNAPSHOT_RECEIPT
 from spark_checkpoint_validation import (
     FIXTURE as SPARK_FIXTURE, RECEIPT as SPARK_RECEIPT, load as load_spark, summarize as check_spark,
 )
@@ -104,6 +105,7 @@ def validate(compare:Path|None=None):
         check_combined(loads(COMBINED_RECEIPT.read_text(encoding='utf-8')))
         check_restart(loads(RESTART_RECEIPT.read_text(encoding='utf-8')))
         check_atomic(loads(ATOMIC_RECEIPT.read_text(encoding='utf-8')))
+        check_snapshot(loads(SNAPSHOT_RECEIPT.read_text(encoding='utf-8')))
         check_spark(loads(SPARK_RECEIPT.read_text(encoding='utf-8')), load_spark())
     except (KeyError, OSError, ValueError) as error:
         errors.append(f'Native lifecycle evidence: {error}')
