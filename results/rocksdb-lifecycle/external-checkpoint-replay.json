@@ -1,0 +1,401 @@
+{
+  "cases": {
+    "012": {
+      "census": {
+        "capped_sets": 678,
+        "delete_requests": 0,
+        "distinct_projected_keys": 6554,
+        "live_keys": 6554,
+        "nonzero_ttl_sets": 6557,
+        "set_requests": 6557
+      },
+      "engine": "8.9.1",
+      "files": {
+        "after": {
+          "000016.sst": 907706
+        },
+        "before": {
+          "000009.sst": 220456,
+          "000011.sst": 227418,
+          "000013.sst": 230357,
+          "000015.sst": 232599
+        }
+      },
+      "keys": 6554,
+      "restores": [
+        {
+          "early_bytes": 907706,
+          "missing": [],
+          "policy": "before",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 910830,
+          "missing": [
+            "000009.sst",
+            "000011.sst",
+            "000013.sst",
+            "000015.sst"
+          ],
+          "policy": "after",
+          "status": "open-failed",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 907706,
+          "missing": [
+            "000016.sst"
+          ],
+          "policy": "before",
+          "status": "open-failed",
+          "view": "after"
+        },
+        {
+          "early_bytes": 910830,
+          "missing": [],
+          "policy": "after",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "after"
+        }
+      ],
+      "sequence": 6557,
+      "source_prefix": "cf44bb43c423369e4d4f646e41c548957a893aa21a2720985521ccd790b59a64",
+      "source_url": "https://raw.githubusercontent.com/twitter/cache-trace/1c503676d6972d4394a360e09162149a6c00f516/samples/2020Mar/cluster012",
+      "summary": {
+        "hold_exact": 2,
+        "single_exact": 2,
+        "sst_after": 1,
+        "sst_before": 4,
+        "sst_shared": 0,
+        "union_exact": 2
+      }
+    },
+    "015": {
+      "census": {
+        "capped_sets": 0,
+        "delete_requests": 0,
+        "distinct_projected_keys": 8102,
+        "live_keys": 8102,
+        "nonzero_ttl_sets": 8176,
+        "set_requests": 8176
+      },
+      "engine": "8.9.1",
+      "files": {
+        "after": {
+          "000016.sst": 886502
+        },
+        "before": {
+          "000009.sst": 221402,
+          "000011.sst": 223963,
+          "000013.sst": 223329,
+          "000015.sst": 221013
+        }
+      },
+      "keys": 8102,
+      "restores": [
+        {
+          "early_bytes": 886502,
+          "missing": [],
+          "policy": "before",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 889707,
+          "missing": [
+            "000009.sst",
+            "000011.sst",
+            "000013.sst",
+            "000015.sst"
+          ],
+          "policy": "after",
+          "status": "open-failed",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 886502,
+          "missing": [
+            "000016.sst"
+          ],
+          "policy": "before",
+          "status": "open-failed",
+          "view": "after"
+        },
+        {
+          "early_bytes": 889707,
+          "missing": [],
+          "policy": "after",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "after"
+        }
+      ],
+      "sequence": 8176,
+      "source_prefix": "aaa5c4187de5301828c23cfbc5dc244bc08eeba1c7760ebe23f945f199b9200c",
+      "source_url": "https://raw.githubusercontent.com/twitter/cache-trace/1c503676d6972d4394a360e09162149a6c00f516/samples/2020Mar/cluster015",
+      "summary": {
+        "hold_exact": 2,
+        "single_exact": 2,
+        "sst_after": 1,
+        "sst_before": 4,
+        "sst_shared": 0,
+        "union_exact": 2
+      }
+    },
+    "031": {
+      "census": {
+        "capped_sets": 0,
+        "delete_requests": 0,
+        "distinct_projected_keys": 7637,
+        "live_keys": 7637,
+        "nonzero_ttl_sets": 7637,
+        "set_requests": 7637
+      },
+      "engine": "8.9.1",
+      "files": {
+        "after": {
+          "000009.sst": 54449,
+          "000011.sst": 54452,
+          "000013.sst": 54450,
+          "000015.sst": 54479
+        },
+        "before": {
+          "000009.sst": 54449,
+          "000011.sst": 54452,
+          "000013.sst": 54450,
+          "000015.sst": 54479
+        }
+      },
+      "keys": 7637,
+      "restores": [
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "before",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "after",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "before",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "after",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "after"
+        }
+      ],
+      "sequence": 7637,
+      "source_prefix": "7b7f978cdef3f0fd16771085d4c1cf3065427c4869ea21ea56ef499ad9d5a497",
+      "source_url": "https://raw.githubusercontent.com/twitter/cache-trace/1c503676d6972d4394a360e09162149a6c00f516/samples/2020Mar/cluster031",
+      "summary": {
+        "hold_exact": 2,
+        "single_exact": 4,
+        "sst_after": 4,
+        "sst_before": 4,
+        "sst_shared": 4,
+        "union_exact": 2
+      }
+    },
+    "037": {
+      "census": {
+        "capped_sets": 2399,
+        "delete_requests": 0,
+        "distinct_projected_keys": 3138,
+        "live_keys": 3138,
+        "nonzero_ttl_sets": 3175,
+        "set_requests": 3175
+      },
+      "engine": "8.9.1",
+      "files": {
+        "after": {
+          "000016.sst": 2997413
+        },
+        "before": {
+          "000009.sst": 741185,
+          "000011.sst": 753015,
+          "000013.sst": 755802,
+          "000015.sst": 753594
+        }
+      },
+      "keys": 3138,
+      "restores": [
+        {
+          "early_bytes": 2997413,
+          "missing": [],
+          "policy": "before",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 3003596,
+          "missing": [
+            "000009.sst",
+            "000011.sst",
+            "000013.sst",
+            "000015.sst"
+          ],
+          "policy": "after",
+          "status": "open-failed",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 2997413,
+          "missing": [
+            "000016.sst"
+          ],
+          "policy": "before",
+          "status": "open-failed",
+          "view": "after"
+        },
+        {
+          "early_bytes": 3003596,
+          "missing": [],
+          "policy": "after",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "after"
+        }
+      ],
+      "sequence": 3175,
+      "source_prefix": "3032149f242dda25608199d371a2a99ca96c6cda313fcc7fa832b617377f56e4",
+      "source_url": "https://raw.githubusercontent.com/twitter/cache-trace/1c503676d6972d4394a360e09162149a6c00f516/samples/2020Mar/cluster037",
+      "summary": {
+        "hold_exact": 2,
+        "single_exact": 2,
+        "sst_after": 1,
+        "sst_before": 4,
+        "sst_shared": 0,
+        "union_exact": 2
+      }
+    }
+  },
+  "sources": {
+    "results/rocksdb-lifecycle/external-requests.json.gz": "deca99c40dadc93e17b229caf432ee7f483034e7dbb2a3af8597e35f2514535d",
+    "scripts/external_checkpoint_replay.cc": "4536d01eeab181bd60dc07e2ae11ce3d5f628a91e9d5c49eeb502e216a76ae8d",
+    "scripts/external_checkpoint_replay.py": "f27348e0156d5aaa3e59e1a208c2e554a4e064860599da8942f8a1f29801395d"
+  }
+}

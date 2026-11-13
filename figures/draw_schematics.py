@@ -247,7 +247,6 @@ def motivation(out):
     keys = native['verified_keys']
     needed = {'before': previous, 'after': current}
     catalog = set(native['archive']) | previous | current
-    expired = set(native['archive']) - previous - current
     retained = {'keep-before': previous, 'keep-after': current,
                 'keep-both': previous | current, 'hold-all': catalog}
     lengths = {name: size for view in ('archive','before','after')
@@ -268,8 +267,8 @@ def motivation(out):
     shared, = previous & current
     after_only, = current-previous
     names = [*before_only,shared,after_only]
-    positions = dict(zip(names,(123,179,235,291),strict=True))
-    d = Figure(out, 'reuse-cut', 254)
+    positions = dict(zip(names,(123,174,225,276),strict=True))
+    d = Figure(out, 'reuse-cut', 236)
     d.label(18,13,'(a) References before and after compaction',11.8,'left')
     d.label(412,13,f'Client sequence {native["sequence"]}',10.5,'right',MUTED)
     d.node('before-view',144,47,116,22,'Before MANIFEST',MUTED,PAPER,radius=1.6)
@@ -285,32 +284,29 @@ def motivation(out):
     for name,x in positions.items():
         d.node('sst-'+number(name),x,96,46,20,'SST '+number(name),
                BLUE if name==shared else MUTED,PALE_BLUE if name==shared else PAPER,radius=0)
-    d.label(235,115,'Shared',10.4,colour=BLUE)
+    d.label(225,115,'Shared',10.4,colour=BLUE)
 
-    d.label(18,137,'(b) Staged restore by retention policy',11.8,'left')
-    d.label(62,156,'Retain',10.6,colour=MUTED)
-    d.label(366,156,'Native restore',10.6,colour=MUTED)
-    for y,policy,label in ((176,'keep-after','After only'),(202,'keep-both','Both views')):
-        d.label(62,y,label,11.2)
-        d.line((95,y),(110,y),arrow=True,colour=MUTED)
+    d.label(18,136,'(b) Which checkpoint can reopen?',11.8,'left')
+    d.label(18,155,'Retain',10.6,'left',MUTED)
+    d.label(340,155,'Before',10.6,colour=MUTED)
+    d.label(395,155,'After',10.6,colour=MUTED)
+    for y,policy,label in ((173,'keep-before','Before only'),(191,'keep-after','After only'),
+                           (209,'keep-both','Union')):
+        d.label(18,y,label,11.2,'left')
         for name in names:
             x=positions[name]
             if name in retained[policy]:
                 d.dot(x,y,BLUE,3.4)
             else:
-                d.cross(x,y)
-        d.line((302,y),(321,y),arrow=True,colour=MUTED)
-    d.label(330,172,'Before: fails to open',10.6,'left',RUST)
-    d.label(330,185,'After: exact',10.6,'left',MUTED)
-    d.label(330,202,'Both: exact',11.3,'left',BLUE)
-    d.dot(27,231,BLUE,3.4)
-    d.label(37,231,'Retained in pool',10.6,'left',MUTED)
-    d.cross(137,231)
-    d.label(147,231,'Missing from pool',10.6,'left',MUTED)
-    d.label(412,231,f'Exact: {keys} key-value pairs match',10.6,'right',MUTED)
-    retired_bytes = sum(lengths[name] for name in expired)
-    d.label(412,247,f'Union frees {retired_bytes:,} bytes early',
-            10.5,'right',BLUE)
+                d.ring(x,y,MUTED,3.4)
+        d.line((298,y),(317,y),arrow=True,colour=MUTED)
+        for x,view in ((340,'before'),(395,'after')):
+            exact = rows[view,policy]['native_status'] == f'ok:{keys}'
+            d.label(x,y,'Exact' if exact else 'No open',10.6,colour=BLUE if exact else RUST)
+    d.dot(123,227,BLUE,3.4)
+    d.label(133,227,'Kept',10.6,'left',MUTED)
+    d.ring(174,227,MUTED,3.4)
+    d.label(184,227,'Omitted',10.6,'left',MUTED)
     d.save()
 
 
@@ -329,7 +325,7 @@ def frontier(out):
     d.label(153,117,'T(w) = r',12)
     d.label(272,117,'F(w) = q',12,colour=BLUE)
     d.label(212,117,'<',13)
-    d.label(354,117,'Issue order above',10.5,colour=MUTED)
+    d.label(212,59,'Issue order',10.5,colour=MUTED)
     d.save()
 
 

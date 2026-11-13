@@ -451,6 +451,38 @@ An exploratory disjoint-key insert run did not produce the required file
 replacement and is not part of the reported comparison. The controlled
 operation streams are not production database traces.
 
+### Independent production-request replay
+
+Run `python -B scripts/external_checkpoint_replay.py --run` to rebuild
+the four native RocksDB cases on Linux (a C++20 compiler and the pinned
+RocksDB development library used by Scientific checks are required).
+Without flags the command checks the retained input, output and comparison.
+`--verify-source` independently fetches and checks the source prefixes;
+the ordinary replay is offline.
+
+The source is the March 2020
+[Twitter Production Cache Traces](https://github.com/twitter/cache-trace)
+release associated with
+[Yang, Yue and Rashmi (OSDI 2020)](https://www.usenix.org/conference/osdi20/presentation/yang).
+The source is licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+The included derivative preserves source row order, operation and key
+equality for `set` and `delete` in the first 8,192 requests of each
+upstream-recommended write-heavy sample (012, 015, 031, 037). It replaces
+key strings with local integers, drops client identity and other requests,
+uses placeholders capped at 1 KiB, and does not replay TTL expiration.
+The receipt identifies each immutable source URL and exact input prefix.
+
+The operation streams are externally collected; the RocksDB checkpoints,
+compaction schedule, restore staging and payloads are local. Each of the
+four clusters contributes eight matched policy/view trials, not eight
+independent observations. The replay retains the no-SST-change case
+(031) and compares the original sequence and every key-value pair with
+a separate map oracle. Union and hold-all select the same files here
+because there is no expired third checkpoint. The production cache traces
+do not establish the incidence of this problem in RocksDB deployments.
+
+### Controlled public-data workloads
+
 Run `python -B scripts/checkpoint_diversity.py` to validate the retained
 result without network access. Add `--run` to rebuild and replay both
 databases with a C++20 compiler and RocksDB 8.9.1 development files;
