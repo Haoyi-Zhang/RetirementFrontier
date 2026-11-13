@@ -235,72 +235,76 @@ def native_listing(case):
 
 
 def motivation(out):
-    case = native_range_case()
-    (out / 'native-compaction.txt').write_text(native_listing(case), encoding='ascii', newline='\n')
-    before, after = case['before'], case['after']
-    previous, current = set(before['files']), set(after['files'])
+    (out / 'native-compaction.txt').write_text(
+        native_listing(native_range_case()), encoding='ascii', newline='\n')
+    evidence = Path(__file__).resolve().parents[1] / 'results/rocksdb-lifecycle'
+    native = json.loads((evidence/'checkpoints.json').read_text(encoding='utf-8'))['native']
+    restore = json.loads((evidence/'checkpoint-restore.json').read_text(encoding='utf-8'))
+    previous, current = set(native['before']), set(native['after'])
     def number(name):
         return str(int(Path(name).stem))
-    ordered = case['outcomes']['ordered']
-    bad = case['outcomes']['unguarded-retirement']['minimum']
-    if (bad['view'] != 'epoch:before' or ordered['bad_cuts'] != 0
-            or {a for a, b in ordered['certificate_guards'] if b == 'epoch:after'}
-               != {f'retire:{name}' for name in previous - current}):
-        raise ValueError('Native overview does not match the guard or failure evidence')
+    rows = {(r['chosen'],r['policy']): r for r in restore['rows']}
+    left = rows['before','keep-after']
+    right = rows['after','keep-before']
+    safe = [rows[view,'keep-both'] for view in ('before','after')]
+    keys = native['verified_keys']
+    expired = set(native['archive']) - previous - current
+    if (set(left['missing']) != previous - current or left['native_status'] != 'open-failed'
+            or set(right['missing']) != current - previous or right['native_status'] != 'open-failed'
+            or keys != restore['summary']['keys_per_reopen']
+            or any(row['native_status'] != f'ok:{keys}' or row['missing']
+                   or set(row['reclaimed']) != expired for row in safe)
+            or (len(previous-current),len(previous & current),len(current-previous)) != (2,1,1)):
+        raise ValueError('Overview no longer matches the observed checkpoint restores')
+    before_only = sorted(previous-current)
+    shared, = previous & current
+    after_only, = current-previous
+    names = [*before_only,shared,after_only]
+    positions = dict(zip(names,(65,150,247,362),strict=True))
+    d = Figure(out, 'reuse-cut', 254)
+    d.label(17,17,'(a) Native checkpoints',12,'left')
+    d.label(414,17,f'Both at client sequence {native["sequence"]}',10.8,'right',MUTED)
+    d.node('before-view',108,49,129,24,'Before MANIFEST',MUTED,GREY,radius=1.7)
+    d.node('after-view',334,49,128,24,'After MANIFEST',BLUE,PALE_BLUE,radius=1.7)
+    d.label(221,36,'Compaction',10.8,colour=MUTED)
+    d.line((179,49),(262,49),arrow=True,colour=MUTED)
+    for port, name in zip((78,109,155),(*before_only,shared),strict=True):
+        d.line((port,62),(positions[name],92),arrow=True,colour=MUTED)
+    for port, name in zip((296,353),(shared,after_only),strict=True):
+        d.line((port,62),(positions[name],92),arrow=True,colour=BLUE)
+    for name,x in positions.items():
+        d.node('sst-'+number(name),x,105,52,23,'SST '+number(name),
+               BLUE if name==shared else MUTED,PALE_BLUE if name==shared else PAPER,radius=0)
+    d.label(247,129,'Shared file',10.5,colour=BLUE)
 
-    missing, = bad['missing']
-    if (missing not in previous - current or f'retire:{missing}' not in bad['cut']
-            or not {f'available:{name}' for name in previous} <= set(bad['cut'])
-            or any(f'retire:{name}' in bad['cut'] for name in previous - {missing})):
-        raise ValueError('The projected bad cut must retire an old-only table')
-    d = Figure(out, 'reuse-cut', 278)
-    shared = previous & current
-    names = sorted(previous - current) + sorted(shared) + sorted(current - previous)
-    positions = dict(zip(names, (145,193,241,289,337), strict=True))
-
-    def file_marks(files, y, unavailable=None):
-        # A repeated number denotes the same SST, not another copy.
-        for name in sorted(files, key=positions.__getitem__):
-            x = positions[name]
-            if name == unavailable:
-                d.cross(x-12,y)
-                d.label(x,y,number(name),12,colour=RUST)
-            elif name in shared:
-                d.node(f'shared-{y}',x,y,29,21,number(name),BLUE,PALE_BLUE,radius=0)
-            else:
-                d.label(x,y,number(name),12)
-
-    d.label(16,25,'(a) Observed MANIFEST references',12,'left')
-    d.label(412,25,f'Client sequence {before["sequence"]} in both views',10.8,'right',MUTED)
-    d.label(16,75,'Before edit',11.6,'left')
-    d.label(16,111,'After edit',11.6,'left')
-    file_marks(previous,75)
-    file_marks(current,111)
-    d.label(289,132,'Shared SST',10.7,colour=BLUE)
-
-    d.label(16,164,f'(b) Projected recovery after unlinking SST {number(missing)}',12,'left')
-    d.label(16,201,'No retirement edge',11.6,'left')
-    d.label(16,216,'Old root selectable',10.7,'left',MUTED)
-    d.label(16,244,'Retirement edge',11.6,'left')
-    d.label(16,259,'New root forced',10.7,'left',MUTED)
-    file_marks(previous,203,unavailable=missing)
-    file_marks(current,246)
-    d.label(145,223,'Missing',10.7,colour=RUST)
-    d.label(410,203,'Recovery fails',10.8,'right',RUST)
-    d.label(410,246,'Recoverable',10.8,'right',BLUE)
-    # Grouping in this overview is by alignment and whitespace alone.
-    if any(math.dist(a,b) > 12 for a,b in d.lines):
-        raise ValueError('Overview must not contain a long rule or connector')
+    d.label(17,153,'(b) Native restore with the same before MANIFEST',12,'left')
+    d.label(60,205,'Before view\nselected',11.3)
+    d.line((94,205),(109,205),colour=MUTED)
+    d.dot(109,205,INK,1.65)
+    d.line((109,205),(134,183),arrow=True,colour=RUST)
+    d.line((109,205),(134,229),arrow=True,colour=BLUE)
+    d.label(201,183,'Keep after SSTs only',11.1,colour=RUST)
+    d.label(201,229,'Keep SSTs for both views',11.1,colour=BLUE)
+    d.line((269,183),(299,183),arrow=True,colour=RUST)
+    d.line((269,229),(299,229),arrow=True,colour=BLUE)
+    d.cross(307,183)
+    d.ring(307,229,BLUE,3.8)
+    missing = ', '.join(number(name) for name in before_only)
+    d.label(320,178,'Reopen fails',11.4,'left',RUST)
+    d.label(320,194,f'Missing SSTs {missing}',10.4,'left',MUTED)
+    d.label(320,224,'Reopen succeeds',11.4,'left',BLUE)
+    d.label(320,240,f'{keys} key-value pairs match',10.4,'left',MUTED)
     d.save()
 
 
 def frontier(out):
     d=Figure(out,'retirement-frontier',137)
     xs=(51,153,272,380)
-    d.line((29,74),(405,74),colour=RULE,weight=.8,arrow=True)
-    for x,caption in zip(xs,('Allocate a','Publish r','Publish q','Write w')):
+    for i,(x,caption) in enumerate(zip(xs,('Allocate a','Publish r','Publish q','Write w'))):
         d.dot(x,74,BLUE if x==272 else INK,3)
         d.label(x,91,caption,11.8,colour=BLUE if x==272 else INK)
+        if i:
+            d.line((xs[i-1]+8,74),(x-8,74),colour=MUTED,weight=.74,arrow=True)
     d.line((153,67),(153,43),(51,43),(51,67),dashed=True,arrow=True)
     d.label(102,30,'r references a',11,colour=MUTED)
     d.line((272,67),(272,43),(380,43),(380,67),arrow=True,colour=BLUE,weight=1.15)

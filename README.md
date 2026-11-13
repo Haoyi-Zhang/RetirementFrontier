@@ -430,12 +430,13 @@ not execute experiments or replace the retained observations. Choose an empty
 output directory. `--input` and `--column-width-pt` can select another validated
 input file and the manuscript's actual TeX column width.
 
-The nine manuscript figures are assembled in Python. The range-compaction
-overview and its companion listing are generated together from the decoded
-native edit. The diagram distinguishes observed file membership from
-projected durability dependencies. Other schematics show the frontier,
-certificate verification, selector ordering, and the recovery comparison.
-The renderer checks label clearance, node padding, and connector geometry.
+The nine manuscript figures are assembled in Python. The opening diagram
+reads the native checkpoint file sets and the staged-restore receipt. Its
+arrows link each checkpoint to the SSTs it needs, and its lower panel
+compares two retention policies under the same selected checkpoint.
+The separate range-compaction listing reads the decoded native edit used
+in the durability projection. The renderer checks label clearance, node
+padding, and connector geometry.
 
 The minimum-witness diagram is generated from an executable six-event
 shared-chunk case. Run `python -B scripts/witness_examples.py` to check it and
