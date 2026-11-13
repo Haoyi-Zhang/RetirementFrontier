@@ -1,0 +1,198 @@
+{
+  "cases": [
+    {
+      "dataset": "AirPassengers",
+      "engine": "8.9.1",
+      "files": {
+        "after": {
+          "000016.sst": 3144,
+          "000017.sst": 3144
+        },
+        "before": {
+          "000013.sst": 2098,
+          "000015.sst": 2098,
+          "000016.sst": 3144
+        },
+        "expired": {
+          "000009.sst": 2098,
+          "000011.sst": 2098,
+          "000013.sst": 2098,
+          "000015.sst": 2098
+        }
+      },
+      "input_digest": "bdb98adbd418a6de6842a742e0602f363c3b841c26677e7e61a1e055e9509bd8",
+      "keys": 144,
+      "restores": [
+        {
+          "early_bytes": 7340,
+          "missing": [],
+          "policy": "before",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 8392,
+          "missing": [
+            "000013.sst",
+            "000015.sst"
+          ],
+          "policy": "after",
+          "status": "open-failed",
+          "view": "before"
+        },
+        {
+          "early_bytes": 4196,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 7340,
+          "missing": [
+            "000017.sst"
+          ],
+          "policy": "before",
+          "status": "open-failed",
+          "view": "after"
+        },
+        {
+          "early_bytes": 8392,
+          "missing": [],
+          "policy": "after",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 4196,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "after"
+        }
+      ],
+      "sequence": 144,
+      "source_url": "https://vincentarelbundock.github.io/Rdatasets/csv/datasets/AirPassengers.csv",
+      "summary": {
+        "exact_restores": 6,
+        "failed_restores": 2,
+        "pool_bytes": 14680,
+        "union_early_bytes": 4196
+      },
+      "workload": "append"
+    },
+    {
+      "dataset": "Nile",
+      "engine": "8.9.1",
+      "files": {
+        "after": {
+          "000016.sst": 1452,
+          "000017.sst": 1449
+        },
+        "before": {
+          "000013.sst": 1554,
+          "000015.sst": 1514,
+          "000016.sst": 1452
+        },
+        "expired": {
+          "000009.sst": 1569,
+          "000011.sst": 1517,
+          "000013.sst": 1554,
+          "000015.sst": 1514
+        }
+      },
+      "input_digest": "d0452bea38c61e796a4eeb950bf91d20fb5c7f13d5822eadf5990fe54f9c8d07",
+      "keys": 40,
+      "restores": [
+        {
+          "early_bytes": 4535,
+          "missing": [],
+          "policy": "before",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 6154,
+          "missing": [
+            "000013.sst",
+            "000015.sst"
+          ],
+          "policy": "after",
+          "status": "open-failed",
+          "view": "before"
+        },
+        {
+          "early_bytes": 3086,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "before"
+        },
+        {
+          "early_bytes": 4535,
+          "missing": [
+            "000017.sst"
+          ],
+          "policy": "before",
+          "status": "open-failed",
+          "view": "after"
+        },
+        {
+          "early_bytes": 6154,
+          "missing": [],
+          "policy": "after",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 3086,
+          "missing": [],
+          "policy": "union",
+          "status": "exact",
+          "view": "after"
+        },
+        {
+          "early_bytes": 0,
+          "missing": [],
+          "policy": "all",
+          "status": "exact",
+          "view": "after"
+        }
+      ],
+      "sequence": 100,
+      "source_url": "https://vincentarelbundock.github.io/Rdatasets/csv/datasets/Nile.csv",
+      "summary": {
+        "exact_restores": 6,
+        "failed_restores": 2,
+        "pool_bytes": 9055,
+        "union_early_bytes": 3086
+      },
+      "workload": "update-delete"
+    }
+  ],
+  "sources": {
+    "scripts/checkpoint_diversity.cc": "19ae71ea0cf459fc609dace391fcd3d744dba093c764917880fde5e0a1118553",
+    "scripts/checkpoint_diversity.py": "8d0eb4735f999f1020939c5f0d1fba3e11e7ea6d4016e2f68bf04e607f373d51"
+  }
+}

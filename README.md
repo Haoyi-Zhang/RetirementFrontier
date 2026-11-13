@@ -440,6 +440,26 @@ The separate range-compaction listing reads the decoded native edit used
 in the durability projection. The renderer checks label clearance, node
 padding, and connector geometry.
 
+The paired-restore extension uses fresh native databases with two public
+R dataset value sources: [AirPassengers](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/AirPassengers.html)
+and [Nile](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/Nile.html).
+The runner takes all 144 and 100 chronological observations, respectively,
+from the pinned Rdatasets CSV exports. It maps them to two ranges, with two
+synced flush batches per range. AirPassengers inserts interleaved keys without
+overwriting; Nile rewrites the first batch's keys, deleting every fifth key.
+An exploratory disjoint-key insert run did not produce the required file
+replacement and is not part of the reported comparison. The controlled
+operation streams are not production database traces.
+
+Run `python -B scripts/checkpoint_diversity.py` to validate the retained
+result without network access. Add `--run` to rebuild and replay both
+databases with a C++20 compiler and RocksDB 8.9.1 development files;
+optionally pass `--input-dir` containing the two unchanged exports.
+The unit is a fresh source database, not an individual restore. Each
+database contributes eight paired policy/selection outcomes. Restore
+reopens compare the original sequence and every key and value; the
+reclaimed byte total counts logical SST lengths in the staging pool.
+
 The minimum-witness diagram is generated from an executable six-event
 shared-chunk case. Run `python -B scripts/witness_examples.py` to check it and
 the two range-compaction model witnesses against pairwise analysis and

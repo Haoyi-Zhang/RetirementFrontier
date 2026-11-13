@@ -287,9 +287,9 @@ def motivation(out):
                BLUE if name==shared else MUTED,PALE_BLUE if name==shared else PAPER,radius=0)
     d.label(235,115,'Shared',10.4,colour=BLUE)
 
-    d.label(18,137,'(b) Restore under either selected MANIFEST',11.8,'left')
+    d.label(18,137,'(b) Staged restore by retention policy',11.8,'left')
     d.label(62,156,'Retain',10.6,colour=MUTED)
-    d.label(366,156,'Native reopen',10.6,colour=MUTED)
+    d.label(366,156,'Native restore',10.6,colour=MUTED)
     for y,policy,label in ((176,'keep-after','After only'),(202,'keep-both','Both views')):
         d.label(62,y,label,11.2)
         d.line((95,y),(110,y),arrow=True,colour=MUTED)
@@ -300,16 +300,16 @@ def motivation(out):
             else:
                 d.cross(x,y)
         d.line((302,y),(321,y),arrow=True,colour=MUTED)
-    d.label(330,172,'Before fails',11.3,'left',RUST)
-    d.label(330,185,'After exact',10.3,'left',MUTED)
-    d.label(330,202,'Both exact',11.3,'left',BLUE)
+    d.label(330,172,'Before: fails to open',10.6,'left',RUST)
+    d.label(330,185,'After: exact',10.6,'left',MUTED)
+    d.label(330,202,'Both: exact',11.3,'left',BLUE)
     d.dot(27,231,BLUE,3.4)
     d.label(37,231,'Retained in pool',10.6,'left',MUTED)
     d.cross(137,231)
     d.label(147,231,'Missing from pool',10.6,'left',MUTED)
     d.label(412,231,f'Exact: {keys} key-value pairs match',10.6,'right',MUTED)
     retired_bytes = sum(lengths[name] for name in expired)
-    d.label(412,247,f'Both views: {retired_bytes:,} bytes reclaimed early',
+    d.label(412,247,f'Union frees {retired_bytes:,} bytes early',
             10.5,'right',BLUE)
     d.save()
 
