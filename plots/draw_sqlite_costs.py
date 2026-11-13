@@ -26,71 +26,50 @@ def ratios(rows):
 
 
 def draw(width, values):
-    from reportlab.pdfbase import pdfmetrics
     import draw_write_ratios as v
 
-    c=v.new_pdf('sqlite-costs.pdf',width,179)
-    left,right,bottom,top=101.,width-28.,33.,146.
-    if right-left<250:
+    c=v.new_pdf('sqlite-costs.pdf',width,184)
+    left,right,bottom,top=72.,width-14.,34.,139.
+    gap=24.
+    span=(right-left-gap)/2
+    if span<137:
         raise ValueError('Ratio plot is too narrow')
-    def xpos(x):
-        return left+(right-left)*x
-    def marker(x,y,kind,mode=None):
+    panels=(('slots','Logical slots',left),('bytes_after_checkpoint','Retained files',left+span+gap))
+    def marker(x,y,mode):
         colour=v.BLUE if mode=='DELETE' else v.SLATE
         c.setStrokeColorRGB(*colour)
         c.setFillColorRGB(*(colour if mode=='DELETE' else (1,1,1)))
         c.setLineWidth(1.05)
-        if kind=='slots':
-            c.rect(x-2.9,y-2.9,5.8,5.8,stroke=1,fill=1)
-        elif kind=='files':
-            c.circle(x,y,3.2,stroke=1,fill=1)
+        if mode=='DELETE':
+            c.rect(x-2.65,y-2.65,5.3,5.3,stroke=1,fill=1)
         else:
-            # The journal key uses a narrow swatch, not either data glyph.
-            c.rect(x-3.7,y-1.75,7.4,3.5,stroke=1,fill=1)
-    key=(('Measure:',None,None),('Logical slots','slots',None),
-         ('Retained files','files',None),('Journal:',None,None),
-         ('DELETE','journal','DELETE'),('WAL','journal','WAL'))
-    key_widths=[pdfmetrics.stringWidth(label,v.FONT,v.TICK)+(13 if shape else 0)
-                for label,shape,_ in key]
-    gaps=(8.,14.,28.,8.,13.,0.)
-    key_x=(width-sum(key_widths)-sum(gaps))/2
-    if key_x<6:
-        raise ValueError('SQLite legend exceeds available width')
-    for (label,shape,mode),span,gap in zip(key,key_widths,gaps):
-        if shape:
-            marker(key_x+4,169,shape,mode)
-        v.text(c,key_x+(13 if shape else 0),165.8,label,v.TICK,'left')
-        key_x+=span+gap
-    for tick,name in ((0,'0'),(.25,'0.25'),(.5,'0.50'),(.75,'0.75'),(1,'1')):
-        x=xpos(tick)
-        c.setLineWidth(.65 if tick==1 else .48)
-        c.setStrokeColorRGB(*((.46,.51,.55) if tick==1 else (.86,.89,.91)))
-        if tick==1:
-            c.setDash(2.5,2.5)
-        if tick:
+            c.circle(x,y,3.05,stroke=1,fill=1)
+    for mode,x in (('DELETE',width/2-40),('WAL',width/2+21)):
+        marker(x,172,mode)
+        v.text(c,x+8,168.8,mode,v.TICK,'left')
+    for field,title,origin in panels:
+        v.text(c,origin+span/2,150,title,v.LABEL)
+        for tick,name in ((0,'0'),(.25,'0.25'),(.5,'0.50'),(.75,'0.75'),(1,'1')):
+            x=origin+span*tick
+            c.setLineWidth(.68 if tick==1 else .45)
+            c.setStrokeColorRGB(*((.48,.51,.54) if tick==1 else (.87,.89,.90)))
+            if tick==1:
+                c.setDash(2.5,2.5)
             c.line(x,bottom,x,top)
-        c.setDash()
-        v.text(c,x,bottom-15,name,v.TICK)
-    c.setStrokeColorRGB(.30,.35,.40)
-    c.setLineWidth(.8)
-    c.line(left,bottom,right,bottom)
-    for i,family in enumerate(('shared','unique','churn','backup')):
-        centre=133-i*27.5
-        v.text(c,6,centre-3.1,family.capitalize(),v.LABEL,'left')
-        for mode,delta in (('DELETE',5.8),('WAL',-5.8)):
-            record=values[mode][family]
-            a,b=record['slots'],record['bytes_after_checkpoint']
-            if not 0<a<b<=1:
-                raise ValueError('Retained values outside the ratio axis')
-            y=centre+delta
-            marker(xpos(a),y,'slots',mode)
-            marker(xpos(b),y,'files',mode)
-            a_text,b_text=f'{a:.3f}',f'{b:.3f}'
-            if (xpos(a)-8-pdfmetrics.stringWidth(a_text,v.FONT,v.TICK)<59 or
-                    xpos(b)-8-pdfmetrics.stringWidth(b_text,v.FONT,v.TICK)<xpos(.75)+2):
-                raise ValueError('Insufficient numeric label margin')
-            v.text(c,xpos(a)-8,y-3.1,a_text,v.TICK,'right')
-            v.text(c,xpos(b)-8,y-3.1,b_text,v.TICK,'right')
+            c.setDash()
+            v.text(c,x,bottom-15,name,v.TICK)
+        c.setStrokeColorRGB(.30,.35,.40)
+        c.setLineWidth(.7)
+        c.line(origin,bottom,origin+span,bottom)
+        for i,family in enumerate(('shared','unique','churn','backup')):
+            centre=126-i*23.5
+            if field=='slots':
+                v.text(c,origin-13,centre-3.1,family.capitalize(),v.LABEL,'right')
+            for mode,delta in (('DELETE',4),('WAL',-4)):
+                record=values[mode][family]
+                if not 0<record['slots']<record['bytes_after_checkpoint']<=1:
+                    raise ValueError('Retained values outside the ratio axis')
+                marker(origin+span*record[field],centre+delta,mode)
     v.text(c,(left+right)/2,4.5,'Reuse / no-reuse',v.LABEL)
     c.save()
 

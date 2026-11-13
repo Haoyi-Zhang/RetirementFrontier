@@ -1,4 +1,9 @@
 {
+  "metadata-symbols": {
+    "manifest": [108, 100, 512, 600],
+    "database": [115, 685, 515, 1183],
+    "records": [602, 737, 1151, 1116]
+  },
   "storage-symbols": {
     "root": [
       142,

@@ -77,7 +77,7 @@ class Figure:
             self.c.drawString(left,base,row)
 
     def node(self, key, x, y, width, height, text, edge=MUTED, fill=PAPER,
-             dashed=False):
+             dashed=False, radius=3):
         if key in self.nodes:
             raise ValueError(f'Duplicate node {key}')
         self.nodes[key] = (x-width/2,y-height/2,x+width/2,y+height/2)
@@ -86,7 +86,10 @@ class Figure:
         self.c.setLineWidth(.85)
         if dashed:
             self.c.setDash(3.2,2.5)
-        self.c.roundRect(x-width/2,self.height-y-height/2,width,height,3,fill=1,stroke=1)
+        if radius:
+            self.c.roundRect(x-width/2,self.height-y-height/2,width,height,radius,fill=1,stroke=1)
+        else:
+            self.c.rect(x-width/2,self.height-y-height/2,width,height,fill=1,stroke=1)
         if dashed:
             self.c.setDash()
         if text:
@@ -130,6 +133,11 @@ class Figure:
     def dot(self,x,y,colour=INK,radius=3.1):
         self.c.setFillColorRGB(*colour)
         self.c.circle(x,self.height-y,radius,fill=1,stroke=0)
+
+    def ring(self,x,y,colour=BLUE,radius=4):
+        self.c.setStrokeColorRGB(*colour)
+        self.c.setLineWidth(1.15)
+        self.c.circle(x,self.height-y,radius,fill=0,stroke=1)
 
     def art(self,plate,key,x,y,w,h):
         image=ImageReader(str(ART/f'{plate}.png'))
@@ -233,8 +241,6 @@ def motivation(out):
     previous, current = set(before['files']), set(after['files'])
     old = ', '.join(str(int(Path(n).stem)) for n in sorted(previous - current))
     new, = (int(Path(n).stem) for n in current - previous)
-    def ids(files):
-        return ', '.join(str(int(Path(n).stem)) for n in sorted(files))
     ordered = case['outcomes']['ordered']
     bad = case['outcomes']['unguarded-retirement']['minimum']
     if (bad['view'] != 'epoch:before' or ordered['bad_cuts'] != 0
@@ -248,87 +254,106 @@ def motivation(out):
     cells = {(r['policy'], r['boundary']): r for r in observed}
     if len(observed) != 6 or len(cells) != 6 or any(r['sqlite_integrity'] != 'ok' for r in observed):
         raise ValueError('Overview requires six intact catalogs in the WAL merge')
-    # Native sets and their required ordering, then native fixture outcomes.
-    # The arrow is a metadata transition, not a time or throughput measurement.
-    d = Figure(out, 'reuse-cut', 245)
-    d.label(15, 16, '(a) RocksDB range compaction', 12.2, 'left')
-    d.label(415, 16, f'Client sequence: {before["sequence"]} in both views', 10.9, 'right', MUTED)
-    d.label(80, 43, 'Before', 11.3)
-    d.label(351, 43, 'After', 11.3)
-    d.node('old', 80, 64, 129, 23, f'SSTs {ids(previous)}', MUTED, GREY)
-    d.node('new', 351, 64, 128, 23, f'SSTs {ids(current)}', BLUE, PALE_BLUE)
-    d.line((148, 64), (282, 64), arrow=True, colour=BLUE, weight=1.15)
-    d.label(215, 51, 'MANIFEST edit', 10.8, colour=BLUE)
-    d.label(215, 92, f'Projected order: persist {new}, publish the new view, then unlink {old}', 11.1, colour=BLUE)
+    # A shared column denotes physical identity, not equal contents.
+    # The third row is the retention rule on two supplied candidates, not an observation.
+    d = Figure(out, 'reuse-cut', 336)
+    d.label(15, 13, '(a) RocksDB: physical references across compaction', 11.9, 'left')
+    d.label(414, 33, f'Client sequence {before["sequence"]} in both views', 10.1, 'right', MUTED)
+    d.art('metadata-symbols','manifest',15,40,16,19)
+    d.label(37, 51, 'MANIFEST view', 10.0, 'left', MUTED)
+    d.label(416, 51, 'SST', 10.0, 'right', MUTED)
+    names = sorted(previous - current) + sorted(previous & current) + sorted(current - previous)
+    columns = (174, 226, 278, 330, 382)
+    for x, name in zip(columns, names, strict=True):
+        d.label(x, 51, str(int(Path(name).stem)), 11)
+    for y, title, members in ((70, 'Before edit', previous),
+                               (93, 'After edit', current),
+                               (116, 'Required while unresolved', previous | current)):
+        d.label(14, y, title, 11, 'left', BLUE if y == 116 else INK)
+        for x, name in zip(columns, names, strict=True):
+            if name in members:
+                if name in previous & current:
+                    d.ring(x, y, BLUE, 4.3)
+                    d.dot(x, y, BLUE, 1.65)
+                else:
+                    d.dot(x, y, BLUE if y == 116 else INK, 3.6)
+            else:
+                d.line((x-3,y),(x+3,y),colour=RULE,weight=.72)
+    d.line((158,128),(158,132),(294,132),(294,128),colour=MUTED,weight=.75)
+    d.label(226,143,'Old-only: retire after publication',10.35,colour=MUTED)
+    d.label(15, 162, 'Projected order:', 10.7, 'left', MUTED)
+    d.label(139, 162, f'Persist SST {new}', 11, colour=BLUE)
+    d.line((183,162),(204,162),arrow=True,colour=BLUE)
+    d.label(236, 162, 'Publish', 11, colour=BLUE)
+    d.line((265,162),(292,162),arrow=True,colour=BLUE)
+    d.label(354, 162, f'Unlink {old}', 11, colour=BLUE)
 
-    d.label(15, 121, '(b) SQLite-backed WAL merge: same handoff, no reply', 12.2, 'left')
-    d.label(15, 150, 'Cleaner keeps', 11.1, 'left')
-    d.label(222, 150, 'Exit before commit', 11.1)
-    d.label(361, 150, 'Exit after commit', 11.1)
-    d.line((15, 161), (415, 161), colour=RULE, weight=.7)
-    for y, policy, title in ((176, 'keep-before', 'Before layout only'),
-                             (195, 'keep-after', 'After layout only'),
-                             (214, 'keep-both', 'Both layouts')):
-        d.label(15, y, title, 11, 'left', BLUE if policy == 'keep-both' else INK)
-        for x, boundary in ((222, 'before-commit'), (361, 'after-commit')):
+    d.label(15, 187, '(b) SQLite WAL: atomic catalog, external cleanup', 11.9, 'left')
+    d.label(15, 207, 'Files retained', 10.6, 'left', MUTED)
+    d.label(222, 207, 'Exit before commit', 10.6, colour=MUTED)
+    d.label(355, 207, 'Exit after commit', 10.6, colour=MUTED)
+    for y, policy, title in ((225, 'keep-before', 'Before layout'),
+                             (243, 'keep-after', 'After layout'),
+                             (261, 'keep-both', 'Both layouts')):
+        d.label(15, y, title, 10.9, 'left', BLUE if policy == 'keep-both' else INK)
+        for x, boundary in ((222, 'before-commit'), (355, 'after-commit')):
             row = cells[policy, boundary]
             count = len(row['missing_segments'])
             if count:
                 label = f'{count} segment{"s" if count != 1 else ""} missing'
+                d.cross(x-51,y)
             elif len(row['exact_objects']) == 2:
-                label = 'Both objects intact'
+                label = 'Exact recovery'
+                d.ring(x-51,y,BLUE,3.8)
             else:
                 raise ValueError('Missing byte recovery outcome in WAL merge')
-            d.label(x, y, label, 11, colour=RUST if count else INK)
-    d.label(415, 235, 'SQLite integrity check: OK in all six outcomes', 10.8, 'right', MUTED)
+            d.label(x-40, y, label, 10.7, 'left', RUST if count else INK)
+    d.label(15, 288, '(c) Frontier check on the projected RocksDB edit', 11.9, 'left')
+    d.label(15, 309, 'Last user of an old SST', 10.7, 'left')
+    d.label(237, 309, 'Root forced by unlink', 10.7, 'left')
+    d.label(15, 326, 'Before-edit root', 11.1, 'left')
+    d.label(188, 326, '<', 13, colour=BLUE)
+    d.label(237, 326, 'After-edit root', 11.1, 'left', BLUE)
+    d.label(415, 326, 'Retirement certified', 10.6, 'right', BLUE)
     d.save()
 
 
 def frontier(out):
-    d=Figure(out,'retirement-frontier',170)
-    xs=(49,157,273,381)
-    d.frame('allocation',49,58,33,22,lambda c: None,BLUE,PALE_BLUE)
-    d.node('root-r',157,58,38,25,'r',MUTED,GREY)
-    d.node('root-q',273,58,38,25,'q',BLUE,PALE_BLUE)
-    d.node('writer-w',381,58,40,25,'w',MUTED,GREY)
-    for x,caption in zip(xs,('Allocation a','Root r','Root q','Writer w')):
-        d.label(x,103,caption,11.5,colour=BLUE if x==273 else INK)
-    d.line((15,89),(414,89),colour=RULE,weight=.75)
-    for x in xs:
-        d.dot(x,89,BLUE if x==273 else INK,2.35)
-    d.line((157,42),(157,18),(49,18),(49,41),dashed=True,arrow=True)
-    d.line((273,42),(273,18),(381,18),(381,42),arrow=True,colour=BLUE,weight=1.1)
-    d.label(215,121,'T(w) = r  <  F(w) = q',12)
-    d.label(215,138,'Publication order is strict even if client prefixes tie',11.5)
-    d.line((87,160),(110,160),dashed=True,arrow=True)
-    d.label(118,160,'Allocation reference',11.5,'left')
-    d.line((243,160),(266,160),arrow=True,colour=BLUE,weight=1.1)
-    d.label(274,160,'Persistence order',11.5,'left')
+    d=Figure(out,'retirement-frontier',137)
+    xs=(51,153,272,380)
+    d.line((29,74),(405,74),colour=RULE,weight=.8,arrow=True)
+    for x,caption in zip(xs,('Allocate a','Publish r','Publish q','Write w')):
+        d.dot(x,74,BLUE if x==272 else INK,3)
+        d.label(x,91,caption,11.8,colour=BLUE if x==272 else INK)
+    d.line((153,67),(153,43),(51,43),(51,67),dashed=True,arrow=True)
+    d.label(102,30,'r references a',11,colour=MUTED)
+    d.line((272,67),(272,43),(380,43),(380,67),arrow=True,colour=BLUE,weight=1.15)
+    d.label(326,30,'q must persist before w',11,colour=BLUE)
+    d.label(153,117,'T(w) = r',12)
+    d.label(272,117,'F(w) = q',12,colour=BLUE)
+    d.label(212,117,'<',13)
     d.save()
 
 
 def certificate(out):
-    d=Figure(out,'certificate-check',144)
-    d.art('evidence-symbols','trace',13,71,75,43)
-    d.label(50.5,126,'Admitted history',11.5)
-    d.node('analysis',173,35,77,34,'Frontier\nanalysis',BLUE,PALE_BLUE)
-    d.art('evidence-symbols','packet',237,10,53,49)
-    d.label(263.5,71,'Positive certificate',11.5)
-    def inspect(c):
-        c.setStrokeColorRGB(*BLUE)
-        c.setLineWidth(1.05)
-        c.rect(-17,-7,9,9,fill=0,stroke=1)
-        c.rect(-8,-7,9,9,fill=0,stroke=1)
-        c.setFillColorRGB(*PAPER)
-        c.circle(8,5,6.4,fill=1,stroke=1)
-        c.line(12.5,.5,18,-5)
-    d.frame('verifier',371,94,54,35,inspect,BLUE,GREY)
-    d.label(371,132,'Independent verifier',11.5)
-    d.line((91,94),(331,94),arrow=True)
-    d.line((111,94),(111,35),(131,35),arrow=True,colour=BLUE)
-    d.line((213,35),(232,35),arrow=True,colour=BLUE)
-    d.line((295,35),(371,35),(371,65),arrow=True,colour=BLUE)
-    d.dot(111,94,INK,2.1)
+    d=Figure(out,'certificate-check',139)
+    d.label(51,58,'Admitted history',11.8)
+    d.line((102,58),(115,58))
+    d.dot(115,58,INK,2.2)
+    d.line((115,58),(115,28),(148,28),arrow=True,colour=BLUE)
+    d.dot(152,28,BLUE,2.3)
+    d.label(182,13,'Compute frontier',11.1,colour=BLUE)
+    d.line((156,28),(243,28),arrow=True,colour=BLUE)
+    d.art('metadata-symbols','records',247,10,33,35)
+    d.label(263,56,'Witnesses',10.7)
+    d.line((286,28),(352,28),(352,48),arrow=True,colour=BLUE)
+    d.line((115,58),(115,90),(310,90),(310,67),(332,67),arrow=True)
+    d.label(206,105,'Original history',10.9,colour=MUTED)
+    d.ring(352,67,BLUE,12)
+    d.label(352,67,'?',12)
+    d.label(352,103,'Independent check',11.6)
+    d.label(352,121,'Accept / reject',10.5,colour=MUTED)
+    d.line((352,81),(352,93),colour=BLUE)
     d.save()
 
 
@@ -338,20 +363,20 @@ def minimum_witness(out):
 
     evidence = shared_comparison()
     d = Figure(out, 'minimum-witness', 126)
-    d.label(16, 20, 'Durable state', 11.5, 'left')
+    d.label(16, 20, 'Durable events', 11.5, 'left')
     columns = (172, 215, 258, 301, 344, 387)
     for i, (x, name) in enumerate(zip(columns, ('chunk', 'manifest', 'root', 'manifest', 'root', 'free'))):
         d.label(x, 15, str(i), 11.7)
         d.label(x, 31, name, 10.1, colour=MUTED)
-    d.line((16, 43), (412, 43), colour=RULE, weight=.75)
+    d.line((156, 43), (405, 43), colour=RULE, weight=.75)
 
     def ring(x, y):
         d.c.setStrokeColorRGB(*BLUE)
         d.c.setLineWidth(1.5)
         d.c.circle(x, d.height-y, 4.7, fill=0, stroke=1)
 
-    rows = (('Using the frontier root', evidence['frontier_cut'], 61),
-            ('Minimum bad cut', evidence['minimum_cut'], 88))
+    rows = ((f'Frontier-root witness ({len(evidence["frontier_cut"])})', evidence['frontier_cut'], 61),
+            (f'Minimum witness ({len(evidence["minimum_cut"])})', evidence['minimum_cut'], 88))
     for (name, cut, y), selected in zip(rows, evidence['selected_roots'], strict=True):
         d.label(16, y, name, 11.4, 'left', BLUE if y == 88 else INK)
         for i, x in enumerate(columns):
@@ -372,16 +397,11 @@ def minimum_witness(out):
 
 def selector(out):
     d=Figure(out,'selector-order',163)
-    d.art('publication-symbols','rail',11,11,78,46)
-    d.art('evidence-symbols','manifest',137,9,44,52)
-    d.switch('new-selector',269,35,1)
-    def reused(c):
-        c.setStrokeColorRGB(*BLUE)
-        c.setFillColorRGB(*PALE_BLUE)
-        c.setLineWidth(.85)
-        c.rect(-12,-8,24,16,stroke=1,fill=1)
-    d.frame('reused',378,35,56,30,reused,MUTED,GREY)
-    d.label(378,35,'C',10.5,owner='reused')
+    d.art('publication-symbols','rail',25,16,52,33)
+    d.art('evidence-symbols','manifest',146,13,28,42)
+    d.label(269,35,'B',13,colour=BLUE)
+    d.ring(269,35,BLUE,13)
+    d.node('reused',378,35,31,22,'C',BLUE,PALE_BLUE,radius=0)
     for x, label in ((50,'Write B, fresh slot'),(159,'Prepare manifest B'),
                      (269,'Select B'),(378,'Reuse A\'s slot')):
         d.label(x,71,label,10.5)
@@ -391,7 +411,8 @@ def selector(out):
     d.line((302,35),(346,35),arrow=True,colour=BLUE,weight=1.42)
     # An alternate cut: the selector still resolves its manifest; the
     # reference inside that manifest, not the selector link, is broken.
-    d.switch('old-selector',50,116,-1)
+    d.label(50,116,'A',13,colour=RUST)
+    d.ring(50,116,RUST,13)
     d.art('evidence-symbols','manifest',136,90,42,50)
     d.label(50,150,'Still selects A',10.5,colour=RUST)
     d.label(157,150,'Manifest A',10.5)
@@ -406,37 +427,25 @@ def selector(out):
 
 
 def sqlite(out):
-    d=Figure(out,'evidence-paths',160)
-    d.art('publication-symbols','database',20,60,57,51)
-    d.label(48.5,130,'Committed\nSQLite state',11.5)
-    def projection(c):
-        c.setStrokeColorRGB(*BLUE)
-        c.setFillColorRGB(*PALE_BLUE)
-        c.setLineWidth(.75)
-        c.rect(-14,-6,14,12,fill=1,stroke=0)
-        for x in (-14,0,14):
-            c.line(x,-8,x,8)
-    d.frame('projection',180,33,56,20,projection,BLUE,PAPER)
-    d.label(180,65,'Audit projection',11.5)
-    def records(c):
-        c.setLineWidth(.65)
-        c.setStrokeColorRGB(*MUTED)
-        for y in (7,0,-7):
-            c.line(-22,y,22,y)
-        for x in (-11,9):
-            c.line(x,-13,x,13)
-    d.frame('records',180,119,50,30,records,MUTED,GREY)
-    d.label(180,146,'Retained records',11.5)
-    d.art('publication-symbols','compare',351,59,68,50)
-    d.label(385,122,'Compare results',11.5)
-    d.label(264,20,'Model recovery',11.5,colour=BLUE)
-    d.label(264,107,'Native recovery',11.5,colour=MUTED)
-    d.line((83,85),(106,85))
-    d.dot(106,85,INK,2)
-    d.line((106,85),(106,33),(140,33),colour=BLUE,arrow=True)
-    d.line((106,85),(106,119),(152,119),colour=MUTED,arrow=True)
-    d.line((219,33),(316,33),(316,73),(346,73),colour=BLUE,arrow=True)
-    d.line((208,119),(316,119),(316,96),(346,96),colour=MUTED,arrow=True)
+    d=Figure(out,'evidence-paths',138)
+    d.art('metadata-symbols','database',17,46,37,43)
+    d.label(36,110,'Committed\nSQLite state',11.1)
+    d.line((58,67),(86,67))
+    d.dot(86,67,INK,2.3)
+    d.line((86,67),(86,35),(110,35),colour=BLUE,arrow=True)
+    d.line((86,67),(86,99),(110,99),arrow=True)
+    d.label(155,35,'Audit projection',11.2,colour=BLUE)
+    d.label(155,99,'Retained records',11.2)
+    d.line((199,35),(223,35),colour=BLUE,arrow=True)
+    d.line((199,99),(223,99),arrow=True)
+    d.label(268,35,'Model recovery',11.2,colour=BLUE)
+    d.label(268,99,'Native recovery',11.2)
+    d.line((313,35),(357,35),(357,52),colour=BLUE,arrow=True)
+    d.line((313,99),(357,99),(357,82),arrow=True)
+    d.ring(357,67,BLUE,11)
+    d.label(357,67,'?',12)
+    d.label(415,53,'Compare',10.5,'right')
+    d.label(418,121,'Root, prefix, bytes',10.2,'right',MUTED)
     d.save()
 
 

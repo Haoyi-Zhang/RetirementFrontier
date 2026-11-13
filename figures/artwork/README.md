@@ -1,8 +1,12 @@
 # Illustration sources
 
-The three source plates below were generated with the built-in OpenAI image-generation tool. They contain no text, protocol arrows, or numeric data. The Python builder places the selected crops and renders structural shapes, labels, mathematical notation, and connectors as vector graphics. The selector contacts are drawn as vectors so that the two selected states are explicit. Statistical charts are computed separately from retained measurements.
+The source plates below were generated with the built-in OpenAI image-generation tool. They contain no text, protocol arrows, or numeric data. The Python builder places the selected crops and renders structural shapes, labels, mathematical notation, and connectors as vector graphics. Statistical charts are computed separately from retained measurements.
 
 ## Prompts
+
+### metadata-symbols.png
+
+Use case: scientific-educational. Create a transparent-background plate of exactly four unlettered orthographic ink outline glyphs in a generous 2x2 grid, for precise use as tiny labels in a storage systems paper. Top left: folded page with three empty small record cells, representing a storage manifest. Top right: three equally sized rectangular sorted-table blocks touching along one edge with restrained internal thin lines. Bottom left: plain cylindrical store with two simple horizontal rings. Bottom right: two slightly overlapping ruled record slips with visible separate outlines. Draw in a single deep navy ink, 1 consistent stroke, white or transparent interiors, no text, digits, mathematical symbols, arrows, UI boxes, captions, gradient, or shadows. Keep each complete within its quarter with generous transparent padding, and orient strictly flat (no perspective). The publication will overlay all semantic edges and labels as actual editable text and lines; this image is only a set of glyphs.
 
 ### evidence-symbols.png
 

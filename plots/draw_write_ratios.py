@@ -215,7 +215,7 @@ def main_args(default_width):
 def draw(width):
     rows=retained_rows(INPUT)
     keys=('no_dedup','sync_metadata','batch_four_dedup')
-    colours=(GREY,MID,BLUE)
+    colours=((.91,.92,.93),(.67,.70,.73),BLUE)
     height=176.
     c=new_pdf('write-ratios.pdf',width,height)
     left,right,base,top=49.,width-8.,29.,147.
@@ -224,7 +224,7 @@ def draw(width):
         return base+(top-base)*y/6.6
     for tick in (0,1,2,4,6):
         y=position(tick)
-        c.setStrokeColorRGB(*((.43,.49,.54) if tick in (0,1) else (.83,.87,.89)))
+        c.setStrokeColorRGB(*((.43,.49,.54) if tick in (0,1) else (.88,.89,.90)))
         c.setLineWidth(.8 if tick==0 else .58)
         if tick==1:
             c.setDash(3,2.2)
@@ -233,12 +233,12 @@ def draw(width):
         text(c,left-6,y-3.1,str(tick),TICK,'right')
     for i,row in enumerate(rows):
         centre=left+(i+.5)*step
-        text(c,centre,12,row['family'],LABEL)
+        text(c,centre,11,row['family'],LABEL)
         for j,(key,colour) in enumerate(zip(keys,colours)):
             value=float(Decimal(row[key]))
             x=centre+(j-1)*27
             y=position(value)
-            policy_bar(c,x-9,base,18,y-base,colour,hatched=(j==1))
+            policy_bar(c,x-8,base,16,y-base,colour,hatched=(j==1))
             label=f'{value:.2f}'
             bw=pdfmetrics.stringWidth(label,FONT,TICK)
             c.setFillColorRGB(1,1,1)
