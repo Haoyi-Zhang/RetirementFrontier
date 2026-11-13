@@ -335,39 +335,64 @@ def certificate(out):
 
 def minimum_witness(out):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-    from witness_examples import shared_comparison
+    from witness_examples import shared_chunk, shared_comparison
+    from medium import materialize, recover
+    from model import admit_trace
 
     evidence = shared_comparison()
+    model = admit_trace(shared_chunk('no-guard'))
+    event_ids = tuple(range(model.n))
+    names = tuple(event.get('role',event['kind']) for event in model.events)
+    if names != ('chunk', 'manifest', 'root', 'manifest', 'root', 'free'):
+        raise ValueError('Witness figure no longer matches the shared-chunk history')
+    chunk_slot = model.events[0]['slot']
+    cuts = (evidence['frontier_cut'], evidence['minimum_cut'])
+    for cut, root in zip(cuts,evidence['selected_roots'],strict=True):
+        image = materialize(model,cut)
+        slots = image['slots']
+        chunk = slots.get(str(chunk_slot),{})
+        manifest_slot = model.events[root]['manifest_ref']['slot']
+        result = recover(image)
+        if (chunk.get('kind') != 'free' or chunk.get('event') != 5
+                or slots.get(str(manifest_slot),{}).get('role') != 'manifest'
+                or result['ok'] or result['root_event'] != root
+                or result['reason'] != f'slot {chunk_slot} is absent or free'):
+            raise ValueError('Expected a surviving manifest and an unreadable shared chunk')
+
     d = Figure(out, 'minimum-witness', 126)
-    d.label(16, 20, 'Durable events', 11.5, 'left')
-    columns = (172, 215, 258, 301, 344, 387)
-    for i, (x, name) in enumerate(zip(columns, ('chunk', 'manifest', 'root', 'manifest', 'root', 'free'))):
+    d.label(14, 20, 'Durable events', 11.5, 'left')
+    columns = (147, 181, 215, 249, 283, 317)
+    for i, x, name in zip(event_ids,columns,names,strict=True):
         d.label(x, 15, str(i), 11.7)
-        d.label(x, 31, name, 10.1, colour=MUTED)
-    d.line((156, 43), (405, 43), colour=RULE, weight=.75)
+        d.label(x, 31, name, 10.1, colour=RUST if i == 5 else MUTED)
+    d.line((132, 43), (329, 43), colour=RULE, weight=.75)
 
-    def ring(x, y):
-        d.c.setStrokeColorRGB(*BLUE)
-        d.c.setLineWidth(1.5)
-        d.c.circle(x, d.height-y, 4.7, fill=0, stroke=1)
-
-    rows = ((f'Frontier-root witness ({len(evidence["frontier_cut"])})', evidence['frontier_cut'], 61),
-            (f'Minimum witness ({len(evidence["minimum_cut"])})', evidence['minimum_cut'], 88))
+    rows = ((f'Frontier cut ({len(evidence["frontier_cut"])} events)', evidence['frontier_cut'], 61),
+            (f'Minimum cut ({len(evidence["minimum_cut"])} events)', evidence['minimum_cut'], 88))
     for (name, cut, y), selected in zip(rows, evidence['selected_roots'], strict=True):
-        d.label(16, y, name, 11.4, 'left', BLUE if y == 88 else INK)
+        d.label(14, y, name, 11.1, 'left')
         for i, x in enumerate(columns):
             if i == selected:
-                ring(x, y)
+                d.ring(x, y, BLUE, 4.7)
+            elif i == 5 and i in cut:
+                d.dot(x, y, RUST, 3.3)
             elif i in cut:
                 d.dot(x, y, INK, 3.3)
             else:
                 d.line((x-3.1, y), (x+3.1, y), colour=MUTED, weight=.9)
-    ring(121, 113)
+    # Both legal cuts retain the same free. The outcome is a read failure
+    # at the chunk, not an absent allocation event or missing manifest.
+    d.line((323,61),(341,61),(341,88),(323,88),colour=RUST)
+    d.dot(341,74.5,RUST,1.9)
+    d.line((341,74.5),(359,74.5),colour=RUST,arrow=True)
+    d.label(366,74.5,'Shared chunk\nunreadable',10.7,'left',RUST)
+
+    d.ring(122, 113, BLUE, 4.7)
     d.label(134, 113, 'Selected root', 10.4, 'left')
-    d.dot(225, 113, INK, 3.3)
-    d.label(236, 113, 'Other durable event', 10.4, 'left')
-    d.line((347, 113), (353, 113), colour=MUTED, weight=.9)
-    d.label(360, 113, 'Absent', 10.4, 'left')
+    d.dot(218, 113, INK, 3.3)
+    d.label(229, 113, 'Other durable event', 10.4, 'left')
+    d.line((328, 113), (334, 113), colour=MUTED, weight=.9)
+    d.label(341, 113, 'Not durable', 10.4, 'left')
     d.save()
 
 
