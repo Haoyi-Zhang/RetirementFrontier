@@ -302,7 +302,7 @@ the retained measurements without replacing them with runner-host timings.
 
 ## What to check
 
-The supplied full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. All 720 recovery images pass selected-root, prefix, and specification-byte comparisons and account for 5,382 unreachable occupied-slot observations. The campaign executes 65 evaluation SMT queries plus two pilot queries, with zero unknowns, and all 132 unit methods pass with no skips. The POSIX fixture has eleven agreeing selector projections, zero ordered failures, and two expected unsafe failures.
+The supplied full result contains 33,792 dependency graphs and 2,129,920 candidate event sets; 3,072 graphs are safe and 30,720 unsafe graphs have oracle-checked minimum witnesses. The regression set contains 256 variants (75 safe, 181 unsafe). Fallback tests cover 255 formulas and 2,040 assignments plus 92 fixed-candidate formulas. Scaling has 45 base inputs and 180 policy report rows, with at most 5,599 events. All 720 recovery images pass selected-root, prefix, and specification-byte comparisons and account for 5,382 unreachable occupied-slot observations. The campaign executes 65 evaluation SMT queries plus two pilot queries, with zero unknowns. The current suite passes all 175 unit methods with no skips. The POSIX fixture has eleven agreeing selector projections, zero ordered failures, and two expected unsafe failures.
 
 `check_scientific_invariants.py` checks exact JSON paths and cross-checks primary row counts, decisions, minimum-witness flags, certificate acceptance and byte arithmetic. It does not accept a matching number found elsewhere in a JSON tree. Assertions are ordinary executable checks, not proof-assistant verification.
 
@@ -313,8 +313,9 @@ local image-file roundtrips from the same Linux host; these serialization checks
 do not exercise filesystem crash persistence.
 
 The test count must agree between the primary runner output and its summary.
-The supplied primary execution and current discovered artifact suite both
-contain 132 passing methods.
+The aggregate and supplied unit-test receipt use the 175-method rerun.
+The historical campaign log retains its own 132-method result; the
+publication's host measurements remain tied to that campaign.
 `run_all.py` shares one 45-minute wall-time
 deadline across all seven stages. The prepared scientific-checks workflow runs
 from this flat artifact root on Ubuntu 24.04 with a 40-minute scientific-command

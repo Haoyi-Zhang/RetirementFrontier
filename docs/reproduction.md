@@ -1,10 +1,13 @@
 # Reproduction and observation provenance
 
 The supplied primary results come from a completed seven-stage run on Ubuntu
-24.04 with Python 3.12 and Z3. `results/campaign-run.json` records each executed
-stage; `results/pilots/unit-tests.json` records 132 passing methods and no skips.
-The census, retained variants, fallback, scaling, public-byte rows, and derived
-summary belong to that same run.
+24.04 with Python 3.12 and Z3. `results/campaign-run.json` records that
+execution, including its 132 passing unit methods. The current full rerun
+reproduced the scientific rows after excluding the documented host-dependent
+measurements. The distributed census, retained variants, fallback, scaling,
+and public-byte rows retain the original timings. The current unit-test receipt
+and the test-count section of the derived summary record 175 passing methods
+with no skips.
 
 Recovery uses deterministic full-history stratification. The scaling portion
 contains 135 full cuts across all five seeds and 432 proper cuts from seed 20000
