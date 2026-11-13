@@ -34,7 +34,8 @@ def draw(width, values):
     span=(right-left-gap)/2
     if span<137:
         raise ValueError('Ratio plot is too narrow')
-    panels=(('slots','Logical slots',left),('bytes_after_checkpoint','Retained files',left+span+gap))
+    panels=(('slots','Logical slot count',left),
+            ('bytes_after_checkpoint','Retained bytes',left+span+gap))
     def marker(x,y,mode):
         colour=v.BLUE if mode=='DELETE' else v.SLATE
         c.setStrokeColorRGB(*colour)

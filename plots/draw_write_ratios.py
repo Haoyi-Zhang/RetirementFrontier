@@ -235,11 +235,12 @@ def draw(width):
         centre=left+(i+.5)*step
         text(c,centre,11,row['family'],LABEL)
         for j,(key,colour) in enumerate(zip(keys,colours)):
-            value=float(Decimal(row[key]))
+            ratio=Decimal(row[key])
+            value=float(ratio)
             x=centre+(j-1)*27
             y=position(value)
             policy_bar(c,x-8,base,16,y-base,colour,hatched=(j==1))
-            label=f'{value:.2f}'
+            label=f'{ratio:.3f}'
             bw=pdfmetrics.stringWidth(label,FONT,TICK)
             c.setFillColorRGB(1,1,1)
             c.rect(x-bw/2-.7,y+3,bw+1.4,TICK,stroke=0,fill=1)

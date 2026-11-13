@@ -17,6 +17,9 @@ METHODS = (
     ('pair', 'Pair analysis', v.SLATE, 'triangle'),
     ('frontier', 'Frontier + certificate', v.BLUE, 'circle'),
 )
+# Draw the outer markers first. An open diamond/square and an open
+# triangle/solid circle remain distinguishable at coincident coordinates.
+MARK_ORDER = ('consumer', 'pair', 'admission', 'frontier')
 
 
 def series():
@@ -30,13 +33,13 @@ def mark(c, x, y, kind, color):
     c.setStrokeColorRGB(*color)
     c.setFillColorRGB(*(color if kind=='circle' else (1,1,1)))
     if kind == 'circle':
-        c.circle(x,y,2.45,fill=1,stroke=0)
+        c.circle(x,y,1.55,fill=1,stroke=0)
     elif kind == 'square':
-        c.rect(x-2.2,y-2.2,4.4,4.4,fill=1,stroke=1)
+        c.rect(x-1.65,y-1.65,3.3,3.3,fill=0,stroke=1)
     else:
         d = c.beginPath()
-        points = [(0,3.8),(-3.8,-2.9),(3.8,-2.9)] if kind == 'triangle' else [
-            (0,3),(-3,0),(0,-3),(3,0)]
+        points = [(0,5.2),(-5.1,-4.3),(5.1,-4.3)] if kind == 'triangle' else [
+            (0,4.9),(-4.9,0),(0,-4.9),(4.9,0)]
         d.moveTo(x+points[0][0],y+points[0][1])
         for dx,dy in points[1:]:
             d.lineTo(x+dx,y+dy)
@@ -80,6 +83,7 @@ def draw(width, cells):
         mark(c,key_x+8.5,181,method[3],method[2])
         v.text(c,key_x+22,177.8,method[1],v.TICK,'left')
         key_x+=key_width+key_gap
+    marker_styles = {key:(colour,shape) for key,_,colour,shape in METHODS}
     for i,family in enumerate(('shared','unique','churn')):
         l=left+i*(panel+gap)
         v.text(c,l+panel/2,155,family.capitalize(),v.LABEL)
@@ -96,10 +100,10 @@ def draw(width, cells):
         if not i:
             c.line(l,bottom,l,top)
         counts=(32,128,512)
-        offsets=(-8.,-2.7,2.7,8.)
-        for offset,(key,_,colour,shape) in zip(offsets,METHODS):
-            points=[(l+(j+.5)*panel/3+offset,ypos(cells[family,count][key+'_ms']))
-                    for j,count in enumerate(counts)]
+        x_at={count:l+(j+.5)*panel/3 for j,count in enumerate(counts)}
+        for key,_,colour,_ in METHODS:
+            points=[(x_at[count],ypos(cells[family,count][key+'_ms']))
+                    for count in counts]
             path=c.beginPath()
             path.moveTo(*points[0])
             for point in points[1:]:
@@ -110,15 +114,13 @@ def draw(width, cells):
                 c.setDash(2,1.65)
             c.drawPath(path)
             c.setDash()
-        for j,count in enumerate(counts):
-            x=l+(j+.5)*panel/3
+        for count,x in x_at.items():
             v.text(c,x,19,str(count),v.TICK)
-            # The mark order matches the legend. The four positions within
-            # each category are distinct even when two medians are equal.
-            for offset,(key,_,colour,shape) in zip(offsets,METHODS):
+            for key in MARK_ORDER:
+                colour,shape=marker_styles[key]
                 y=ypos(cells[family,count][key+'_ms'])
-                c.setLineWidth(1.08)
-                mark(c,x+offset,y,shape,colour)
+                c.setLineWidth(.86)
+                mark(c,x,y,shape,colour)
     v.text(c,(left+right)/2,4,'Client operations',v.LABEL)
     c.saveState()
     c.translate(11,(bottom+top)/2)
