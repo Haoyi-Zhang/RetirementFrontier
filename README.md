@@ -432,8 +432,10 @@ input file and the manuscript's actual TeX column width.
 
 The nine manuscript figures are assembled in Python. The opening diagram
 reads the native checkpoint file sets and the staged-restore receipt. Its
-arrows link each checkpoint to the SSTs it needs, and its lower panel
-compares two retention policies under the same selected checkpoint.
+arrows link each checkpoint to the SSTs it needs. Its lower panel aligns
+each retained file with those references and shows which checkpoint can
+reopen under each displayed policy. The renderer checks all eight
+policy/selection outcomes and the reclaimed bytes against the receipts.
 The separate range-compaction listing reads the decoded native edit used
 in the durability projection. The renderer checks label clearance, node
 padding, and connector geometry.
