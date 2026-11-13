@@ -170,6 +170,17 @@ internal RocksDB MANIFEST error.
 
 ## Publication handoff with real transactions
 
+The transaction-scope control uses the same merge and split fixtures,
+metadata updates, retirement set and publisher exit points for two
+payload representations. The in-transaction arm retires BLOB rows;
+the external arm unlinks and synchronizes application-owned files.
+Reopening after each of the 16 executions checks the catalog, the
+selected layout, every remaining segment and exact object bytes. In
+each journal mode and layout, rollback restores the rows but not the
+files. Both representations recover after commit. This is a logical
+retirement comparison, not a claim about physical page reclamation or
+an interruption inside SQLite's commit implementation.
+
 The transaction changes the catalog's selector and manifest together.
 Filesystem cleanup acts on application-owned files outside that transaction.
 The companion transaction-boundary control applies each of three policies
