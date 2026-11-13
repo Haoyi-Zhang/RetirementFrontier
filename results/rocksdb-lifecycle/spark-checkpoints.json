@@ -1,0 +1,769 @@
+{
+  "cases": [
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 0,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {},
+          "rows": [],
+          "sequence": "0",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {},
+          "rows": [],
+          "sequence": "0",
+          "status": "ok"
+        }
+      },
+      "workload": "agg"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [
+            "000015-97d0e283-eed7-4af0-87d9-eded3afe15ca.sst"
+          ],
+          "policy": "early",
+          "status": "open-failed",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 1,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000300000000000000",
+              "0000000000000000000200000000000000"
+            ]
+          ],
+          "sequence": "2",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049,
+            "000015.sst": 1068
+          },
+          "rows": [
+            [
+              "0000000000000000000300000000000000",
+              "0000000000000000000300000000000000"
+            ],
+            [
+              "0000000000000000000500000000000000",
+              "0000000000000000000200000000000000"
+            ]
+          ],
+          "sequence": "5",
+          "status": "ok"
+        }
+      },
+      "workload": "agg"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [
+            "000015-1e8225d7-793e-47df-aec6-fb47522e2494.sst"
+          ],
+          "policy": "early",
+          "status": "open-failed",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 2,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000400000000000000",
+              "0000000000000000000100000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049,
+            "000015.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000400000000000000",
+              "0000000000000000000300000000000000"
+            ]
+          ],
+          "sequence": "3",
+          "status": "ok"
+        }
+      },
+      "workload": "agg"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 3,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1048
+          },
+          "rows": [
+            [
+              "0000000000000000000100000000000000",
+              "0000000000000000000100000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1048
+          },
+          "rows": [
+            [
+              "0000000000000000000100000000000000",
+              "0000000000000000000100000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        }
+      },
+      "workload": "agg"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [
+            "000015-074aa977-f8df-4b58-8143-c5c4691cdb9a.sst"
+          ],
+          "policy": "early",
+          "status": "open-failed",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 4,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1048
+          },
+          "rows": [
+            [
+              "0000000000000000000200000000000000",
+              "0000000000000000000200000000000000"
+            ]
+          ],
+          "sequence": "2",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1048,
+            "000015.sst": 1052
+          },
+          "rows": [
+            [
+              "0000000000000000000200000000000000",
+              "0000000000000000000200000000000000"
+            ],
+            [
+              "0000000000000000000600000000000000",
+              "0000000000000000000100000000000000"
+            ]
+          ],
+          "sequence": "3",
+          "status": "ok"
+        }
+      },
+      "workload": "agg"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 0,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {},
+          "rows": [],
+          "sequence": "0",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {},
+          "rows": [],
+          "sequence": "0",
+          "status": "ok"
+        }
+      },
+      "workload": "dedup"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [
+            "000009-5669c494-2412-46c4-96ef-1bb9ab6b2710.sst"
+          ],
+          "policy": "early",
+          "status": "open-failed",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 1,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000300000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049,
+            "000009.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000300000000000000",
+              "0001000000000000000000000000000000"
+            ],
+            [
+              "0000000000000000000500000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "2",
+          "status": "ok"
+        }
+      },
+      "workload": "dedup"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 2,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000400000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000400000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        }
+      },
+      "workload": "dedup"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 3,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1048
+          },
+          "rows": [
+            [
+              "0000000000000000000100000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1048
+          },
+          "rows": [
+            [
+              "0000000000000000000100000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        }
+      },
+      "workload": "dedup"
+    },
+    {
+      "comparisons": [
+        {
+          "missing": [],
+          "policy": "early",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 2
+        },
+        {
+          "missing": [
+            "000009-0d1befcf-847e-43a5-b354-a4d11afeaaba.sst"
+          ],
+          "policy": "early",
+          "status": "open-failed",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "late",
+          "status": "ok",
+          "view": 4
+        },
+        {
+          "missing": [],
+          "policy": "union",
+          "status": "ok",
+          "view": 4
+        }
+      ],
+      "partition": 4,
+      "states": {
+        "2": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000200000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "1",
+          "status": "ok"
+        },
+        "4": {
+          "engine": "8.9.1",
+          "files": {
+            "000008.sst": 1049,
+            "000009.sst": 1049
+          },
+          "rows": [
+            [
+              "0000000000000000000200000000000000",
+              "0001000000000000000000000000000000"
+            ],
+            [
+              "0000000000000000000600000000000000",
+              "0001000000000000000000000000000000"
+            ]
+          ],
+          "sequence": "2",
+          "status": "ok"
+        }
+      },
+      "workload": "dedup"
+    }
+  ],
+  "input_files": {
+    "LICENSE": "c2adf48f12e044a7755b0a12d6c9679b394d3e345934cd668db7c13a9eb22ff1",
+    "NOTICE": "9346e8e0a1e21cb45ac792b75ca4d3adfd858bc57dd6627e47714c761e917a0d",
+    "agg/commits/1": "e03ead7f1597d288754d29e9b5a074314bc908309db0ead6f6768071d41c41a7",
+    "agg/commits/3": "e03ead7f1597d288754d29e9b5a074314bc908309db0ead6f6768071d41c41a7",
+    "agg/state/0/0/2.zip": "db57c7e1d941582d66025685cf168121325fec28a6cdfe2ccee766366d2c2937",
+    "agg/state/0/0/4.zip": "dce7a81969b3ba64aa98b3588f768f91da0d37d9487a2f243c54d5d4b171970c",
+    "agg/state/0/1/2.zip": "9ccebfb92db0a7f2e964cf2693402d671d8db5c19b9b5aa00fbac0b547487401",
+    "agg/state/0/1/4.zip": "17d86b7342b01d598c1cd1776e9bf6a2bd84f84ef479318bf79db13c9fa1c829",
+    "agg/state/0/1/SSTs/000008-e414df11-1a90-4be8-807c-8d6f970b5f56.sst": "38e60050559908c28d03ff6f2641429d5bbea01d433efbad017f844777ecafbd",
+    "agg/state/0/1/SSTs/000015-97d0e283-eed7-4af0-87d9-eded3afe15ca.sst": "81589a45f1bc16179500525fa7b76da3b3a5a782309e80ff45e1ab3514960f1f",
+    "agg/state/0/2/2.zip": "5d7b4c7e5dc6e5807e4259d103256ada4d0da5abf5dfc47ff933d4131b680de4",
+    "agg/state/0/2/4.zip": "406c8136a9211cb1a773f0a79721d4565a2c41501d133dcebc62b0beb2b4f359",
+    "agg/state/0/2/SSTs/000008-d6862a4a-f10f-4641-ba89-0ea25cd816b0.sst": "b0f1a625e2ff26e97387751893c9ba97fecd98c5bd188757628fbacb6ce5a9b5",
+    "agg/state/0/2/SSTs/000015-1e8225d7-793e-47df-aec6-fb47522e2494.sst": "9b878e2ce2fb31fefbe20568add425b33058b92aa57668e65f6b2a75b17c0aa8",
+    "agg/state/0/3/2.zip": "cb93d9b65177e7e136a09437d7e86b937334371a44b8f6c8ed999c235c5af3e6",
+    "agg/state/0/3/4.zip": "b4dd8c6a5454bd5ab5debe8478e571a06eb9b0052878c1f751fccdf13341924a",
+    "agg/state/0/3/SSTs/000008-637e442e-feb6-4022-a0b1-919d388073ae.sst": "3f030eb96efeed700cbbce5dc64b03ce1688c3afdd27da8898784e766ffa1db9",
+    "agg/state/0/4/2.zip": "d7c4dccff5e9d131fb8b3832fd324b42f9c7df531ee1d3c1a76653c7a3972c2f",
+    "agg/state/0/4/4.zip": "2903ba7b6da053bbd5e2af95fc8e7d92021992cf87d4133e921a7263ef5dd849",
+    "agg/state/0/4/SSTs/000008-0f086ebd-c188-4508-97d3-9282313b0a97.sst": "e900af8148b70126b95b0af6b43ddc8af1fd20a386eb2d4381c65e0caaf64946",
+    "agg/state/0/4/SSTs/000015-074aa977-f8df-4b58-8143-c5c4691cdb9a.sst": "89a8ec0db13dcaa6502e9afb5170278abac21f2cbbbf2b5999c277fc96c75b96",
+    "dedup/commits/1": "e03ead7f1597d288754d29e9b5a074314bc908309db0ead6f6768071d41c41a7",
+    "dedup/commits/3": "e03ead7f1597d288754d29e9b5a074314bc908309db0ead6f6768071d41c41a7",
+    "dedup/state/0/0/2.zip": "e4e3e2103c04a5313affeef1dc0aef7c6916c2d99ddb65f487f8f779008c5c83",
+    "dedup/state/0/0/4.zip": "1cac07bffec7b01e644472496f3570d2f67fd402109e3899ebfdcf81918dde42",
+    "dedup/state/0/1/2.zip": "395f8a19553dc6fc6991c7589e39b3a4ad4a91b544cde49ecdd5368632da617c",
+    "dedup/state/0/1/4.zip": "4b4d16a89cf55b01ea7a54f1a107fd6364f48464c09c1ee3516184f6caa05bc4",
+    "dedup/state/0/1/SSTs/000008-3073b336-661b-4d30-984d-427402150d37.sst": "93d424535ae1a91ecf61fafecfebfa3da9f5e6ea364d4e5018ddd635c0cee8ae",
+    "dedup/state/0/1/SSTs/000009-5669c494-2412-46c4-96ef-1bb9ab6b2710.sst": "e422f700e6c1c163a2801f5b7ee0447e02ca9974f2dc0e6178a613a5e9916f63",
+    "dedup/state/0/2/2.zip": "bfcb197df16b95fff90a7d0f9ec15d9603d7421fe9a721a91e66f5f3ace250c5",
+    "dedup/state/0/2/4.zip": "22c5b5907b3f91634048fe9eebd298b21eedaa9d97e33f10940d2685436ee24b",
+    "dedup/state/0/2/SSTs/000008-90e6688f-83a0-4917-ae32-9e107c002bcc.sst": "1c7ad26b5c7ce7b1935c84da0c199cb9159cd7e80ca391f354c4c9cbcfa8f260",
+    "dedup/state/0/3/2.zip": "fb923d06948fb6075df308583b4a65c97f0d6c79b904155839af07a4b28930bb",
+    "dedup/state/0/3/4.zip": "e778072b3efc3d424dc95a82c0b75076d1d4ee3bd0991a64ba159f4c698564c3",
+    "dedup/state/0/3/SSTs/000008-e115799d-89cb-4f4d-8e58-fe104d382c80.sst": "fceab8230e5ef5bd32182ee2665e1cb21c5f07b29c54eee2d81e2bc15f2b980f",
+    "dedup/state/0/4/2.zip": "9664299db85549b6fbe3c257f675c1c3ab3a53a39727343acb88a450d1751c03",
+    "dedup/state/0/4/4.zip": "c3b870245129cf0a490792608d39e62176202a045f80aba3749c24e6bb0ce202",
+    "dedup/state/0/4/SSTs/000008-5f249adf-c98e-46a3-8217-e39a4360b624.sst": "32995e8e9ebd29947b56175a65763c12777bdaade8ac46b416f1975642c10e94",
+    "dedup/state/0/4/SSTs/000009-0d1befcf-847e-43a5-b354-a4d11afeaaba.sst": "4a6a9a27b3260633ef7291493a50da73483acaa62b57135c9a134f152805174f"
+  },
+  "source_revision": "29434ea766b0fc3c3bf6eaadb43a8f931133649e"
+}

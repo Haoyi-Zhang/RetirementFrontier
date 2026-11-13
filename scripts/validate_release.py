@@ -29,6 +29,9 @@ from publication_handoff import checked as check_handoff, RECEIPT as HANDOFF_REC
 from reader_pins import checked as check_pins, RECEIPT as PIN_RECEIPT
 from combined_reclamation import checked as check_combined, RECEIPT as COMBINED_RECEIPT
 from restart_reclamation import checked as check_restart, RECEIPT as RESTART_RECEIPT
+from spark_checkpoint_validation import (
+    FIXTURE as SPARK_FIXTURE, RECEIPT as SPARK_RECEIPT, load as load_spark, summarize as check_spark,
+)
 
 HOST_FIELDS=frozenset({
     'wall_seconds','cpu_seconds','max_rss_kib','producer_cpu_seconds',
@@ -80,7 +83,10 @@ def package_hygiene(root:Path):
         for name in files:
             p=here/name
             if p.suffix in {'.pyc','.zip','.aux','.bbl','.blg','.log','.out','.toc'}:
-                errors.append('disposable or nested file '+p.relative_to(root).as_posix())
+                # This one archive is an original-input corpus checked below,
+                # not a second copy of the artifact or arbitrary nested output.
+                if p.relative_to(root) != SPARK_FIXTURE.relative_to(ROOT):
+                    errors.append('disposable or nested file '+p.relative_to(root).as_posix())
     return errors
 
 def validate(compare:Path|None=None):
@@ -96,6 +102,7 @@ def validate(compare:Path|None=None):
         check_pins(loads(PIN_RECEIPT.read_text(encoding='utf-8')))
         check_combined(loads(COMBINED_RECEIPT.read_text(encoding='utf-8')))
         check_restart(loads(RESTART_RECEIPT.read_text(encoding='utf-8')))
+        check_spark(loads(SPARK_RECEIPT.read_text(encoding='utf-8')), load_spark())
     except (KeyError, OSError, ValueError) as error:
         errors.append(f'Native lifecycle evidence: {error}')
     comparisons=[]

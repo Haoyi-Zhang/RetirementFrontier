@@ -54,6 +54,37 @@
    files over retaining that entire catalog. The runs do not prove the two
    snapshots are exhaustive or even simultaneous crash candidates.
 
+## Independent Spark checkpoint files
+
+The artifact includes a small selection from the
+[Apache Spark compatibility corpus](https://github.com/apache/spark/tree/29434ea766b0fc3c3bf6eaadb43a8f931133649e/sql/core/src/test/resources/structured-streaming/checkpoint-version-4.0.0/rocksdb).
+It covers the aggregation and deduplication jobs, all five partitions of
+each job, and both stored state snapshots (2 and 4). The corresponding
+Spark batch-completion records are 1 and 3. This is a selection of
+unchanged source files, repackaged with Spark's original LICENSE and
+NOTICE inside the input archive. No new upstream checkpoint was created.
+
+Run `python -B scripts/spark_checkpoint_validation.py --verify` with a
+C++ compiler and the pinned RocksDB development library to reproduce
+the native results offline. `--verify-source` independently downloads
+the same selection and compares every original member. The reader
+assembles temporary copies using Spark's remote-to-local SST mapping,
+keeps the archived native metadata unchanged and opens RocksDB read-only.
+Intact native scans must agree with Spark's recorded key counts and
+referenced SST sizes; each successful retained-file trial must match
+the corresponding intact scan byte for byte, at the same sequence.
+The three policies differ only in which original SSTs they supply.
+
+All 20 intact snapshots opened. Earlier-only retention recovered
+15/20 views, later-only 20/20, and the union 20/20. Five later views
+needed an additional SST and could not open under earlier-only retention.
+Every earlier table in this corpus survived in the later file set.
+The two jobs are the workload units; the partitions and retention
+trials are not independent workloads. The observation complements
+the controlled compaction and production-request replay: these
+snapshots are real upstream compatibility artifacts, not production
+captures, observed deletion events, or a rerun of the Spark queries.
+
 ## From native edits to a checkable obligation
 
 The same writer captures the complete manifest at two successful I/O

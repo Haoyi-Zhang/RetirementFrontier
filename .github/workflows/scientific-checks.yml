@@ -76,6 +76,10 @@ jobs:
         run: |
           python -B scripts/run_tests.py --pattern test_external_checkpoint_replay.py
           timeout --signal=TERM --kill-after=15s 300s python -B scripts/external_checkpoint_replay.py --run
+      - name: Verify archived Apache Spark RocksDB checkpoints
+        run: |
+          python -B scripts/run_tests.py --pattern test_spark_checkpoints.py
+          timeout --signal=TERM --kill-after=15s 300s python -B scripts/spark_checkpoint_validation.py --verify
       - name: Replay the publication handoff on SQLite and real files
         shell: bash
         run: |
