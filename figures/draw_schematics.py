@@ -249,20 +249,22 @@ def motivation(out):
         raise ValueError('Native overview does not match the guard or failure evidence')
 
     missing, = bad['missing']
-    if missing not in previous - current or f'retire:{missing}' not in bad['cut']:
+    if (missing not in previous - current or f'retire:{missing}' not in bad['cut']
+            or not {f'available:{name}' for name in previous} <= set(bad['cut'])
+            or any(f'retire:{name}' in bad['cut'] for name in previous - {missing})):
         raise ValueError('The projected bad cut must retire an old-only table')
     d = Figure(out, 'reuse-cut', 278)
     d.label(15, 15, '(a) Observed MANIFEST references', 12, 'left')
-    d.label(414, 15, f'Client sequence: {before["sequence"]} in both views', 10.2, 'right', MUTED)
-    d.art('metadata-symbols','manifest',16,45,18,22)
-    d.label(44, 55, 'Before edit', 11.3, 'left')
-    d.art('metadata-symbols','manifest',16,119,18,22)
-    d.label(44, 130, 'After edit', 11.3, 'left', BLUE)
-    d.label(104, 92, 'SST files', 10.3, 'right', MUTED)
+    d.label(414, 15, f'Client sequence: {before["sequence"]} in both views', 10.4, 'right', MUTED)
+    d.art('metadata-symbols','manifest',16,36,19,23)
+    d.label(43, 47, 'Before edit', 11.5, 'left')
+    d.art('metadata-symbols','manifest',16,104,19,23)
+    d.label(43, 115, 'After edit', 11.5, 'left', BLUE)
+    d.label(102, 81, 'SST files', 10.4, 'right', MUTED)
     names = sorted(previous - current) + sorted(previous & current) + sorted(current - previous)
-    columns = (151, 210, 269, 328, 387)
+    columns = (157, 214, 271, 328, 385)
     positions = dict(zip(names, columns, strict=True))
-    for files, y, port, color in ((previous,55,82,INK), (current,130,102,BLUE)):
+    for files, y, port, color in ((previous,47,70,INK), (current,115,92,BLUE)):
         targets = sorted(positions[name] for name in files)
         d.line((112,y),(targets[-1],y),colour=color,weight=.84)
         for x in targets:
@@ -272,20 +274,31 @@ def motivation(out):
     for x, name in zip(columns, names, strict=True):
         edge=BLUE if name in current else INK
         fill=PALE_BLUE if name in previous & current else PAPER
-        d.node(name,x,92,34,20,number(name),edge,fill,radius=0)
-    d.label(328,147,'Shared SST',10.1,colour=BLUE)
-    d.label(15, 170, f'(b) Projected recovery if SST {number(missing)} is retired', 12, 'left')
-    d.label(15, 199, 'No retirement edge', 10.6, 'left', RUST)
-    d.label(184, 199, 'Old root still selectable', 11)
-    d.line((243,199),(268,199),colour=RUST,dashed=True,arrow=True)
-    d.cross(277,199)
-    d.label(292, 199, f'SST {number(missing)} missing', 11, 'left', RUST)
-    d.label(15, 233, 'Guarded retirement', 10.6, 'left', BLUE)
-    d.label(184, 233, 'Unlink forces new root', 11, colour=BLUE)
-    d.line((243,233),(268,233),colour=BLUE,arrow=True)
-    d.ring(277,233,BLUE,4.2)
-    d.label(292, 233, f'SSTs {" and ".join(map(number, sorted(current)))} present', 11, 'left', BLUE)
-    d.label(184, 256, 'Last user < forced root', 10.6, colour=MUTED)
+        d.node(name,x,81,34,22,number(name),edge,fill,radius=0)
+    d.label(328,132,'Shared SST',10.5,colour=BLUE)
+    d.label(15, 155, f'(b) Projected recovery when SST {number(missing)} is unlinked', 12, 'left')
+    for names_in_root, tag, subtitle, y, colour in (
+            (previous, 'No retirement edge', 'Old root selectable', 201, RUST),
+            (current, 'Retirement edge', 'New root forced', 246, BLUE)):
+        d.label(15,y-7,tag,11.4,'left',colour)
+        d.label(15,y+8,subtitle,10.5,'left',MUTED)
+        active = sorted(positions[name] for name in names_in_root)
+        d.line((120,y-7),(129,y-7),(129,y-19),(active[-1],y-19),
+               colour=colour,weight=.8)
+        for name in names_in_root:
+            x=positions[name]
+            lost=name==missing and colour==RUST
+            d.line((x,y-19),(x,y-12),colour=colour,weight=.85,dashed=lost)
+            if x != active[-1]:
+                d.dot(x,y-19,colour,1.6)
+            d.node(f'{tag}:{name}',x,y,34,22,number(name),
+                   RUST if lost else INK if colour==RUST else BLUE,
+                   PALE_BLUE if name in previous & current else PAPER,
+                   dashed=lost,radius=0)
+            if lost:
+                d.cross(x+26,y-10)
+                d.label(x,y+19,'Missing',10.4,colour=RUST)
+    d.label(356,268,'Referenced SSTs present',10.6,colour=BLUE)
     d.save()
 
 
@@ -360,17 +373,17 @@ def minimum_witness(out):
             raise ValueError('Expected a surviving manifest and an unreadable shared chunk')
 
     d = Figure(out, 'minimum-witness', 126)
-    d.label(14, 20, 'Durable events', 11.5, 'left')
-    columns = (147, 181, 215, 249, 283, 317)
+    d.label(12, 20, 'Durable events', 11.5, 'left')
+    columns = (110, 145, 177, 211, 244, 271)
     for i, x, name in zip(event_ids,columns,names,strict=True):
         d.label(x, 15, str(i), 11.7)
-        d.label(x, 31, name, 10.1, colour=RUST if i == 5 else MUTED)
-    d.line((132, 43), (329, 43), colour=RULE, weight=.75)
+        d.label(x, 31, name, 9.6, colour=RUST if i == 5 else MUTED)
+    d.line((98, 43), (280, 43), colour=RULE, weight=.75)
 
-    rows = ((f'Frontier cut ({len(evidence["frontier_cut"])} events)', evidence['frontier_cut'], 61),
-            (f'Minimum cut ({len(evidence["minimum_cut"])} events)', evidence['minimum_cut'], 88))
+    rows = ((f'Frontier cut ({len(evidence["frontier_cut"])})', evidence['frontier_cut'], 61),
+            (f'Minimum cut ({len(evidence["minimum_cut"])})', evidence['minimum_cut'], 88))
     for (name, cut, y), selected in zip(rows, evidence['selected_roots'], strict=True):
-        d.label(14, y, name, 11.1, 'left')
+        d.label(12, y, name, 11.1, 'left')
         for i, x in enumerate(columns):
             if i == selected:
                 d.ring(x, y, BLUE, 4.7)
@@ -380,19 +393,26 @@ def minimum_witness(out):
                 d.dot(x, y, INK, 3.3)
             else:
                 d.line((x-3.1, y), (x+3.1, y), colour=MUTED, weight=.9)
-    # Both legal cuts retain the same free. The outcome is a read failure
-    # at the chunk, not an absent allocation event or missing manifest.
-    d.line((323,61),(341,61),(341,88),(323,88),colour=RUST)
-    d.dot(341,74.5,RUST,1.9)
-    d.line((341,74.5),(359,74.5),colour=RUST,arrow=True)
-    d.label(366,74.5,'Shared chunk\nunreadable',10.7,'left',RUST)
-
-    d.ring(122, 113, BLUE, 4.7)
-    d.label(134, 113, 'Selected root', 10.4, 'left')
-    d.dot(218, 113, INK, 3.3)
-    d.label(229, 113, 'Other durable event', 10.4, 'left')
-    d.line((328, 113), (334, 113), colour=MUTED, weight=.9)
-    d.label(341, 113, 'Not durable', 10.4, 'left')
+    # The side panel shows recovery references, not extra durable events.
+    d.label(351,20,'Recovery reads',11.5)
+    d.label(345,40,'Manifest',10.1,colour=MUTED)
+    d.label(397,40,'Shared chunk',10.4,colour=RUST)
+    for (_,_,y),root in zip(rows,evidence['selected_roots'],strict=True):
+        manifest_event = next(i for i in model.events[root]['deps']
+                              if model.events[i].get('role') == 'manifest')
+        d.label(296,y,f'Root {root}',10.7,colour=BLUE)
+        d.line((315,y),(329,y),arrow=True,colour=BLUE)
+        d.node(f'read-{root}',345,y,23,21,str(manifest_event),BLUE,PALE_BLUE,radius=0)
+        d.line((359,y),(375,y),(375,74.5),colour=RUST,dashed=True)
+    d.line((375,74.5),(389,74.5),colour=RUST,dashed=True)
+    d.cross(396,74.5)
+    d.label(396,96,'Freed by 5',10.3,colour=RUST)
+    d.ring(109,113,BLUE,4.7)
+    d.label(121,113,'Selected root',10.4,'left')
+    d.dot(205,113,INK,3.3)
+    d.label(216,113,'Durable',10.4,'left')
+    d.line((278,113),(284,113),colour=MUTED,weight=.9)
+    d.label(291,113,'Not durable',10.4,'left')
     d.save()
 
 
