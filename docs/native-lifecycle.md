@@ -9,6 +9,13 @@
    allowed reopen. The public report does not provide the active MANIFEST
    and its selection record at the failed reopen, so it does not identify
    the edit history or deletion path responsible for the missing table.
+   The deletion text and structured deletion events agree on four table
+   numbers; 48510 is the only one named in the displayed reopen error.
+   In a separate [operator report (#6430)](https://github.com/meta/rocksdb/issues/6430),
+   CURRENT and its selected MANIFEST stopped updating while compaction
+   continued and removed referenced tables. Restart then reported missing
+   files. This describes a distinct observation, not the cause of #9419.
+   Neither report is an experiment in this artifact.
 2. **Documented engine mechanism.** The RocksDB maintainers document that an
    unsuccessful return from MANIFEST write or sync did not identify which
    version edit would replay. Deleting new SSTs while that edit could still
