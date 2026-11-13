@@ -18,6 +18,17 @@
    is [already in the upstream release named by the reporter](https://github.com/meta/rocksdb/compare/e66199d848cd484b816d07359f1dc0f0b99e5351...v6.15.5).
    It establishes a maintenance failure mode, not the root cause of #9419
    or a defect in a current release.
+   Independently, [FLINK-25872](https://issues.apache.org/jira/browse/FLINK-25872)
+   records an ownership-transition bug: a subsumed checkpoint's
+   materialized state could still be needed by a newer checkpoint.
+   [The maintainer fix](https://github.com/apache/flink/commit/798d83a0fb4b5faa16cb57c93eebb88093613fbc)
+   makes cleanup account for inherited handles. The
+   [Flink 2.0 paper](https://www.vldb.org/pvldb/vol18/p4846-mei.pdf),
+   Section 5.2, describes the analogous lifetime guarantee at a different
+   boundary: ForSt delegates physical reclamation to its filesystem, which
+   counts links from checkpoint and working state. These are external
+   documentary sources, not extra replay cases or evidence that the
+   retirement-frontier implementation is integrated into Flink.
 3. **Native observations.** The observer uses only ordinary operations on
    fresh temporary databases. Four synchronized atomic batches over partially
    overlapping key ranges create the pre-compaction table set. The complete
