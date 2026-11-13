@@ -264,8 +264,8 @@ def motivation(out):
     after_only, = current-previous
     names = [*before_only,shared,after_only]
     positions = dict(zip(names,(123,174,225,276),strict=True))
-    d = Figure(out, 'reuse-cut', 236)
-    d.label(18,13,'(a) References before and after compaction',11.8,'left')
+    d = Figure(out, 'reuse-cut', 248)
+    d.label(18,13,'(a) Checkpoint references across compaction',11.8,'left')
     d.label(412,13,f'Client sequence {native["sequence"]}',10.5,'right',MUTED)
     d.node('before-view',144,47,116,22,'Before MANIFEST',MUTED,PAPER,radius=1.6)
     d.node('after-view',310,47,115,22,'After MANIFEST',BLUE,PAPER,radius=1.6)
@@ -282,12 +282,13 @@ def motivation(out):
                BLUE if name==shared else MUTED,PALE_BLUE if name==shared else PAPER,radius=0)
     d.label(225,115,'Shared',10.4,colour=BLUE)
 
-    d.label(18,136,'(b) Restore with the retained tables',11.8,'left')
-    d.label(18,155,'Retain',10.6,'left',MUTED)
-    d.label(340,155,'Before',10.6,colour=MUTED)
-    d.label(395,155,'After',10.6,colour=MUTED)
+    d.label(18,136,'(b) Retention before checkpoint selection',11.8,'left')
+    d.label(18,155,'Policy',10.6,'left',MUTED)
+    d.label(316,155,'Before',10.6,colour=MUTED)
+    d.label(357,155,'After',10.6,colour=MUTED)
+    d.label(403,155,'Reclaim',10.6,colour=MUTED)
     for y,policy,label in ((173,'keep-before','Before only'),(191,'keep-after','After only'),
-                           (209,'keep-both','Union')):
+                           (209,'keep-both','Union'),(227,'hold-all','Keep all')):
         d.label(18,y,label,11.2,'left')
         for name in names:
             x=positions[name]
@@ -295,13 +296,19 @@ def motivation(out):
                 d.dot(x,y,BLUE,3.4)
             else:
                 d.ring(x,y,MUTED,3.4)
-        for x,view in ((340,'before'),(395,'after')):
-            exact = rows[view,policy]['native_status'] == f'ok:{keys}'
+        exact_by_view = {view: rows[view,policy]['native_status'] == f'ok:{keys}'
+                         for view in needed}
+        for x,view in ((316,'before'),(357,'after')):
+            exact = exact_by_view[view]
             d.label(x,y,'Exact' if exact else 'Fails',10.8,colour=BLUE if exact else RUST)
-    d.dot(123,227,BLUE,3.4)
-    d.label(133,227,'Kept',10.6,'left',MUTED)
-    d.ring(174,227,MUTED,3.4)
-    d.label(184,227,'Omitted',10.6,'left',MUTED)
+        retired = sorted(catalog - retained[policy])
+        d.label(403,y,(', '.join(map(number,retired)) or 'None')
+                if all(exact_by_view.values()) else 'Unsafe',
+                10.5,colour=INK if all(exact_by_view.values()) else RUST)
+    d.dot(123,242,BLUE,3.4)
+    d.label(133,242,'Kept',10.6,'left',MUTED)
+    d.ring(174,242,MUTED,3.4)
+    d.label(184,242,'Omitted',10.6,'left',MUTED)
     d.save()
 
 
