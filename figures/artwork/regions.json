@@ -1,46 +1,26 @@
 {
-  "metadata-symbols": {
-    "manifest": [108, 100, 512, 600],
-    "database": [115, 685, 515, 1183],
-    "records": [602, 737, 1151, 1116]
-  },
-  "storage-symbols": {
-    "root": [
-      142,
-      57,
-      663,
-      494
-    ],
-    "slot": [
-      844,
-      195,
-      1467,
-      373
+  "certificate-glyph": {
+    "packet": [
+      428,
+      280,
+      1112,
+      775
     ]
   },
-  "publication-symbols": {
-    "rail": [
-      84,
-      184,
-      696,
-      399
-    ],
+  "manifest-glyph": {
+    "manifest": [
+      149,
+      155,
+      1109,
+      1116
+    ]
+  },
+  "sqlite-glyph": {
     "database": [
-      197,
-      564,
-      586,
-      991
-    ],
-    "compare": [
-      819,
-      604,
-      1432,
-      953
+      482,
+      211,
+      1055,
+      825
     ]
-  },
-  "evidence-symbols": {
-    "manifest": [211, 63, 558, 507],
-    "packet": [866, 103, 1400, 498],
-    "trace": [804, 705, 1462, 887]
   }
 }
